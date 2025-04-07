@@ -1,9 +1,133 @@
-# NTRN
+# 🚀 next-to-react-native
+
+> Effortlessly convert your **Next.js App Router** project into a **fully functional React Native Expo app** using this zero-config CLI tool.
+
+![version](https://img.shields.io/github/package-json/v/AmeyKuradeAK/ntrn?color=blue) 
+![license](https://img.shields.io/github/license/AmeyKuradeAK/ntrn)
+![stars](https://img.shields.io/github/stars/AmeyKuradeAK)
+
+---
+
+## ✨ Features
+
+- ⚡️ Instantly converts your Next.js `app/` directory to React Native screens
+- 📦 Transforms `layout.tsx` into `App.tsx`
+- 🎯 Handles `page.tsx` and routes into Expo-compatible screens
+- 🧠 Powered by Gemini API for JSX → React Native conversion
+- 🎨 Tailwind CSS support via NativeWind
+- 🗂 Creates React Native standard structure (screens, assets, etc.)
+- 📋 Outputs required dependencies in `requirements.txt`
+
+---
+
+## 📦 Installation
 
 ```bash
-  _   _ _____ ____  _   _ 
- | \ | |_   _|  _ \| \ | |
- |  \| | | | | |_) |  \| |
- | |\  | | | |  _ <| |\  |
- |_| \_| |_| |_| \_\_| \_|
-```                         
+npm install -g next-to-react-native
+```
+
+---
+
+## 🚀 Quick Start
+
+```bash
+ntrn convert
+```
+
+Run this command inside the root of your **Next.js App Router** project.  
+It will generate a complete **Expo React Native app** inside `converted-react-native/`.
+
+---
+
+## 📂 File & Folder Mapping
+
+| From (Next.js)        | To (React Native)           |
+|-----------------------|-----------------------------|
+| `app/layout.tsx`      | `App.tsx`                   |
+| `app/page.tsx`        | `screens/HomeScreen.tsx`    |
+| `public/`             | `assets/`                   |
+| `@/components/*`      | Preserved and reused        |
+
+---
+
+## ⚙️ CLI Options
+
+```bash
+ntrn --help
+```
+
+| Option       | Description                                 |
+|--------------|---------------------------------------------|
+| `--version`  | Show CLI version                            |
+| `--convert`  | Convert `app/` directory to React Native     |
+| `--tailwind` | Enable Tailwind detection (NativeWind auto) |
+
+---
+
+## 📸 Terminal Demo
+
+![demo](./demo.gif)
+
+---
+
+## 🧠 Powered By
+
+- [Gemini API](https://ai.google.dev/)
+- [Expo](https://expo.dev/)
+- [NativeWind](https://www.nativewind.dev/)
+- [React Native](https://reactnative.dev/)
+- Built with ❤️ for developers
+
+---
+
+## 🧪 Roadmap
+
+- [ ] Automatic dependency installation (optional)
+- [ ] Tailwind class converter (full support)
+- [ ] CLI config file support
+- [ ] Auto-detect `pages/` routing fallback
+- [ ] Dark mode README and Docs
+
+---
+
+## 🤝 Contributing
+
+We love contributions!  
+Please check out our [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
+
+You can:
+- Open issues 🐛
+- Suggest new features 🌟
+- Improve the CLI or documentation 🛠
+
+---
+
+## 🌍 Community
+
+Join discussions, ask questions, and share ideas:
+
+- [GitHub Discussions](https://github.com/your-org/next-to-react-native/discussions)
+- [Twitter](https://twitter.com/) (mention us!)
+- [Reddit](https://reddit.com/r/reactnative/)
+
+---
+
+## 📫 Stay in Touch
+
+If you like this project, show some ❤️
+
+- ⭐ Star the repo  
+- 🐦 Tweet about it  
+- 📢 Share with your team  
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.  
+Do whatever you want, just give credit.
+
+---
+
+## Made with 💙 by [Ammey Kuraaday]
+                        
