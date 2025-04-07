@@ -1,10 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import {
-  callGeminiAPI,
-  updatePackageJson, // Updated import
-} from './utils/geminiClient.js'; // Adjust path if needed
+import { callGeminiAPI } from './utils/geminiClient.js';
 
 export async function convertPagesToScreens(nextAppPath, rnProjectPath) {
   const appDir = path.join(nextAppPath, 'app');
@@ -23,9 +20,9 @@ export async function convertPagesToScreens(nextAppPath, rnProjectPath) {
 
   console.log(chalk.cyan('\n🔄 Converting app/ pages into React Native screens...'));
 
-  let allDependencies = {};
+  const allDependencies = new Set();
 
-  // Convert layout.tsx to App.tsx
+  // Convert layout.tsx → App.tsx
   if (fs.existsSync(layoutPath)) {
     const layoutContent = await fs.readFile(layoutPath, 'utf-8');
     console.log(chalk.cyan('🧠 Converting layout.tsx to App.tsx...'));
@@ -34,12 +31,12 @@ export async function convertPagesToScreens(nextAppPath, rnProjectPath) {
     await fs.writeFile(appTsxPath, convertedAppTsx);
     console.log(chalk.green('✅ Converted: layout.tsx → App.tsx'));
 
-    allDependencies = { ...allDependencies, ...dependencies };
+    Object.keys(dependencies).forEach(dep => allDependencies.add(dep));
   } else {
     console.log(chalk.yellow('⚠️ No layout.tsx found. Skipping App.tsx conversion.'));
   }
 
-  // Convert page.tsx files to screen components
+  // Convert page.tsx files → screens/
   for (const file of files) {
     const fullPath = path.join(appDir, file);
     const stat = await fs.stat(fullPath);
@@ -53,16 +50,18 @@ export async function convertPagesToScreens(nextAppPath, rnProjectPath) {
       await fs.writeFile(destPath, converted);
       console.log(chalk.green(`✅ Converted: ${file} → screens/${screenName}`));
 
-      allDependencies = { ...allDependencies, ...dependencies };
+      Object.keys(dependencies).forEach(dep => allDependencies.add(dep));
     }
-
-    // Optional: handle nested routes here later
   }
 
-  // Update package.json with all collected dependencies
-  if (Object.keys(allDependencies).length > 0) {
-    console.log(chalk.cyan('\n📦 Updating package.json with required dependencies...'));
-    updatePackageJson(rnProjectPath, allDependencies);
+  // Write dependencies to requirement.txt
+  if (allDependencies.size > 0) {
+    const requirementPath = path.join(rnProjectPath, 'requirement.txt');
+    const content = Array.from(allDependencies).sort().join('\n');
+    await fs.writeFile(requirementPath, content);
+    console.log(chalk.blueBright(`\n📦 Saved required packages to ${requirementPath}\n`));
+  } else {
+    console.log(chalk.yellow('⚠️ No dependencies detected.'));
   }
 
   console.log(chalk.greenBright('\n📱 All app/ pages converted to React Native screens!\n'));
