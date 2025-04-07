@@ -1,5 +1,13 @@
 # 🚀 next-to-react-native
 
+```bash
+  _   _ _____ ____  _   _ 
+ | \ | |_   _|  _ \| \ | |
+ |  \| | | | | |_) |  \| |
+ | |\  | | | |  _ <| |\  |
+ |_| \_| |_| |_| \_\_| \_|
+``` 
+
 > Effortlessly convert your **Next.js App Router** project into a **fully functional React Native Expo app** using this zero-config CLI tool.
 
 ![version](https://img.shields.io/github/package-json/v/AmeyKuradeAK/ntrn?color=blue) 
