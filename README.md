@@ -30,8 +30,23 @@
 
 ## 📦 Installation
 
+You will require:
+  1. Node JS
+  2. Gemini API
+  3. clone repo from GitHub.
+
+> Process to work on.
+>   1. Update .env file from project
+>   2. ```npm link``` 
+
 ```bash
 npm install -g ntrn
+```
+> After installing and setting up repo and .env
+
+to update the ntrn
+```bash
+npm link
 ```
 
 ---
