@@ -31,7 +31,7 @@
 ## 📦 Installation
 
 ```bash
-npm install -g next-to-react-native
+npm install -g ntrn
 ```
 
 ---
@@ -39,7 +39,7 @@ npm install -g next-to-react-native
 ## 🚀 Quick Start
 
 ```bash
-ntrn convert
+ntrn
 ```
 
 Run this command inside the root of your **Next.js App Router** project.  
