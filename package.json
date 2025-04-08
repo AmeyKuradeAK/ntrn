@@ -1,25 +1,51 @@
 {
   "name": "next-to-react-native",
   "version": "1.0.0",
-  "description": "⚡ A CLI to convert your Next.js project to a fully functional React Native Expo app",
+  "description": "⚡ A powerful CLI to convert your Next.js App Router project into a fully functional React Native Expo app.",
   "type": "module",
   "main": "src/index.js",
   "bin": {
     "ntrn": "./src/index.js"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "exports": {
+    ".": "./src/index.js"
   },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "scripts": {
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AmeyKuradeAK/next-to-react-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AmeyKuradeAK/next-to-react-native/issues"
+  },
+  "homepage": "https://github.com/AmeyKuradeAK/next-to-react-native#readme",
   "keywords": [
     "cli",
     "nextjs",
     "react-native",
     "expo",
     "nativewind",
-    "converter"
+    "converter",
+    "gemini",
+    "ai",
+    "typescript",
+    "automation"
   ],
-  "author": "Your Name",
+  "author": "Amey Kurade",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@google/genai": "^0.7.0",
     "axios": "^1.8.4",
