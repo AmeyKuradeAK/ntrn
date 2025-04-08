@@ -1,6 +1,6 @@
 {
   "name": "ntrn",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "⚡ A powerful CLI to convert your Next.js App Router project into a fully functional React Native Expo app.",
   "type": "module",
   "main": "src/index.js",
