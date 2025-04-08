@@ -10,7 +10,7 @@
 
 > Effortlessly convert your **Next.js App Router** project into a **fully functional React Native Expo app** using this zero-config CLI tool.
 
-![version](https://img.shields.io/github/package-json/v/AmeyKuradeAK/ntrn?color=blue) 
+![version](https://img.shields.io/github/package-json/v/AmeyKuradeAK/ntrn?filename=package.json?color=blue) 
 ![license](https://img.shields.io/github/license/AmeyKuradeAK/ntrn)
 ![stars](https://img.shields.io/github/stars/AmeyKuradeAK)
 
