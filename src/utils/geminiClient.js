@@ -24,12 +24,20 @@ export async function callGeminiAPI(sourceCode, fileName) {
   const prompt = `
 You're an expert React Native developer.
 
-Convert the following Next.js file named "${fileName}" into a fully working React Native (Expo) screen component.
-- Convert Tailwind to NativeWind if present.
-- Replace any Next.js or Web-only packages with equivalent React Native-compatible ones.
-- Ensure the output runs correctly inside a React Native Expo app.
-- Return the React Native code only.
-- Then return required dependencies like:
+Convert the following Next.js file named "${fileName}" into a fully working React Native (Expo) component or screen.
+
+Make sure to:
+- Convert Tailwind CSS to NativeWind if present.
+- Replace any Next.js or web-only packages with equivalent React Native-compatible ones.
+- Fix all imports:
+  - Replace all "@/components" imports with "../components" or "./components" based on usage.
+  - Use only valid relative import paths compatible with React Native.
+- Ensure the output is valid React Native code.
+- Do NOT return extra explanation or context. Just the code and dependencies.
+
+Return the React Native code first as a code block.
+
+Then return required dependencies like:
 
 \`\`\`json
 {
@@ -44,7 +52,6 @@ Here is the code to convert:
 ${sourceCode}
 \`\`\`
 `;
-
 
   try {
     const res = await axios.post(
