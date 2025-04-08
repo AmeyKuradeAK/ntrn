@@ -114,9 +114,9 @@ You can:
 
 Join discussions, ask questions, and share ideas:
 
-- [GitHub Discussions](https://github.com/your-org/next-to-react-native/discussions)
-- [Twitter](https://twitter.com/) (mention us!)
-- [Reddit](https://reddit.com/r/reactnative/)
+- [GitHub Discussions](https://github.com/your-org/next-to-react-native/)
+- [Twitter (Formarly known as X)](https://x.com/KuradeAmey/) (mention us!)
+- [Reddit](https://www.reddit.com/user/Live_Ratio_4906/)
 
 ---
 
@@ -137,5 +137,5 @@ Do whatever you want, just give credit.
 
 ---
 
-## Made with 💙 by [Ammey Kuraaday]
+## Made with 💙 by [Ammey Kuraaday](https://www.github.com/AmeyKuradeAK)
                         
