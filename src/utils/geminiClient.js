@@ -2,14 +2,35 @@ import fs from 'fs-extra';
 import path from 'path';
 import dotenv from 'dotenv';
 import axios from 'axios';
+import prompts from 'prompts';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env from root
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Absolute path to .env in the package root
+const envPath = path.resolve(__dirname, '../../.env');
 
+// Check if .env exists; if not, ask and create it
+if (!fs.existsSync(envPath)) {
+  const response = await prompts({
+    type: 'text',
+    name: 'key',
+    message: '🔐 Enter your Gemini API Key:',
+    validate: value => value.trim().length > 10 || 'API key too short',
+  });
+
+  if (!response.key) {
+    console.error('❌ No API key provided. Exiting.');
+    process.exit(1);
+  }
+
+  fs.writeFileSync(envPath, `GEMINI_API_KEY=${response.key.trim()}\n`);
+  console.log('✅ Gemini API Key saved successfully!\n');
+}
+
+// Load the saved key from .env
+dotenv.config({ path: envPath });
 const API_KEY = process.env.GEMINI_API_KEY;
 
 if (!API_KEY) {
