@@ -13,6 +13,7 @@
 ![version](https://img.shields.io/github/package-json/v/AmeyKuradeAK/ntrn?filename=package.json?color=blue) 
 ![license](https://img.shields.io/github/license/AmeyKuradeAK/ntrn)
 ![stars](https://img.shields.io/github/stars/AmeyKuradeAK)
+[![npm version](https://img.shields.io/npm/v/ntrn.svg)](https://www.npmjs.com/package/ntrn)
 
 ---
 
