@@ -90,7 +90,7 @@ ntrn --help
 
 ## 📸 Terminal Demo
 
-![demo](./demo.gif)
+![Demo](./Public/NTRN.png)
 
 ---
 
