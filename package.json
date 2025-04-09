@@ -1,6 +1,6 @@
 {
   "name": "ntrn",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "⚡ A powerful CLI to convert your Next.js App Router project into a fully functional React Native Expo app.",
   "type": "module",
   "main": "src/index.js",
@@ -23,12 +23,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AmeyKuradeAK/next-to-react-native.git"
+    "url": "git+https://github.com/AmeyKuradeAK/ntrn.git"
   },
   "bugs": {
-    "url": "https://github.com/AmeyKuradeAK/next-to-react-native/issues"
+    "url": "https://github.com/AmeyKuradeAK/ntrn/issues"
   },
-  "homepage": "https://github.com/AmeyKuradeAK/next-to-react-native#readme",
+  "homepage": "https://github.com/AmeyKuradeAK/ntrn#readme",
   "keywords": [
     "cli",
     "nextjs",
