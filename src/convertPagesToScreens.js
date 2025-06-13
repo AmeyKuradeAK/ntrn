@@ -803,6 +803,13 @@ async function runPostConversionOptimizations(rnProjectPath, results) {
 }
 
 function generateConversionReport(conversionResults, projectAnalysis) {
+  // Calculate quality metrics
+  const successfulResults = conversionResults.filter(r => r.success && r.additionalDependencies?.qualityScore);
+  const qualityScores = successfulResults.map(r => r.additionalDependencies.qualityScore || 85);
+  const averageQuality = qualityScores.length > 0 ? Math.round(qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length) : 0;
+  const highQualityFiles = qualityScores.filter(score => score >= 90).length;
+  const productionReadyFiles = successfulResults.filter(r => r.additionalDependencies?.isProductionReady).length;
+
   const report = {
     totalFiles: conversionResults.length,
     successfulConversions: conversionResults.filter(r => r.success).length,
@@ -812,6 +819,18 @@ function generateConversionReport(conversionResults, projectAnalysis) {
     errors: conversionResults.filter(r => !r.success),
     ssrConversions: conversionResults.filter(r => r.ssrConversions && 
       (r.ssrConversions.ssr.length > 0 || r.ssrConversions.csr.length > 0)).length,
+    // 📊 Quality Metrics
+    quality: {
+      averageScore: averageQuality,
+      highQualityFiles: highQualityFiles,
+      productionReadyFiles: productionReadyFiles,
+      qualityDistribution: {
+        excellent: qualityScores.filter(score => score >= 90).length,
+        good: qualityScores.filter(score => score >= 80 && score < 90).length,
+        fair: qualityScores.filter(score => score >= 70 && score < 80).length,
+        needsWork: qualityScores.filter(score => score < 70).length
+      }
+    },
     projectStats: {
       originalFramework: projectAnalysis.projectMetadata.framework,
       hasTypeScript: projectAnalysis.projectMetadata.hasTypeScript,
@@ -827,8 +846,25 @@ function displayResults(report, rnProjectPath) {
   console.log(chalk.cyan('\n🎉 Conversion Complete!'));
   console.log(chalk.green(`✅ Successfully converted ${report.successfulConversions}/${report.totalFiles} files`));
   
+  // 📊 Quality Metrics Display
+  if (report.quality && report.quality.averageScore > 0) {
+    console.log(chalk.cyan('\n📊 Quality Analysis:'));
+    console.log(chalk.green(`  🎯 Average Quality Score: ${report.quality.averageScore}%`));
+    console.log(chalk.green(`  ✅ Production Ready: ${report.quality.productionReadyFiles} files`));
+    console.log(chalk.blue(`  🌟 High Quality (90%+): ${report.quality.highQualityFiles} files`));
+    
+    if (report.quality.qualityDistribution) {
+      const dist = report.quality.qualityDistribution;
+      console.log(chalk.gray('  📈 Quality Distribution:'));
+      if (dist.excellent > 0) console.log(chalk.green(`    🟢 Excellent (90-100%): ${dist.excellent} files`));
+      if (dist.good > 0) console.log(chalk.blue(`    🔵 Good (80-89%): ${dist.good} files`));
+      if (dist.fair > 0) console.log(chalk.yellow(`    🟡 Fair (70-79%): ${dist.fair} files`));
+      if (dist.needsWork > 0) console.log(chalk.red(`    🔴 Needs Work (<70%): ${dist.needsWork} files`));
+    }
+  }
+  
   if (report.screens.length > 0) {
-    console.log(chalk.blue(`📱 Screens created: ${report.screens.length}`));
+    console.log(chalk.blue(`\n📱 Screens created: ${report.screens.length}`));
     report.screens.forEach(screen => console.log(`   - ${screen}`));
   }
   
@@ -858,6 +894,17 @@ function displayResults(report, rnProjectPath) {
   
   if (report.failedConversions > 0) {
     console.log(chalk.yellow('\n⚠️ Some files need manual review. Check the conversion-report.md for details.'));
+  }
+  
+  // Quality-based recommendations
+  if (report.quality && report.quality.averageScore > 0) {
+    if (report.quality.averageScore >= 85) {
+      console.log(chalk.green('\n🎉 Excellent conversion quality! Your app should work great out of the box.'));
+    } else if (report.quality.averageScore >= 75) {
+      console.log(chalk.yellow('\n👍 Good conversion quality! Minor tweaks may be needed.'));
+    } else {
+      console.log(chalk.red('\n⚠️ Some files may need manual review for optimal quality.'));
+    }
   }
 }
 

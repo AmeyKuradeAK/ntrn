@@ -357,6 +357,13 @@ module.exports = config;
   await fs.writeFile(path.join(targetPath, 'metro.config.js'), metroConfig.trim());
 
   console.log(chalk.cyan('📋 Next steps:'));
+  
+  // Fix the structure access - use report instead of results
+  const report = conversionResult.report || conversionResult;
+  const screensCount = report.screens ? report.screens.length : 0;
+  const componentsCount = report.components ? report.components.length : 0;
+  const errorsCount = report.errors ? report.errors.length : 0;
+  
   console.log(chalk.white(`
   1. Navigate to your project:
      ${chalk.green(`cd ${projectName}`)}
@@ -373,14 +380,14 @@ module.exports = config;
      ${chalk.green('npx expo start --web')}  # Web
 
   📄 Files generated:
-  • ${conversionResult.results.screens.length} screens in /screens
-  • ${conversionResult.results.components.length} components in /components  
+  • ${screensCount} screens in /screens
+  • ${componentsCount} components in /components  
   • Navigation setup with React Navigation
   • ${config.styling.framework} styling configured
   • Conversion report: conversion-report.md
 
-  ${conversionResult.results.errors.length > 0 ? 
-    chalk.yellow(`⚠️  ${conversionResult.results.errors.length} files had conversion issues. Check conversion-report.md`) : 
+  ${errorsCount > 0 ? 
+    chalk.yellow(`⚠️  ${errorsCount} files had conversion issues. Check conversion-report.md`) : 
     chalk.green('✅ All files converted successfully!')
   }
   `));

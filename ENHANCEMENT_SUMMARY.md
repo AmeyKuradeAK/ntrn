@@ -129,7 +129,7 @@
 - ❌ Limited to simple projects
 - ❌ No navigation setup
 
-### After (v2.1.0):
+### After (v2.0.9):
 - ✅ **5x faster** with parallel processing
 - ✅ **10x better accuracy** with context-aware AI
 - ✅ **Complete project support** including large codebases

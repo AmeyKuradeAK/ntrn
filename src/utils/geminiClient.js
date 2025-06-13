@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { RateLimiter } from './rateLimiter.js';
 import { convertShadcnToReactNative, detectShadcnComponents } from './shadcnConverter.js';
 import { generateUltraRobustPrompt, generateSuggestionPrompt, generateImprovementPrompt } from './perfectPrompts.js';
+import chalk from 'chalk';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -512,44 +513,97 @@ export async function callGeminiAPI(sourceCode, fileName, projectContext = {}) {
     
     console.log(`🧠 Using ultra-robust prompt for ${fileName} (${prompt.length} chars)`);
     
+    // Simple, reliable single API call
     const response = await makeAPIRequest(prompt);
     
     // Extract code from response
     let convertedCode = extractCodeFromResponse(response);
     
-    // Validate and get initial quality
-    const initialQuality = validateCodeQuality(convertedCode, fileName, {});
-    console.log(`📊 Initial AI Quality: ${initialQuality.qualityScore}%`);
+    // Basic validation
+    if (!convertedCode || convertedCode.length < 50) {
+      throw new Error('Generated code is too short or empty');
+    }
     
-    // Apply iterative quality improvement until 100% or max iterations
-    const improvedResult = await improveCodeQuality(
-      convertedCode, 
-      fileName, 
-      {},
-      enhancedContext,
-      5 // max iterations
-    );
+    // Validate basic structure
+    const hasReactImport = convertedCode.includes('import React') || convertedCode.includes('from \'react\'');
+    const hasExport = convertedCode.includes('export default') || convertedCode.includes('export ');
+    
+    if (!hasReactImport || !hasExport) {
+      console.log(chalk.yellow(`⚠️ Basic validation failed for ${fileName}, applying fixes...`));
+      convertedCode = ensureBasicReactNativeStructure(convertedCode, fileName);
+    }
+    
+    // 🎯 QUALITY VALIDATION AND DISPLAY
+    const qualityResult = validateCodeQuality(convertedCode, fileName, {
+      '@react-navigation/native': '^6.1.9',
+      '@react-navigation/native-stack': '^6.9.17',
+      'react-native-screens': '^3.27.0',
+      'react-native-safe-area-context': '^4.7.4',
+      ...shadcnInfo.dependencies
+    });
+    
+    // Display quality results
+    console.log(chalk.cyan(`📊 Quality Analysis for ${fileName}:`));
+    console.log(chalk.green(`  🎯 Quality Score: ${qualityResult.qualityScore}% ${qualityResult.isProductionReady ? '✅ Production Ready' : '⚠️ Needs Review'}`));
+    
+    if (qualityResult.issues.length > 0) {
+      console.log(chalk.red(`  🔧 Issues Found (${qualityResult.issues.length}):`));
+      qualityResult.issues.forEach(issue => console.log(chalk.red(`    ${issue}`)));
+    }
+    
+    if (qualityResult.suggestions.length > 0) {
+      console.log(chalk.yellow(`  💡 Suggestions (${qualityResult.suggestions.length}):`));
+      qualityResult.suggestions.slice(0, 3).forEach(suggestion => console.log(chalk.yellow(`    ${suggestion}`)));
+      if (qualityResult.suggestions.length > 3) {
+        console.log(chalk.gray(`    ... and ${qualityResult.suggestions.length - 3} more suggestions`));
+      }
+    }
+    
+    console.log(`✅ Successfully converted ${fileName} (${convertedCode.length} characters)`);
     
     return {
-      code: improvedResult.code,
+      code: convertedCode,
       originalCode: sourceCode,
       dependencies: {
         '@react-navigation/native': '^6.1.9',
         '@react-navigation/native-stack': '^6.9.17',
         'react-native-screens': '^3.27.0',
         'react-native-safe-area-context': '^4.7.4',
-        ...shadcnInfo.dependencies,
-        ...improvedResult.dependencies
+        ...shadcnInfo.dependencies
       },
       shadcnInfo,
-      qualityScore: improvedResult.quality.qualityScore,
-      improvements: improvedResult.quality.iterationsUsed,
-      isProductionReady: improvedResult.quality.isProductionReady
+      qualityScore: qualityResult.qualityScore,
+      qualityDetails: qualityResult,
+      isProductionReady: qualityResult.isProductionReady
     };
   } catch (error) {
     console.error(`❌ Gemini API error for ${fileName}:`, error.message);
     throw new Error(`AI conversion failed: ${error.message}`);
   }
+}
+
+// Helper function to ensure basic React Native structure
+function ensureBasicReactNativeStructure(code, fileName) {
+  let fixedCode = code;
+  
+  // Ensure React import
+  if (!fixedCode.includes('import React')) {
+    fixedCode = `import React from 'react';\n${fixedCode}`;
+  }
+  
+  // Ensure React Native imports
+  if (!fixedCode.includes('react-native')) {
+    const imports = `import { View, Text, StyleSheet, ScrollView } from 'react-native';\nimport { SafeAreaView } from 'react-native-safe-area-context';\n`;
+    fixedCode = fixedCode.replace('import React from \'react\';', `import React from 'react';\n${imports}`);
+  }
+  
+  // Ensure export
+  if (!fixedCode.includes('export default')) {
+    const componentName = getComponentName(fileName);
+    fixedCode += `\n\nexport default ${componentName};`;
+  }
+  
+  return fixedCode;
 }
 
 function createFallbackResponse(fileName, error) {
@@ -587,185 +641,83 @@ export async function shutdownGeminiClient() {
   }
 }
 
-// Enhanced quality improvement system
-async function improveCodeQuality(code, fileName, dependencies, projectContext, maxIterations = 5) {
-  let currentCode = code;
-  let currentDependencies = { ...dependencies };
-  let iteration = 0;
-  let bestQuality = validateCodeQuality(currentCode, fileName, currentDependencies);
-  let bestCode = currentCode;
-  let bestDependencies = { ...currentDependencies };
-
-  console.log(`🎯 Starting quality improvement for ${fileName}`);
-  console.log(`📊 Initial Quality Score: ${bestQuality.qualityScore}%`);
-
-  // If already perfect, no need to iterate
-  if (bestQuality.qualityScore === 100 && bestQuality.isProductionReady) {
-    console.log(`✅ Perfect quality achieved on first attempt!`);
-    return { code: currentCode, dependencies: currentDependencies, quality: bestQuality };
-  }
-
-  while (iteration < maxIterations && bestQuality.qualityScore < 100) {
-    iteration++;
-    console.log(`\n🔄 Quality Improvement Iteration ${iteration}/${maxIterations}`);
+// Missing API request function
+async function makeAPIRequest(prompt) {
+  try {
+    // Initialize rate limiter if not already done
+    if (!rateLimiter) {
+      initializeRateLimiter();
+    }
     
-    try {
-      // Generate improvement prompt based on current issues
-      const improvementPrompt = generateImprovementPrompt(currentCode, fileName, bestQuality, projectContext);
-      
-      // Get improved code from AI
-      const improvedResult = await makeQualityImprovementRequest(improvementPrompt, fileName);
-      
-      if (improvedResult && improvedResult.code) {
-        // Validate the improved code
-        const newQuality = validateCodeQuality(improvedResult.code, fileName, improvedResult.dependencies);
-        
-        console.log(`📊 Iteration ${iteration} Quality Score: ${newQuality.qualityScore}% (${newQuality.qualityScore > bestQuality.qualityScore ? '⬆️ Improved' : newQuality.qualityScore === bestQuality.qualityScore ? '➡️ Same' : '⬇️ Worse'})`);
-        
-        // Keep the best version
-        if (newQuality.qualityScore > bestQuality.qualityScore || 
-           (newQuality.qualityScore === bestQuality.qualityScore && newQuality.issues.length < bestQuality.issues.length)) {
-          bestQuality = newQuality;
-          bestCode = improvedResult.code;
-          bestDependencies = { ...improvedResult.dependencies };
-          
-          console.log(`✅ Improvement accepted! New best: ${bestQuality.qualityScore}%`);
-          
-          // Update current code for next iteration
-          currentCode = bestCode;
-          currentDependencies = { ...bestDependencies };
-          
-          // If we reached perfection, break early
-          if (bestQuality.qualityScore === 100 && bestQuality.isProductionReady) {
-            console.log(`🎉 Perfect quality achieved in ${iteration} iterations!`);
-            break;
+    // Use rate limiter's addRequest method (not makeRequest)
+    const response = await rateLimiter.addRequest(async () => {
+      const res = await axios.post(
+        `${GEMINI_ENDPOINT}?key=${API_KEY}`,
+        {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.1,
+            topP: 0.8,
+            topK: 40,
+            maxOutputTokens: 8192,
           }
-        } else {
-          console.log(`⚠️ No improvement in iteration ${iteration}, keeping previous best`);
-          
-          // If no improvement for 2 consecutive iterations, try a different approach
-          if (iteration >= 2) {
-            console.log(`🔄 Trying alternative improvement approach...`);
-            currentCode = bestCode; // Reset to best known version
-          }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 60000,
         }
-      } else {
-        console.log(`❌ Iteration ${iteration} failed, keeping previous version`);
-      }
+      );
       
-    } catch (error) {
-      console.warn(`⚠️ Quality improvement iteration ${iteration} failed:`, error.message);
-      // Continue with next iteration or existing best code
-    }
-  }
+      return res.data;
+    }, { fileName: 'API Request' });
 
-  // Final report
-  const improvement = bestQuality.qualityScore - validateCodeQuality(code, fileName, dependencies).qualityScore;
-  console.log(`\n📈 Quality Improvement Summary for ${fileName}:`);
-  console.log(`  🎯 Final Score: ${bestQuality.qualityScore}% ${bestQuality.isProductionReady ? '✅ Production Ready' : '⚠️ Needs Review'}`);
-  console.log(`  📊 Improvement: +${improvement}% (${iteration} iterations)`);
-  
-  if (bestQuality.issues.length > 0) {
-    console.log(`  🔧 Remaining Issues: ${bestQuality.issues.length}`);
-    bestQuality.issues.forEach(issue => console.log(`    ${issue}`));
-  }
-  
-  if (bestQuality.suggestions.length > 0) {
-    console.log(`  💡 Suggestions: ${bestQuality.suggestions.length}`);
-    bestQuality.suggestions.forEach(suggestion => console.log(`    ${suggestion}`));
-  }
-
-  return { 
-    code: bestCode, 
-    dependencies: bestDependencies, 
-    quality: {
-      ...bestQuality,
-      iterationsUsed: iteration,
-      totalImprovement: improvement
+    const content = response?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!content) {
+      throw new Error('No content returned from Gemini API');
     }
-  };
+    
+    return content;
+  } catch (error) {
+    console.error('❌ makeAPIRequest error:', error.message);
+    throw error;
+  }
 }
 
-
-
-// Make quality improvement request to AI
-async function makeQualityImprovementRequest(prompt, fileName) {
-  try {
-    const res = await axios.post(
-      `${GEMINI_ENDPOINT}?key=${API_KEY}`,
-      {
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: prompt }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2, // Slightly higher for creative problem solving
-          topP: 0.85,
-          topK: 40,
-          maxOutputTokens: 8192,
-        }
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 60000,
-      }
-    );
-
-    const content = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!content) throw new Error('No content returned from Gemini');
-
-    // Parse the improved code
-    const codeMatch = content.match(/IMPROVED_CODE:\s*```tsx\n([\s\S]*?)```/);
-    const depsMatch = content.match(/DEPENDENCIES:\s*```json\n([\s\S]*?)```/);
-
-    let improvedCode = '';
-    let dependencies = {};
-
-    if (codeMatch && codeMatch[1]) {
-      improvedCode = codeMatch[1].trim();
-    } else {
-      // Fallback parsing
-      const codeBlocks = content.split('```');
-      for (let i = 0; i < codeBlocks.length; i++) {
-        if (codeBlocks[i].includes('tsx') && codeBlocks[i + 1]) {
-          improvedCode = codeBlocks[i + 1].trim();
-          break;
-        }
-      }
-    }
-
-    if (depsMatch && depsMatch[1]) {
-      try {
-        const json = JSON.parse(depsMatch[1].trim());
-        dependencies = json.dependencies || json || {};
-      } catch (err) {
-        console.warn(`⚠️ Failed to parse improvement dependencies for ${fileName}`);
-      }
-    }
-
-    if (!improvedCode || improvedCode.length < 50) {
-      throw new Error('Improved code is too short or empty');
-    }
-
-    // Clean dependencies
-    dependencies = Object.fromEntries(
-      Object.entries(dependencies).filter(
-        ([pkg, version]) =>
-          typeof pkg === 'string' &&
-          pkg.trim() &&
-          typeof version === 'string' &&
-          (version.startsWith('^') || version.startsWith('~') || version.match(/^\d/)) &&
-          !pkg.includes('next')
-      )
-    );
-
-    return { code: improvedCode, dependencies };
-  } catch (error) {
-    console.warn(`⚠️ Quality improvement request failed for ${fileName}:`, error.message);
-    return null;
+// Missing code extraction function
+function extractCodeFromResponse(response) {
+  if (!response || typeof response !== 'string') {
+    throw new Error('Invalid response format');
   }
+  
+  // Try to extract code from various markdown formats
+  const codeBlockRegex = /```(?:tsx|ts|jsx|js)?\n([\s\S]*?)```/g;
+  const matches = [...response.matchAll(codeBlockRegex)];
+  
+  if (matches.length > 0) {
+    // Get the largest code block (usually the main component)
+    const codeBlocks = matches.map(match => match[1].trim());
+    const largestBlock = codeBlocks.reduce((a, b) => a.length > b.length ? a : b);
+    return largestBlock;
+  }
+  
+  // Fallback: try to find code between specific markers
+  const markerRegex = /(?:CONVERTED_CODE|FINAL_CODE|COMPONENT_CODE):\s*```(?:tsx|ts|jsx|js)?\n([\s\S]*?)```/i;
+  const markerMatch = response.match(markerRegex);
+  if (markerMatch && markerMatch[1]) {
+    return markerMatch[1].trim();
+  }
+  
+  // Last resort: return the response as-is if it looks like code
+  if (response.includes('import ') || response.includes('export ') || response.includes('function ')) {
+    return response.trim();
+  }
+  
+  throw new Error('Could not extract code from response');
 }
