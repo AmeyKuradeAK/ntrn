@@ -3,142 +3,387 @@ import { execSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { convertPagesToScreens } from './convertPagesToScreens.js'; // ✅ Correct import
+import { convertPagesToScreens } from './convertPagesToScreens.js';
+import { ConversionConfig } from './utils/config.js';
 
 export async function createProjectFlow() {
+  // Initialize configuration
+  const configManager = new ConversionConfig(process.cwd());
+  const config = await configManager.ensureValidConfig();
+
+  console.log(chalk.cyan('🚀 NTRN Enhanced - Next.js to React Native Converter'));
+  console.log(chalk.gray('Using enhanced AI-powered conversion with comprehensive project analysis\n'));
+
   const { projectName, nextPath } = await prompts([
     {
       type: 'text',
       name: 'projectName',
       message: 'Enter the name of the new React Native project:',
-      validate: name => name ? true : 'Project name is required',
+      validate: name => {
+        if (!name) return 'Project name is required';
+        if (!/^[a-zA-Z0-9-_]+$/.test(name)) return 'Project name can only contain letters, numbers, hyphens, and underscores';
+        return true;
+      },
     },
     {
       type: 'text',
       name: 'nextPath',
       message: 'Enter the path to your Next.js project:',
-      validate: input => fs.existsSync(input) ? true : 'Path does not exist',
+      validate: async input => {
+        if (!input) return 'Path is required';
+        if (!await fs.exists(input)) return 'Path does not exist';
+        
+        // Check if it's actually a Next.js project
+        const packageJsonPath = path.join(input, 'package.json');
+        if (await fs.exists(packageJsonPath)) {
+          const pkg = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+          const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+          if (!deps.next) {
+            console.log(chalk.yellow('⚠️ This doesn\'t appear to be a Next.js project (no "next" dependency found)'));
+            const proceed = await prompts({
+              type: 'toggle',
+              name: 'continue',
+              message: 'Continue anyway?',
+              initial: false,
+              active: 'yes',
+              inactive: 'no'
+            });
+            if (!proceed.continue) return 'Please provide a valid Next.js project path';
+          }
+        }
+        
+        return true;
+      }
     }
   ]);
 
-  const targetPath = path.join(process.cwd(), projectName);
-
-  console.log(chalk.cyan('\n🚀 Creating new Expo project...'));
-  try {
-    execSync(`npx create-expo-app@latest ${projectName} --template blank-typescript -y`, { stdio: 'inherit' });
-    console.log(chalk.green('✅ Expo project created successfully.'));
-  } catch (error) {
-    console.error(chalk.red('❌ Failed to create Expo project.'), error.message);
+  if (!projectName || !nextPath) {
+    console.log(chalk.red('❌ Project creation cancelled.'));
     return;
   }
 
-  // Copy public/ → assets/
-  const publicDir = path.join(nextPath, 'public');
-  const assetDir = path.join(targetPath, 'assets');
-  if (fs.existsSync(publicDir)) {
-    console.log(chalk.cyan('📂 Copying public assets...'));
-    await fs.copy(publicDir, assetDir);
-    console.log(chalk.green('✅ Public assets copied to assets/'));
+  const targetPath = path.join(process.cwd(), projectName);
+
+  // Check if target directory already exists
+  if (await fs.exists(targetPath)) {
+    const overwrite = await prompts({
+      type: 'toggle',
+      name: 'overwrite',
+      message: `Directory "${projectName}" already exists. Overwrite?`,
+      initial: false,
+      active: 'yes',
+      inactive: 'no'
+    });
+
+    if (!overwrite.overwrite) {
+      console.log(chalk.red('❌ Project creation cancelled.'));
+      return;
+    }
+
+    await fs.remove(targetPath);
   }
 
-  // Copy static/ directory if exists
-  const staticDir = path.join(nextPath, 'static');
-  const staticTarget = path.join(targetPath, 'static');
-  if (fs.existsSync(staticDir)) {
-    console.log(chalk.cyan('📂 Copying static directory...'));
-    await fs.copy(staticDir, staticTarget);
-    console.log(chalk.green('✅ Static directory copied.'));
+  // Phase 1: Create Expo project
+  console.log(chalk.cyan('\n📱 Creating Expo project with TypeScript...'));
+  try {
+    const createCommand = `npx create-expo-app@latest ${projectName} --template blank-typescript`;
+    console.log(chalk.gray(`Running: ${createCommand}`));
+    
+    execSync(createCommand, { 
+      stdio: 'pipe',
+      cwd: process.cwd()
+    });
+    
+    console.log(chalk.green('✅ Expo project created successfully.'));
+  } catch (error) {
+    console.error(chalk.red('❌ Failed to create Expo project:'), error.message);
+    return;
   }
 
-  // Check for Tailwind
-  console.log(chalk.cyan('🔍 Checking for Tailwind usage...'));
+  // Phase 2: Copy static assets
+  await copyStaticAssets(nextPath, targetPath, config);
 
+  // Phase 3: Setup styling framework
+  await setupStylingFramework(targetPath, nextPath, config);
+
+  // Phase 4: Install additional dependencies
+  await installAdditionalDependencies(targetPath, config);
+
+  console.log(chalk.greenBright('\n✅ React Native project setup complete!'));
+
+  // Phase 5: Enhanced conversion using AI
+  console.log(chalk.blueBright('\n🤖 Starting AI-powered conversion...'));
+  console.log(chalk.gray('This may take a few minutes depending on your project size.\n'));
+
+  try {
+    const conversionResult = await convertPagesToScreens(nextPath, targetPath, config);
+    
+    if (conversionResult.success) {
+      console.log(chalk.greenBright('\n🎉 Conversion completed successfully!'));
+    } else {
+      console.log(chalk.yellowBright('\n⚠️ Conversion completed with some issues.'));
+      console.log(chalk.gray('Check the conversion report for details.'));
+    }
+
+    // Phase 6: Final setup and instructions
+    await provideFinalInstructions(projectName, targetPath, conversionResult, config);
+
+  } catch (err) {
+    console.error(chalk.red('\n❌ Conversion failed:'), err.message);
+    console.log(chalk.gray('You can still use the basic Expo project that was created.'));
+  }
+}
+
+async function copyStaticAssets(nextPath, targetPath, config) {
+  console.log(chalk.cyan('\n📂 Copying static assets...'));
+
+  const assetCopyTasks = [
+    {
+      source: path.join(nextPath, 'public'),
+      target: path.join(targetPath, 'assets'),
+      name: 'public assets'
+    },
+    {
+      source: path.join(nextPath, 'static'),
+      target: path.join(targetPath, 'static'),
+      name: 'static directory'
+    }
+  ];
+
+  for (const task of assetCopyTasks) {
+    if (await fs.exists(task.source)) {
+      try {
+        await fs.copy(task.source, task.target, {
+          filter: (src) => {
+            // Skip large files and unwanted formats
+            const filename = path.basename(src);
+            return !filename.startsWith('.') && 
+                   !filename.endsWith('.psd') && 
+                   !filename.endsWith('.ai');
+          }
+        });
+        console.log(chalk.green(`✅ Copied ${task.name}`));
+      } catch (error) {
+        console.warn(chalk.yellow(`⚠️ Failed to copy ${task.name}: ${error.message}`));
+      }
+    }
+  }
+}
+
+async function setupStylingFramework(targetPath, nextPath, config) {
+  const framework = config.styling.framework;
+  
+  console.log(chalk.cyan(`\n🎨 Setting up ${framework} styling...`));
+
+  if (framework === 'nativewind') {
+    await setupNativeWind(targetPath, nextPath, config);
+  } else if (framework === 'styled-components') {
+    await setupStyledComponents(targetPath, config);
+  }
+  // Default StyleSheet doesn't need additional setup
+}
+
+async function setupNativeWind(targetPath, nextPath, config) {
+  // Check for Tailwind in source project
   const pkgPath = path.join(nextPath, 'package.json');
-  const postcssPath = fs.existsSync(path.join(nextPath, 'postcss.config.js'))
-    ? path.join(nextPath, 'postcss.config.js')
-    : fs.existsSync(path.join(nextPath, 'postcss.config.mjs'))
-    ? path.join(nextPath, 'postcss.config.mjs')
-    : null;
-
   let tailwindFound = false;
 
-  if (fs.existsSync(pkgPath)) {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  if (await fs.exists(pkgPath)) {
+    const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    if (deps['tailwindcss']) {
-      tailwindFound = true;
-    }
+    tailwindFound = !!deps['tailwindcss'];
   }
 
-  if (postcssPath) {
-    const content = fs.readFileSync(postcssPath, 'utf-8');
-    if (content.includes('tailwindcss')) {
-      tailwindFound = true;
-    }
-  }
+  if (tailwindFound || config.styling.framework === 'nativewind') {
+    try {
+      console.log(chalk.cyan('  Installing NativeWind dependencies...'));
+      execSync(`cd ${path.basename(targetPath)} && npm install nativewind tailwindcss`, { 
+        stdio: 'pipe',
+        cwd: path.dirname(targetPath)
+      });
 
-  if (tailwindFound) {
-    console.log(chalk.green('✅ Tailwind detected! Setting up NativeWind...'));
-
-    execSync(`cd ${projectName} && npm install nativewind tailwindcss`, { stdio: 'inherit' });
-
-    const tailwindConfig = `
+      // Create tailwind.config.js
+      const tailwindConfig = `
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./App.{js,jsx,ts,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}"
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "./screens/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      ${config.styling.darkModeSupport ? `
+      colors: {
+        dark: {
+          background: '#000000',
+          surface: '#1a1a1a',
+          text: '#ffffff'
+        }
+      }` : ''}
+    },
   },
   plugins: [],
-}
-    `;
-    fs.writeFileSync(path.join(targetPath, 'tailwind.config.js'), tailwindConfig.trim());
+  ${config.styling.darkModeSupport ? `darkMode: 'class',` : ''}
+}`;
 
-    const babelPath = path.join(targetPath, 'babel.config.js');
-    if (fs.existsSync(babelPath)) {
-      let babel = fs.readFileSync(babelPath, 'utf-8');
-      if (!babel.includes('nativewind/babel')) {
-        babel = babel.replace(
-          /presets:\s*\[(.*?)\]/s,
-          `presets: [$1],\n    plugins: ["nativewind/babel"]`
-        );
-        fs.writeFileSync(babelPath, babel);
+      await fs.writeFile(path.join(targetPath, 'tailwind.config.js'), tailwindConfig.trim());
+
+      // Update babel.config.js
+      const babelPath = path.join(targetPath, 'babel.config.js');
+      if (await fs.exists(babelPath)) {
+        let babel = await fs.readFile(babelPath, 'utf-8');
+        if (!babel.includes('nativewind/babel')) {
+          babel = babel.replace(
+            /return\s*{([^}]*)}/,
+            `return {$1,
+    plugins: ["nativewind/babel"]
+  }`
+          );
+          await fs.writeFile(babelPath, babel);
+        }
       }
-    }
 
-    const appPath = path.join(targetPath, 'App.tsx');
-    if (fs.existsSync(appPath)) {
-      let appCode = fs.readFileSync(appPath, 'utf-8');
-      if (!appCode.includes(`import 'nativewind/tailwind.css'`)) {
-        appCode = `import 'nativewind/tailwind.css';\n` + appCode;
-        fs.writeFileSync(appPath, appCode);
-      }
+      console.log(chalk.green('✅ NativeWind configured successfully'));
+    } catch (error) {
+      console.warn(chalk.yellow(`⚠️ Failed to setup NativeWind: ${error.message}`));
     }
-
-    console.log(chalk.green('✅ NativeWind fully configured in the Expo project.'));
-  } else {
-    console.log(chalk.yellow('🚫 No Tailwind config found in Next.js project. Skipping NativeWind setup.'));
   }
+}
 
-  console.log(chalk.greenBright('\n✅ React Native project setup complete. Ready for conversion phase!'));
+async function setupStyledComponents(targetPath, config) {
+  try {
+    console.log(chalk.cyan('  Installing styled-components...'));
+    execSync(`cd ${path.basename(targetPath)} && npm install styled-components @types/styled-components`, { 
+      stdio: 'pipe',
+      cwd: path.dirname(targetPath)
+    });
 
-  // === Phase 2: Convert app/pages using Gemini API ===
-  console.log(chalk.blueBright('\n📦 Starting Gemini-based conversion from app/ to screens/...'));
+    // Create theme file
+    const themeContent = `
+import { DefaultTheme } from 'styled-components/native';
+
+export const theme: DefaultTheme = {
+  colors: {
+    primary: '#007AFF',
+    secondary: '#5856D6',
+    background: '#F2F2F7',
+    surface: '#FFFFFF',
+    text: '#000000',
+    textSecondary: '#8E8E93',
+    border: '#E5E5EA',
+    error: '#FF3B30',
+    success: '#34C759',
+    warning: '#FF9500',
+    ${config.styling.darkModeSupport ? `
+    dark: {
+      background: '#000000',
+      surface: '#1C1C1E',
+      text: '#FFFFFF',
+      textSecondary: '#8E8E93',
+      border: '#38383A'
+    }` : ''}
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48
+  },
+  borderRadius: {
+    sm: 4,
+    md: 8,
+    lg: 12,
+    xl: 16
+  }
+};
+
+export type Theme = typeof theme;
+`;
+
+    await fs.ensureDir(path.join(targetPath, 'src', 'theme'));
+    await fs.writeFile(path.join(targetPath, 'src', 'theme', 'index.ts'), themeContent.trim());
+
+    console.log(chalk.green('✅ Styled-components configured with theme'));
+  } catch (error) {
+    console.warn(chalk.yellow(`⚠️ Failed to setup styled-components: ${error.message}`));
+  }
+}
+
+async function installAdditionalDependencies(targetPath, config) {
+  console.log(chalk.cyan('\n📦 Installing additional dependencies...'));
+
+  const additionalDeps = [
+    'expo-image',
+    'expo-linear-gradient',
+    'expo-constants',
+    '@expo/vector-icons'
+  ];
+
+  if (config.development.enableFlipperIntegration) {
+    additionalDeps.push('react-native-flipper');
+  }
 
   try {
-    await convertPagesToScreens(nextPath, targetPath);
-  } catch (err) {
-    console.error(chalk.red('❌ Failed to convert app/ to screens/'), err.message);
+    const installCommand = `cd ${path.basename(targetPath)} && npm install ${additionalDeps.join(' ')}`;
+    execSync(installCommand, { 
+      stdio: 'pipe',
+      cwd: path.dirname(targetPath)
+    });
+    console.log(chalk.green('✅ Additional dependencies installed'));
+  } catch (error) {
+    console.warn(chalk.yellow(`⚠️ Some dependencies failed to install: ${error.message}`));
   }
+}
 
-  console.log(chalk.greenBright('\n🎉 Conversion complete! Your React Native project is ready!\n'));
-  console.log(chalk.cyan(`Next steps:
-  ${chalk.green(`cd ${projectName}`)}
-  ${chalk.green('npm run android')}   # Run on Android
-  ${chalk.green('npm run ios')}       # Run on iOS (macOS only)
-  ${chalk.green('npm run web')}       # Run on Web
-`));
+async function provideFinalInstructions(projectName, targetPath, conversionResult, config) {
+  console.log(chalk.greenBright('\n🎉 Project conversion complete!\n'));
+
+  // Generate metro.config.js for better module resolution
+  const metroConfig = `
+const { getDefaultConfig } = require('expo/metro-config');
+
+const config = getDefaultConfig(__dirname);
+
+// Add support for additional file extensions
+config.resolver.assetExts.push('db', 'mp3', 'ttf', 'obj', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg');
+
+module.exports = config;
+`;
+
+  await fs.writeFile(path.join(targetPath, 'metro.config.js'), metroConfig.trim());
+
+  console.log(chalk.cyan('📋 Next steps:'));
+  console.log(chalk.white(`
+  1. Navigate to your project:
+     ${chalk.green(`cd ${projectName}`)}
+
+  2. Install dependencies:
+     ${chalk.green('npm install')}
+
+  3. Start the development server:
+     ${chalk.green('npx expo start')}
+
+  4. Run on your preferred platform:
+     ${chalk.green('npx expo run:android')}  # Android
+     ${chalk.green('npx expo run:ios')}      # iOS (macOS only)
+     ${chalk.green('npx expo start --web')}  # Web
+
+  📄 Files generated:
+  • ${conversionResult.results.screens.length} screens in /screens
+  • ${conversionResult.results.components.length} components in /components  
+  • Navigation setup with React Navigation
+  • ${config.styling.framework} styling configured
+  • Conversion report: conversion-report.md
+
+  ${conversionResult.results.errors.length > 0 ? 
+    chalk.yellow(`⚠️  ${conversionResult.results.errors.length} files had conversion issues. Check conversion-report.md`) : 
+    chalk.green('✅ All files converted successfully!')
+  }
+  `));
+
+  console.log(chalk.blueBright('🚀 Happy coding with React Native!'));
 }
