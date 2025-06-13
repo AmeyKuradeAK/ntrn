@@ -58,7 +58,7 @@ export class ProgressManager {
       failed: [],
       remaining: [],
       metadata: {
-        version: '2.1.0',
+        version: '2.1.1',
         lastUpdate: Date.now()
       }
     };
@@ -157,7 +157,7 @@ export class ProgressManager {
         startTime: new Date(progress.startTime).toISOString(),
         endTime: new Date(progress.endTime).toISOString(),
         duration: `${durationMinutes} minutes`,
-        version: '2.1.0'
+        version: '2.1.1'
       },
       statistics: progress.statistics,
       files: {
