@@ -19,7 +19,7 @@ process.on('warning', (e) => {
 
 program
   .name('ntrn')
-  .version('2.0.9')
+  .version('2.2.1')
   .description(
     chalk.cyanBright(figlet.textSync('NTRN')) +
     '\n' +
