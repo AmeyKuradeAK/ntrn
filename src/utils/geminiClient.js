@@ -5,7 +5,6 @@ import axios from 'axios';
 import prompts from 'prompts';
 import { fileURLToPath } from 'url';
 import { RateLimiter } from './rateLimiter.js';
-import { createRateLimiter } from './rateLimiter.js';
 import { convertShadcnToReactNative, detectShadcnComponents } from './shadcnConverter.js';
 import { generateUltraRobustPrompt, generateSuggestionPrompt, generateImprovementPrompt } from './perfectPrompts.js';
 
@@ -687,78 +686,7 @@ async function improveCodeQuality(code, fileName, dependencies, projectContext, 
   };
 }
 
-// Generate specific improvement prompts based on quality issues
-function generateImprovementPrompt(code, fileName, quality, projectContext) {
-  const { issues, suggestions } = quality;
-  
-  let improvementInstructions = `You are a React Native code quality expert. Your task is to IMPROVE the following code to achieve 100% quality score by fixing specific issues.
 
-## CURRENT QUALITY ANALYSIS
-**File**: ${fileName}
-**Current Score**: ${quality.qualityScore}%
-**Production Ready**: ${quality.isProductionReady ? 'Yes' : 'No'}
-
-### CRITICAL ISSUES TO FIX:
-${issues.length > 0 ? issues.map(issue => `- ${issue}`).join('\n') : 'None'}
-
-### IMPROVEMENT SUGGESTIONS TO IMPLEMENT:
-${suggestions.length > 0 ? suggestions.map(suggestion => `- ${suggestion}`).join('\n') : 'None'}
-
-## SPECIFIC IMPROVEMENT REQUIREMENTS:
-
-### 1. FIX CRITICAL ISSUES FIRST
-- Ensure React and React Native imports are present
-- Convert any remaining HTML elements to React Native components
-- Wrap all text content in <Text> components
-- Remove any web-specific APIs and replace with React Native equivalents
-
-### 2. IMPLEMENT SUGGESTIONS
-- Add missing accessibility props (accessibilityLabel, accessibilityRole)
-- Use StyleSheet.create instead of inline styles where appropriate
-- Add proper error handling for async operations
-- Implement proper TypeScript interfaces
-
-### 3. MOBILE UX ENHANCEMENTS
-- Add proper touch feedback (activeOpacity, android_ripple)
-- Implement SafeAreaView for screen components
-- Add proper loading states and error boundaries
-- Use proper mobile-appropriate spacing and sizing
-
-### 4. PERFORMANCE OPTIMIZATIONS
-- Use React.memo for expensive components
-- Add proper key props for lists
-- Optimize image loading and caching
-- Use FlatList for long lists instead of ScrollView
-
-## CODE TO IMPROVE:
-\`\`\`tsx
-${code}
-\`\`\`
-
-## OUTPUT REQUIREMENTS:
-Return ONLY the improved code that addresses ALL issues and suggestions above:
-
-IMPROVED_CODE:
-\`\`\`tsx
-// Your improved React Native code here
-// Must fix all critical issues
-// Must implement all suggestions
-// Must be production-ready quality
-\`\`\`
-
-DEPENDENCIES:
-\`\`\`json
-{
-  "dependencies": {
-    "package-name": "^version"
-  }
-}
-\`\`\`
-
-CRITICAL: Focus on fixing the specific issues mentioned above. The goal is to reach 100% quality score.`;
-
-  return improvementInstructions;
-}
 
 // Make quality improvement request to AI
 async function makeQualityImprovementRequest(prompt, fileName) {
