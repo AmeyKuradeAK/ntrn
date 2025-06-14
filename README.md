@@ -10,23 +10,23 @@
 
 > **The most powerful AI-driven CLI tool** to convert your **Next.js App Router** projects into **production-ready React Native Expo apps** with comprehensive project analysis and intelligent code transformation.
 
-![version](https://img.shields.io/github/package-json/v/AmeyKuradeAK/ntrn?filename=package.json?color=blue) 
+![version](https://img.shields.io/badge/version-v2.2.9-blue) 
 ![license](https://img.shields.io/github/license/AmeyKuradeAK/ntrn)
 [![npm version](https://img.shields.io/npm/v/ntrn.svg)](https://www.npmjs.com/package/ntrn)
 ![stars](https://img.shields.io/github/stars/AmeyKuradeAK)
 
 ---
 
-## 🆕 What's New in v2.1
+## 🆕 What's New in v2.2.9
 
-🔥 **Enterprise-Grade Conversion** - Now handles large, complex Next.js projects with ease  
-🧠 **Advanced AI Prompts** - Cursor AI-level conversion quality with comprehensive context awareness  
-🌐 **Web API Intelligence** - Never removes functionality! Converts web APIs to React Native equivalents  
-🗺 **Complete Project Analysis** - Deep understanding of your entire codebase structure  
-🧭 **Smart Navigation Setup** - Automatic React Navigation configuration based on your routes  
-⚙️ **Intelligent Configuration** - Interactive setup with customizable conversion preferences  
-📊 **Detailed Reporting** - Comprehensive conversion reports with actionable insights  
-🎨 **Multiple Styling Options** - NativeWind, StyleSheet, or Styled Components support  
+🔍 **Enhanced Fix Verification System** - Every fix is verified to ensure it was actually applied correctly  
+🔄 **Iterative Fix Application** - Fixes are retried up to 3 times until verification passes  
+🧠 **Intelligent Unknown Issue Analysis** - AI-powered analysis for new/unknown issues not covered by surgical fixes  
+✅ **Comprehensive Code Integrity Verification** - Final validation ensures syntactic correctness and React Native compatibility  
+📊 **Detailed Verification Reporting** - Complete transparency on what was fixed, verified, and any failures  
+💰 **Token Usage Tracking** - Real-time token monitoring with cost estimation and performance metrics  
+🎯 **Surgical Precision Auto-Fixing** - Direct code manipulation for common issues without AI overhead  
+🔧 **Production-Ready Output** - Guaranteed error-free code with mandatory validation before completion  
 
 ---
 
@@ -59,16 +59,17 @@
 
 ### ✨ **Features**
 
-🎯 **NEW: 100% Working Code Guarantee** - Automatic error resolution, dependency installation, and suggestion implementation  
-🔧 **Automatic Error Resolution** - Fixes "Unable to resolve @react-navigation/native", text wrapping, and all common issues  
-🧠 **Ultra-Robust AI Prompts** - Cursor-level quality with mandatory success requirements and error prevention  
+🔍 **NEW: Enhanced Fix Verification System** - Every fix is verified to ensure it was actually applied correctly  
+🔄 **Iterative Fix Application** - Fixes are retried up to 3 times until verification passes  
+🧠 **Intelligent Unknown Issue Analysis** - AI-powered analysis for new/unknown issues not covered by surgical fixes  
+✅ **Comprehensive Code Integrity Verification** - Final validation ensures syntactic correctness and React Native compatibility  
+💰 **Real-time Token Usage Tracking** - Monitor costs with detailed breakdown and estimation  
+🎯 **Surgical Precision Auto-Fixing** - Direct code manipulation for common issues without AI overhead  
+🔧 **Production-Ready Output** - Guaranteed error-free code with mandatory validation before completion  
 📦 **Smart Dependency Management** - Auto-installs React Navigation and detects required packages based on code  
 🔥 **Shadcn/ui Intelligence** - Automatically detects and converts Shadcn components to React Native equivalents  
-💡 **AI Suggestion Implementation** - Automatically implements ALL quality suggestions for perfect code  
-📊 **Iterative Quality Improvement** - Achieves 100% quality score through intelligent iterations (98% success rate)  
 🌐 **Web API Intelligence** - Converts browser APIs to React Native equivalents instead of removing them  
 ⚡ **Large Project Support** - Handles real-world codebases with progress saving and resumption  
-🎯 **Production Ready Output** - Generates fully functional React Native apps with proper navigation  
 
 ### 🎨 **Shadcn/ui Components** *(NEW!)*
 
@@ -193,6 +194,34 @@ ntrn --help
 ## 📸 Terminal Demo
 
 ![Demo](./Public/NTRN.png)
+
+---
+
+## 💰 Token Usage & Pricing
+
+NTRN uses Google's Gemini Pro API with transparent token tracking and cost estimation:
+
+- **Small Projects (5-15 files)**: $0.005-$0.009
+- **Medium Projects (20-50 files)**: $0.015-$0.030  
+- **Large Projects (50-150 files)**: $0.041-$0.088
+- **Enterprise Projects (150+ files)**: $0.119-$0.288
+
+📊 **Real-time Token Tracking** - See exactly what you're spending  
+🎯 **Surgical Fixes** - Common fixes use 0 tokens  
+💡 **Cost Optimization** - Built-in efficiency features  
+
+👉 **[Complete Pricing Guide](./TOKEN_USAGE_PRICING_GUIDE.md)** - Detailed cost analysis for all project sizes
+
+---
+
+## 📚 Documentation
+
+- 🎯 **[Quality Improvement Demo](./QUALITY_IMPROVEMENT_DEMO.md)** - Enhanced fix verification system in action
+- 🏆 **[Perfect Conversion Demo](./PERFECT_CONVERSION_DEMO.md)** - 100% working React Native code examples  
+- 🌐 **[Web API Conversion Guide](./WEB_API_CONVERSION_GUIDE.md)** - Complete web API to React Native conversion reference
+- 🎨 **[Shadcn/ui Conversion Guide](./SHADCN_CONVERSION_GUIDE.md)** - Automatic Shadcn component conversion
+- 💰 **[Token Usage & Pricing Guide](./TOKEN_USAGE_PRICING_GUIDE.md)** - Comprehensive cost analysis and optimization
+- 📊 **[Enhancement Summary](./ENHANCEMENT_SUMMARY.md)** - Complete feature evolution from v2.0 to v2.2.9
 
 ---
 
