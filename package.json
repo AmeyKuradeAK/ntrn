@@ -1,6 +1,6 @@
 {
   "name": "ntrn",
-  "version": "2.2.2",
+  "version": "2.2.9",
   "description": "⚡ A powerful CLI to convert your Next.js App Router project into a fully functional React Native Expo app.",
   "type": "module",
   "main": "src/index.js",
@@ -54,9 +54,9 @@
     "dotenv": "^16.4.7",
     "figlet": "^1.8.0",
     "fs-extra": "^11.3.0",
-    "node-fetch": "^3.3.2",
-    "prompts": "^2.4.2",
     "glob": "^10.3.0",
-    "minimatch": "^9.0.0"
+    "minimatch": "^9.0.0",
+    "node-fetch": "^3.3.2",
+    "prompts": "^2.4.2"
   }
 }

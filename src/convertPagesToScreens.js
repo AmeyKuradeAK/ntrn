@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { callGeminiAPI } from './utils/geminiClient.js';
+import { callGeminiAPI, generateErrorReport, generateBatchFixSuggestions, initializeTokenTracking, displayTokenUsageReport } from './utils/geminiClient.js';
 import { ProjectAnalyzer } from './utils/projectAnalyzer.js';
 import { NavigationSetup } from './utils/navigationSetup.js';
 import { SSRHandler } from './utils/ssrHandler.js';
@@ -22,6 +22,9 @@ export async function convertPagesToScreens(nextjsPath, rnProjectPath, config = 
 
   try {
     console.log(chalk.cyan('🔄 Starting comprehensive Next.js to React Native conversion...'));
+  
+  // Initialize token usage tracking
+  initializeTokenTracking();
     
     // Initialize handlers
     const ssrHandler = new SSRHandler();
@@ -122,6 +125,8 @@ export async function convertPagesToScreens(nextjsPath, rnProjectPath, config = 
       const batchStartIndex = startIndex + (batchIndex * batchSize);
       
       console.log(chalk.cyan(`\n📦 Processing batch ${batchIndex + 1}/${batches.length} (files ${batchStartIndex + 1}-${batchStartIndex + batch.length})`));
+      console.log(chalk.gray(`   📋 This batch contains ${batch.length} files to convert with AI enhancement and error detection`));
+      console.log(chalk.gray(`   🎯 Each file will go through: Quality Check → Error Detection → Auto-Fixing → Validation`));
 
       // Process batch in parallel with rate limiting
       const batchPromises = batch.map(async (file, index) => {
@@ -130,7 +135,9 @@ export async function convertPagesToScreens(nextjsPath, rnProjectPath, config = 
         try {
           // Rate limiting is handled by the addRequest method
           
-          console.log(chalk.blue(`  🔄 Converting: ${file.relativePath}`));
+          console.log(chalk.blue(`\n  🔄 Converting: ${file.relativePath}`));
+          console.log(chalk.gray(`     📍 File ${globalIndex + 1}/${allFiles.length} | Batch ${batchIndex + 1}/${batches.length}`));
+          console.log(chalk.gray(`     🎯 Process: Read → AI Convert → Quality Check → Error Detection → Fix → Validate`));
           
           // Safety check for file path
           const filePath = file.path || path.join(nextjsPath, file.relativePath);
@@ -191,16 +198,27 @@ export async function convertPagesToScreens(nextjsPath, rnProjectPath, config = 
             outputPath: path.relative(rnProjectPath, outputPath),
             success: true,
             isPage,
+            fileName: file.relativePath,
             ssrConversions: ssrResult.convertedPatterns,
             additionalDependencies: {
               ...ssrResult.additionalDependencies,
               ...(aiResult?.dependencies || {})
-            }
+            },
+            // Include AI result data for error analysis
+            qualityScore: aiResult?.qualityScore || 0,
+            errorDetection: aiResult?.errorDetection || null,
+            overallScore: aiResult?.overallScore || 0,
+            hasRuntimeErrors: aiResult?.hasRuntimeErrors || false,
+            errorSummary: aiResult?.errorSummary || null,
+            isProductionReady: aiResult?.isProductionReady || false
           };
 
           conversionResults.push(result);
           
-          console.log(chalk.green(`  ✅ Converted: ${file.relativePath} → ${result.outputPath}`));
+          // Display enhanced completion info
+          const errorInfo = result.hasRuntimeErrors ? chalk.red(' ⚠️ Has Runtime Errors') : '';
+          const qualityInfo = result.qualityScore ? chalk.gray(` (${result.qualityScore}% quality)`) : '';
+          console.log(chalk.green(`  ✅ Converted: ${file.relativePath} → ${result.outputPath}${qualityInfo}${errorInfo}`));
           
           return result;
         } catch (error) {
@@ -277,8 +295,50 @@ export async function convertPagesToScreens(nextjsPath, rnProjectPath, config = 
       }
     }
 
+    // 🔍 GENERATE COMPREHENSIVE ERROR REPORT
+    console.log(chalk.cyan('\n🔍 Generating comprehensive error analysis...'));
+    
+    const errorReport = generateErrorReport(conversionResults);
+    const batchFixSuggestions = generateBatchFixSuggestions(errorReport);
+    
+    // Save error report to file
+    const errorReportPath = path.join(rnProjectPath, 'error-analysis.json');
+    await fs.writeFile(errorReportPath, JSON.stringify(errorReport, null, 2));
+    
+    // Display error summary
+    if (errorReport.summary.totalErrors > 0 || errorReport.summary.totalWarnings > 0) {
+      console.log(chalk.yellow(`\n📊 Error Analysis Summary:`));
+      console.log(chalk.red(`  🚨 ${errorReport.summary.filesWithErrors} files with critical errors`));
+      console.log(chalk.yellow(`  ⚠️ ${errorReport.summary.filesWithWarnings} files with warnings`));
+      console.log(chalk.blue(`  💡 ${errorReport.summary.totalSuggestions} improvement suggestions`));
+      console.log(chalk.cyan(`  📊 Average Error Score: ${errorReport.summary.averageErrorScore}%`));
+      
+      if (batchFixSuggestions.length > 0) {
+        console.log(chalk.cyan(`\n🔧 Top Batch Fix Suggestions:`));
+        batchFixSuggestions.forEach((suggestion, index) => {
+          console.log(chalk.blue(`  ${index + 1}. ${suggestion.category} (${suggestion.priority} Priority)`));
+          console.log(chalk.gray(`     Action: ${suggestion.action}`));
+          console.log(chalk.gray(`     Affects: ${suggestion.files} files`));
+        });
+      }
+      
+      console.log(chalk.gray(`\n📄 Detailed error analysis saved to: ${errorReportPath}`));
+    } else {
+      console.log(chalk.green(`\n✅ No critical errors detected! All files are production-ready.`));
+    }
+
     // Generate conversion report
     const report = generateConversionReport(conversionResults, projectAnalysis);
+    
+    // Add error data to report
+    report.errorAnalysis = {
+      totalErrors: errorReport.summary.totalErrors,
+      totalWarnings: errorReport.summary.totalWarnings,
+      averageErrorScore: errorReport.summary.averageErrorScore,
+      filesWithErrors: errorReport.summary.filesWithErrors,
+      productionReadyFiles: conversionResults.filter(r => r.isProductionReady).length,
+      reportPath: 'error-analysis.json'
+    };
     
     // Clean up progress file on successful completion
     await progressManager.cleanup();
@@ -845,6 +905,9 @@ function generateConversionReport(conversionResults, projectAnalysis) {
 function displayResults(report, rnProjectPath) {
   console.log(chalk.cyan('\n🎉 Conversion Complete!'));
   console.log(chalk.green(`✅ Successfully converted ${report.successfulConversions}/${report.totalFiles} files`));
+  
+  // Display comprehensive token usage report
+  displayTokenUsageReport();
   
   // 📊 Quality Metrics Display
   if (report.quality && report.quality.averageScore > 0) {

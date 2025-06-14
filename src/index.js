@@ -3,6 +3,14 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import figlet from 'figlet';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get version from package.json
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
+const version = packageJson.version;
 
 const program = new Command();
 
@@ -19,7 +27,7 @@ process.on('warning', (e) => {
 
 program
   .name('ntrn')
-  .version('2.2.1')
+  .version(version)
   .description(
     chalk.cyanBright(figlet.textSync('NTRN')) +
     '\n' +
