@@ -6,6 +6,112 @@ import chalk from 'chalk';
 import { convertPagesToScreens } from './convertPagesToScreens.js';
 import { ConversionConfig } from './utils/config.js';
 
+// Basic Expo project creation for simple conversion
+export async function createExpoProject(outputPath) {
+  try {
+    console.log(chalk.cyan('📱 Creating basic Expo project structure...'));
+    
+    // Create directory structure
+    await fs.ensureDir(outputPath);
+    
+    // Create basic package.json for React Native Expo
+    const packageJson = {
+      "name": "converted-react-native",
+      "version": "1.0.0",
+      "main": "node_modules/expo/AppEntry.js",
+      "scripts": {
+        "start": "expo start",
+        "android": "expo start --android",
+        "ios": "expo start --ios",
+        "web": "expo start --web"
+      },
+      "dependencies": {
+        "expo": "~50.0.0",
+        "react": "18.2.0",
+        "react-native": "0.73.0",
+        "@react-navigation/native": "^6.1.0",
+        "@react-navigation/stack": "^6.3.0",
+        "react-native-screens": "~3.29.0",
+        "react-native-safe-area-context": "4.8.2",
+        "@react-native-async-storage/async-storage": "1.21.0"
+      },
+      "devDependencies": {
+        "@babel/core": "^7.20.0",
+        "@types/react": "~18.2.45",
+        "typescript": "^5.1.3"
+      }
+    };
+    
+    await fs.writeJson(path.join(outputPath, 'package.json'), packageJson, { spaces: 2 });
+    
+    // Create app.json
+    const appJson = {
+      "expo": {
+        "name": "Converted React Native App",
+        "slug": "converted-react-native",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "splash": {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        },
+        "assetBundlePatterns": [
+          "**/*"
+        ],
+        "ios": {
+          "supportsTablet": true
+        },
+        "android": {
+          "adaptiveIcon": {
+            "foregroundImage": "./assets/adaptive-icon.png",
+            "backgroundColor": "#FFFFFF"
+          }
+        },
+        "web": {
+          "favicon": "./assets/favicon.png"
+        }
+      }
+    };
+    
+    await fs.writeJson(path.join(outputPath, 'app.json'), appJson, { spaces: 2 });
+    
+    // Create basic App.tsx
+    const appTsx = `import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import HomeScreen from './screens/HomeScreen';
+
+const Stack = createStackNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}`;
+    
+    await fs.writeFile(path.join(outputPath, 'App.tsx'), appTsx);
+    
+    // Create directories
+    await fs.ensureDir(path.join(outputPath, 'screens'));
+    await fs.ensureDir(path.join(outputPath, 'components'));
+    await fs.ensureDir(path.join(outputPath, 'assets'));
+    
+    console.log(chalk.green('✅ Basic Expo project structure created'));
+    return { success: true };
+    
+  } catch (error) {
+    console.error(chalk.red('❌ Failed to create Expo project:'), error.message);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function createProjectFlow() {
   // Initialize configuration
   const configManager = new ConversionConfig(process.cwd());
