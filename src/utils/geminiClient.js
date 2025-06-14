@@ -853,122 +853,449 @@ function extractCodeFromResponse(response) {
   throw new Error('Could not extract code from response');
 }
 
-// 🔧 AUTO-FIX ISSUES FUNCTION
+// 🔧 AUTO-FIX ISSUES FUNCTION WITH TARGETED PROMPTS
 async function autoFixIssues(code, fileName, issues, projectContext) {
   let fixedCode = code;
+  let appliedFixes = [];
+  let failedFixes = [];
+  
+  console.log(chalk.cyan(`    🔧 Starting auto-fix for ${issues.length} issues...`));
   
   for (const issue of issues) {
-    if (issue.includes('Missing React import')) {
-      if (!fixedCode.includes('import React')) {
-        fixedCode = `import React from 'react';\n${fixedCode}`;
-      }
-    }
+    const originalLength = fixedCode.length;
+    let fixApplied = false;
     
-    if (issue.includes('Missing React Native imports')) {
-      if (!fixedCode.includes('react-native')) {
-        const imports = `import { View, Text, StyleSheet, ScrollView } from 'react-native';\nimport { SafeAreaView } from 'react-native-safe-area-context';\n`;
-        fixedCode = fixedCode.replace('import React from \'react\';', `import React from 'react';\n${imports}`);
-      }
-    }
-    
-    if (issue.includes('HTML elements')) {
-      fixedCode = fixedCode.replace(/<div/g, '<View');
-      fixedCode = fixedCode.replace(/<\/div>/g, '</View>');
-      fixedCode = fixedCode.replace(/<span/g, '<Text');
-      fixedCode = fixedCode.replace(/<\/span>/g, '</Text>');
-      fixedCode = fixedCode.replace(/<p/g, '<Text');
-      fixedCode = fixedCode.replace(/<\/p>/g, '</Text>');
-      fixedCode = fixedCode.replace(/<h[1-6]/g, '<Text style={styles.heading}');
-      fixedCode = fixedCode.replace(/<\/h[1-6]>/g, '</Text>');
-    }
-    
-    if (issue.includes('Text content not properly wrapped')) {
-      // This is complex, but we can add basic Text wrapping
-      fixedCode = fixedCode.replace(/>\s*([A-Za-z0-9\s]+)\s*</g, (match, text) => {
-        if (!text.includes('<') && text.trim()) {
-          return `><Text>${text.trim()}</Text><`;
-        }
-        return match;
-      });
-    }
-    
-    if (issue.includes('TypeScript interfaces/types might be missing')) {
-      if (fileName.endsWith('.tsx')) {
-        // Add basic TypeScript interfaces
-        const componentName = getComponentName(fileName);
-        const interfaceDefinition = `\ninterface ${componentName}Props {\n  // Add your props here\n}\n\ninterface ${componentName}State {\n  // Add your state here\n}\n`;
+    try {
+      if (issue.includes('Missing React import')) {
+        console.log(`    🔧 Fixing: ${issue}`);
         
-        // Insert interface before the component
-        const componentMatch = fixedCode.match(/export\s+default\s+function\s+(\w+)/);
-        if (componentMatch) {
-          fixedCode = fixedCode.replace(componentMatch[0], `${interfaceDefinition}\n${componentMatch[0]}`);
+        // Check if React import actually exists
+        if (!fixedCode.includes('import React')) {
+          const fixPrompt = `You are a React Native expert. Add the missing React import to this code.
+
+CURRENT CODE START:
+\`\`\`tsx
+${fixedCode.substring(0, 300)}
+\`\`\`
+
+TASK: Add "import React from 'react';" at the very top of the file.
+Return ONLY the corrected import section (first 5-10 lines including the React import).`;
+
+          const fixResponse = await makeAPIRequest(fixPrompt);
+          const importFix = extractCodeFromResponse(fixResponse);
+          
+          if (importFix && importFix.includes('import React')) {
+            // Apply the React import at the top
+            if (!fixedCode.includes('import React')) {
+              fixedCode = `import React from 'react';\n${fixedCode}`;
+              fixApplied = true;
+              appliedFixes.push('Added React import');
+            }
+          }
+        } else {
+          appliedFixes.push('React import already exists');
+          fixApplied = true;
         }
       }
+      
+      else if (issue.includes('Missing React Native imports')) {
+        console.log(`    🔧 Fixing: ${issue}`);
+        
+        const fixPrompt = `You are a React Native expert. Analyze this code and add the missing React Native imports.
+
+CURRENT CODE:
+\`\`\`tsx
+${fixedCode}
+\`\`\`
+
+ANALYSIS TASK:
+1. Look for components like View, Text, StyleSheet, ScrollView, TouchableOpacity, etc.
+2. Check what imports are missing from 'react-native'
+3. Add SafeAreaView import from 'react-native-safe-area-context' if needed
+
+Return the COMPLETE import section at the top of the file with all necessary imports.`;
+
+        const fixResponse = await makeAPIRequest(fixPrompt);
+        const importFix = extractCodeFromResponse(fixResponse);
+        
+        if (importFix && importFix.includes('react-native')) {
+          // Replace or add the React Native imports
+          const importLines = fixedCode.split('\n');
+          const firstNonImportIndex = importLines.findIndex(line => 
+            !line.trim().startsWith('import') && 
+            !line.trim().startsWith('//') && 
+            line.trim() !== ''
+          );
+          
+          if (firstNonImportIndex > 0) {
+            const beforeImports = importLines.slice(0, 1); // Keep React import
+            const afterImports = importLines.slice(firstNonImportIndex);
+            fixedCode = [...beforeImports, importFix, '', ...afterImports].join('\n');
+            fixApplied = true;
+            appliedFixes.push('Added React Native imports');
+          }
+        }
+      }
+      
+      else if (issue.includes('HTML elements')) {
+        console.log(`    🔧 Fixing: ${issue}`);
+        
+        const fixPrompt = `You are a React Native expert. Convert ALL HTML elements to React Native components in this code.
+
+CURRENT CODE:
+\`\`\`tsx
+${fixedCode}
+\`\`\`
+
+CONVERSION RULES (STRICT):
+- <div> → <View>
+- <span>, <p>, <h1-h6> → <Text>
+- <img> → <Image> (from react-native)
+- <button> → <TouchableOpacity>
+- <input> → <TextInput>
+- Remove ALL HTML attributes that don't exist in React Native
+- Keep className as style prop where applicable
+- Maintain component structure and content
+
+CRITICAL: Return the COMPLETE corrected code with NO HTML elements remaining.`;
+
+        const fixResponse = await makeAPIRequest(fixPrompt);
+        const htmlFix = extractCodeFromResponse(fixResponse);
+        
+        if (htmlFix && htmlFix.length > fixedCode.length * 0.7 && !htmlFix.match(/<(div|span|p|h[1-6]|img|button|input)\b/)) {
+          fixedCode = htmlFix;
+          fixApplied = true;
+          appliedFixes.push('Converted HTML elements to React Native components');
+        }
+      }
+      
+      else if (issue.includes('Text content not properly wrapped')) {
+        console.log(`    🔧 Fixing: ${issue}`);
+        
+        const fixPrompt = `You are a React Native expert. Fix text wrapping issues in this code.
+
+CURRENT CODE:
+\`\`\`tsx
+${fixedCode}
+\`\`\`
+
+CRITICAL RULES:
+1. ALL text content MUST be wrapped in <Text> components
+2. Find any bare text (text not inside <Text>...</Text>)
+3. Wrap it properly: <Text>your text here</Text>
+4. Maintain all styling and functionality
+5. NO bare text should remain outside <Text> components
+
+Return the COMPLETE corrected code with ALL text properly wrapped.`;
+
+        const fixResponse = await makeAPIRequest(fixPrompt);
+        const textFix = extractCodeFromResponse(fixResponse);
+        
+        if (textFix && textFix.length > fixedCode.length * 0.7) {
+          // Validate that text is properly wrapped
+          const hasUnwrappedText = textFix.match(/>\s*[A-Za-z0-9][^<>]*[A-Za-z0-9]\s*</);
+          if (!hasUnwrappedText || textFix.includes('<Text>')) {
+            fixedCode = textFix;
+            fixApplied = true;
+            appliedFixes.push('Fixed text wrapping');
+          }
+        }
+      }
+      
+      else if (issue.includes('TypeScript interfaces/types might be missing')) {
+        console.log(`    🔧 Fixing: ${issue}`);
+        
+        const fixPrompt = `You are a TypeScript + React Native expert. Add proper TypeScript interfaces to this component.
+
+CURRENT CODE:
+\`\`\`tsx
+${fixedCode}
+\`\`\`
+
+TYPESCRIPT ENHANCEMENT TASK:
+1. Analyze component props (if any)
+2. Analyze component state (if any)  
+3. Create proper interfaces (e.g., ComponentNameProps, ComponentNameState)
+4. Add type annotations to function parameters
+5. Ensure proper TypeScript syntax
+
+Return the COMPLETE code with proper TypeScript interfaces and types.`;
+
+        const fixResponse = await makeAPIRequest(fixPrompt);
+        const typeFix = extractCodeFromResponse(fixResponse);
+        
+        if (typeFix && typeFix.includes('interface') && typeFix.length > fixedCode.length * 0.8) {
+          fixedCode = typeFix;
+          fixApplied = true;
+          appliedFixes.push('Added TypeScript interfaces');
+        }
+      }
+      
+      else if (issue.includes('Shadcn components found but not properly converted')) {
+        console.log(`    🔧 Fixing: ${issue}`);
+        
+        const fixPrompt = `You are a React Native expert. Convert ALL Shadcn UI components to React Native equivalents.
+
+CURRENT CODE:
+\`\`\`tsx
+${fixedCode}
+\`\`\`
+
+SHADCN CONVERSION REQUIREMENTS:
+1. Remove ALL @/components/ui/ imports
+2. Replace Shadcn components:
+   - Button → TouchableOpacity with proper styling
+   - Input → TextInput with proper styling  
+   - Card → View with card-like styling
+   - Dialog → Modal component
+   - Select → Custom picker/dropdown
+3. Add React Native imports for new components
+4. Convert className props to style props
+5. Maintain all functionality
+
+CRITICAL: Return COMPLETE code with NO Shadcn imports remaining.`;
+
+        const fixResponse = await makeAPIRequest(fixPrompt);
+        const shadcnFix = extractCodeFromResponse(fixResponse);
+        
+        if (shadcnFix && !shadcnFix.includes('@/components/ui/') && shadcnFix.length > fixedCode.length * 0.7) {
+          fixedCode = shadcnFix;
+          fixApplied = true;
+          appliedFixes.push('Converted Shadcn components');
+        }
+      }
+      
+      // Validation check
+      if (fixApplied) {
+        const newLength = fixedCode.length;
+        console.log(chalk.green(`      ✅ Fix applied (${originalLength} → ${newLength} chars)`));
+      } else {
+        console.log(chalk.yellow(`      ⚠️ Fix not applied - validation failed`));
+        failedFixes.push(issue);
+      }
+      
+      // Small delay between API calls to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+    } catch (fixError) {
+      console.log(chalk.red(`      ❌ Fix failed: ${fixError.message}`));
+      failedFixes.push(issue);
     }
+  }
+  
+  // Summary
+  console.log(chalk.cyan(`    📋 Auto-fix Summary:`));
+  console.log(chalk.green(`      ✅ Applied: ${appliedFixes.length} fixes`));
+  if (appliedFixes.length > 0) {
+    appliedFixes.forEach(fix => console.log(chalk.green(`        • ${fix}`)));
+  }
+  
+  if (failedFixes.length > 0) {
+    console.log(chalk.yellow(`      ⚠️ Failed: ${failedFixes.length} fixes`));
+    failedFixes.forEach(fix => console.log(chalk.yellow(`        • ${fix}`)));
   }
   
   return fixedCode;
 }
 
-// 💡 AUTO-APPLY SUGGESTIONS FUNCTION
+// 💡 AUTO-APPLY SUGGESTIONS FUNCTION WITH TARGETED PROMPTS  
 async function autoApplySuggestions(code, fileName, suggestions, projectContext) {
   let improvedCode = code;
+  let appliedSuggestions = [];
+  let failedSuggestions = [];
+  
+  console.log(chalk.cyan(`    💡 Starting suggestion application for ${suggestions.length} suggestions...`));
   
   for (const suggestion of suggestions) {
-    if (suggestion.includes('localStorage') && suggestion.includes('AsyncStorage')) {
-      // Add AsyncStorage import
-      if (!improvedCode.includes('@react-native-async-storage/async-storage')) {
-        improvedCode = improvedCode.replace(
-          'import React from \'react\';',
-          `import React from 'react';\nimport AsyncStorage from '@react-native-async-storage/async-storage';`
-        );
-      }
-      
-      // Replace localStorage usage
-      improvedCode = improvedCode.replace(/localStorage\.setItem/g, 'AsyncStorage.setItem');
-      improvedCode = improvedCode.replace(/localStorage\.getItem/g, 'AsyncStorage.getItem');
-      improvedCode = improvedCode.replace(/localStorage\.removeItem/g, 'AsyncStorage.removeItem');
-    }
+    const originalLength = improvedCode.length;
+    let suggestionApplied = false;
     
-    if (suggestion.includes('HTML img') && suggestion.includes('React Native Image')) {
-      // Replace img tags with Image components
-      if (!improvedCode.includes('react-native') || !improvedCode.includes('Image')) {
-        improvedCode = improvedCode.replace(
-          'from \'react-native\';',
-          'from \'react-native\';\nimport { Image } from \'expo-image\';'
-        );
-      }
-      
-      improvedCode = improvedCode.replace(/<img\s+([^>]*)\s*\/?>/g, '<Image $1 />');
-    }
-    
-    if (suggestion.includes('accessibility')) {
-      // Add basic accessibility props to touchable elements
-      improvedCode = improvedCode.replace(
-        /<TouchableOpacity/g,
-        '<TouchableOpacity accessibilityRole="button"'
-      );
-      
-      improvedCode = improvedCode.replace(
-        /<Pressable/g,
-        '<Pressable accessibilityRole="button"'
-      );
-    }
-    
-    if (suggestion.includes('SafeAreaView') && !improvedCode.includes('SafeAreaView')) {
-      // Wrap component in SafeAreaView if it's a screen
-      if (fileName.includes('page') || fileName.includes('screen')) {
-        improvedCode = improvedCode.replace(
-          /return\s*\(\s*<View/,
-          'return (\n    <SafeAreaView style={styles.container}>\n      <View'
-        );
+    try {
+      if (suggestion.includes('localStorage') && suggestion.includes('AsyncStorage')) {
+        console.log(`    💡 Applying: localStorage → AsyncStorage conversion`);
         
-        improvedCode = improvedCode.replace(
-          /<\/View>\s*\)\s*;?\s*$|<\/View>\s*\)\s*;?\s*}/,
-          '</View>\n    </SafeAreaView>\n  );'
-        );
+        const suggestionPrompt = `You are a React Native expert. Convert localStorage to AsyncStorage in this code.
+
+CURRENT CODE:
+\`\`\`tsx
+${improvedCode}
+\`\`\`
+
+CONVERSION REQUIREMENTS:
+1. Add import: import AsyncStorage from '@react-native-async-storage/async-storage';
+2. Replace localStorage.setItem → await AsyncStorage.setItem (async)
+3. Replace localStorage.getItem → await AsyncStorage.getItem (async)  
+4. Replace localStorage.removeItem → await AsyncStorage.removeItem (async)
+5. Make functions async where needed
+6. Add proper error handling with try/catch
+7. Handle null returns from AsyncStorage.getItem
+
+CRITICAL: Return COMPLETE code with NO localStorage usage remaining.`;
+
+        const suggestionResponse = await makeAPIRequest(suggestionPrompt);
+        const storageFix = extractCodeFromResponse(suggestionResponse);
+        
+        if (storageFix && storageFix.includes('AsyncStorage') && !storageFix.includes('localStorage') && storageFix.length > improvedCode.length * 0.8) {
+          improvedCode = storageFix;
+          suggestionApplied = true;
+          appliedSuggestions.push('Converted localStorage to AsyncStorage');
+        }
       }
+      
+      else if (suggestion.includes('HTML img') && suggestion.includes('React Native Image')) {
+        console.log(`    💡 Applying: HTML img → React Native Image conversion`);
+        
+        const suggestionPrompt = `You are a React Native expert. Convert HTML img tags to React Native Image components.
+
+CURRENT CODE:
+\`\`\`tsx
+${improvedCode}
+\`\`\`
+
+IMAGE CONVERSION REQUIREMENTS:
+1. Add Image import: import { Image } from 'react-native' or 'expo-image'
+2. Convert <img src="..." alt="..." /> to <Image source={{uri: "..."}} />
+3. Convert local images: <img src="./image.png" /> to <Image source={require('./image.png')} />
+4. Add proper styling and dimensions (width, height)
+5. Convert accessibility: alt → accessibilityLabel
+6. Handle resizeMode prop appropriately
+
+CRITICAL: Return COMPLETE code with NO <img> tags remaining.`;
+
+        const suggestionResponse = await makeAPIRequest(suggestionPrompt);
+        const imageFix = extractCodeFromResponse(suggestionResponse);
+        
+        if (imageFix && imageFix.includes('Image') && !imageFix.includes('<img') && imageFix.length > improvedCode.length * 0.8) {
+          improvedCode = imageFix;
+          suggestionApplied = true;
+          appliedSuggestions.push('Converted HTML img to React Native Image');
+        }
+      }
+      
+      else if (suggestion.includes('accessibility')) {
+        console.log(`    💡 Applying: Accessibility improvements`);
+        
+        const suggestionPrompt = `You are a React Native accessibility expert. Add comprehensive accessibility props to this component.
+
+CURRENT CODE:
+\`\`\`tsx
+${improvedCode}
+\`\`\`
+
+ACCESSIBILITY ENHANCEMENT REQUIREMENTS:
+1. Add accessibilityRole to interactive elements ("button", "link", "text", "image")
+2. Add accessibilityLabel for meaningful descriptions
+3. Add accessibilityHint for additional context where needed
+4. Add accessibilityState for buttons (disabled, selected, etc.)
+5. Ensure minimum touch target size (44pt minimum)
+6. Add accessible={true} where needed
+7. Handle focus management for screen readers
+
+Return the COMPLETE code with comprehensive accessibility improvements:`;
+
+        const suggestionResponse = await makeAPIRequest(suggestionPrompt);
+        const accessibilityFix = extractCodeFromResponse(suggestionResponse);
+        
+        if (accessibilityFix && accessibilityFix.includes('accessibility') && accessibilityFix.length > improvedCode.length * 0.8) {
+          improvedCode = accessibilityFix;
+          suggestionApplied = true;
+          appliedSuggestions.push('Added accessibility improvements');
+        }
+      }
+      
+      else if (suggestion.includes('SafeAreaView')) {
+        console.log(`    💡 Applying: SafeAreaView wrapping`);
+        
+        const suggestionPrompt = `You are a React Native expert. Add SafeAreaView wrapper to this screen component.
+
+CURRENT CODE:
+\`\`\`tsx
+${improvedCode}
+\`\`\`
+
+SAFEAREAVIEW REQUIREMENTS:
+1. Add import: import { SafeAreaView } from 'react-native-safe-area-context'
+2. Wrap the main return content in <SafeAreaView>
+3. Add proper container styling (flex: 1 usually)
+4. Maintain existing styling and layout
+5. Handle proper nesting with other containers
+6. Ensure no layout breaking changes
+
+Return the COMPLETE code with SafeAreaView properly integrated:`;
+
+        const suggestionResponse = await makeAPIRequest(suggestionPrompt);
+        const safeAreaFix = extractCodeFromResponse(suggestionResponse);
+        
+        if (safeAreaFix && safeAreaFix.includes('SafeAreaView') && safeAreaFix.length > improvedCode.length * 0.8) {
+          improvedCode = safeAreaFix;
+          suggestionApplied = true;
+          appliedSuggestions.push('Added SafeAreaView wrapper');
+        }
+      }
+      
+      else if (suggestion.includes('Shadcn')) {
+        console.log(`    💡 Applying: Shadcn UI conversion`);
+        
+        const suggestionPrompt = `You are a React Native expert. Convert ALL Shadcn UI components to React Native equivalents.
+
+CURRENT CODE:
+\`\`\`tsx
+${improvedCode}
+\`\`\`
+
+SHADCN CONVERSION REQUIREMENTS:
+1. Remove ALL @/components/ui/ imports  
+2. Component conversions:
+   - Button → TouchableOpacity with proper styling
+   - Input → TextInput with React Native styling
+   - Card → View with card-like shadow/border styling
+   - Dialog → Modal with proper animations
+   - Select → Custom picker with FlatList
+3. Convert className props → style props with StyleSheet
+4. Add React Native component imports
+5. Maintain all functionality and event handlers
+6. Add proper React Native styling equivalents
+
+CRITICAL: Return COMPLETE code with NO @/components/ui/ imports remaining.`;
+
+        const suggestionResponse = await makeAPIRequest(suggestionPrompt);
+        const shadcnFix = extractCodeFromResponse(suggestionResponse);
+        
+        if (shadcnFix && !shadcnFix.includes('@/components/ui/') && shadcnFix.length > improvedCode.length * 0.7) {
+          improvedCode = shadcnFix;
+          suggestionApplied = true;
+          appliedSuggestions.push('Converted Shadcn UI components');
+        }
+      }
+      
+      // Validation check
+      if (suggestionApplied) {
+        const newLength = improvedCode.length;
+        console.log(chalk.green(`      ✅ Suggestion applied (${originalLength} → ${newLength} chars)`));
+      } else {
+        console.log(chalk.yellow(`      ⚠️ Suggestion not applied - validation failed`));
+        failedSuggestions.push(suggestion);
+      }
+      
+      // Small delay between API calls
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+    } catch (suggestionError) {
+      console.log(chalk.red(`      ❌ Suggestion failed: ${suggestionError.message}`));
+      failedSuggestions.push(suggestion);
     }
+  }
+  
+  // Summary
+  console.log(chalk.cyan(`    📋 Suggestion Application Summary:`));
+  console.log(chalk.green(`      ✅ Applied: ${appliedSuggestions.length} suggestions`));
+  if (appliedSuggestions.length > 0) {
+    appliedSuggestions.forEach(suggestion => console.log(chalk.green(`        • ${suggestion}`)));
+  }
+  
+  if (failedSuggestions.length > 0) {
+    console.log(chalk.yellow(`      ⚠️ Failed: ${failedSuggestions.length} suggestions`));
+    failedSuggestions.forEach(suggestion => console.log(chalk.yellow(`        • ${suggestion.substring(0, 50)}...`)));
   }
   
   return improvedCode;
