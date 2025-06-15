@@ -1,6 +1,6 @@
 {
   "name": "ntrn",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "⚡ A powerful CLI to convert your Next.js App Router project into a fully functional React Native Expo app with ChatGPT-like AI assistant.",
   "type": "module",
   "main": "src/index.js",
