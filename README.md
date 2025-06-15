@@ -13,7 +13,7 @@
 ![version](https://img.shields.io/badge/version-v3.2.0-blue) 
 ![license](https://img.shields.io/github/license/AmeyKuradeAK/ntrn)
 [![npm version](https://img.shields.io/npm/v/ntrn.svg)](https://www.npmjs.com/package/ntrn)
-![stars](https://img.shields.io/github/stars/AmeyKuradeAK)
+![stars](https://img.shields.io/github/stars/AmeyKuradeAK/ntrn)
 
 ---
 
