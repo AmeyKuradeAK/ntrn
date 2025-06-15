@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-// 🧠 NTRN v3.2.3 Smart Conversion Demo
+// 🧠 NTRN v3.2.4 Smart Conversion Demo
 // Shows how the new system works like Cursor AI
 
 import chalk from 'chalk';
 import { SmartConverter } from './src/utils/smartConverter.js';
 
 console.log(chalk.cyan(`
-🧠 NTRN v3.2.3 - Smart Conversion Demo
+🧠 NTRN v3.2.4 - Smart Conversion Demo
 Like Cursor AI: Instant, Reliable, Intelligent
 `));
 
@@ -104,7 +104,7 @@ console.log(chalk.green(`
 console.log(chalk.cyan('\n📊 Performance Comparison:'));
 
 const comparison = [
-      ['Metric', 'Old AI (v3.1.1)', 'Smart (v3.2.3)', 'Improvement'],
+      ['Metric', 'Old AI (v3.1.1)', 'Smart (v3.2.4)', 'Improvement'],
   ['Speed', '15-30 seconds', '1-3 seconds', '10x faster'],
   ['Token Usage', '500-1000 per file', '0-100 per file', '90% reduction'],
   ['Success Rate', '60-70%', '95-98%', '40% improvement'],
@@ -145,5 +145,5 @@ console.log(chalk.white('  cd your-nextjs-app'));
 console.log(chalk.white('  ntrn'));
 console.log(chalk.green('\n  You\'ll immediately notice the difference!'));
 
-console.log(chalk.magenta('\n🎉 NTRN v3.2.3 - Smart Conversion Like Cursor AI'));
+console.log(chalk.magenta('\n🎉 NTRN v3.2.4 - Smart Conversion Like Cursor AI'));
 console.log(chalk.gray('Fast. Reliable. Intelligent.')); 

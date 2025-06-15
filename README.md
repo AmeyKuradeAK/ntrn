@@ -6,7 +6,7 @@
 <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&size=35&duration=3000&pause=1000&color=00D4FF&center=true&vCenter=true&width=1000&height=100&lines=NEXT.JS+TO+REACT+NATIVE+CONVERTER;AI-POWERED+%E2%9A%A1+INSTANT+CONVERSION;PRODUCTION-READY+CODE+GENERATOR" alt="Typing SVG" />
 
 <!-- Epic Logo Animation -->
-<img src="https://media.giphy.com/media/iY8CRBdQXODJSCERIr/giphy.gif" width="100" />
+<img src="https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif" width="100" />
 
 <!-- Matrix Rain Effect -->
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:00D4FF,50:0080FF,100:8A2BE2&height=200&section=header&text=NTRN%20ENHANCED&fontSize=50&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Transform%20Next.js%20to%20React%20Native%20with%20AI%20Magic&descAlignY=55&descAlign=50" />
@@ -23,14 +23,14 @@
 </div>
 
 <!-- Holographic Divider -->
-<img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/3oKIPEqDGUULpEU0aQ/giphy.gif" width="1000">
 
 ## <div align="center">🌟 **REVOLUTIONARY AI-POWERED CONVERTER** 🌟</div>
 
 <div align="center">
 
 <!-- Live Status Badges with Animations -->
-<img src="https://img.shields.io/badge/Version-v3.2.3-00D4FF?style=for-the-badge&logo=rocket&logoColor=white&labelColor=000000" />
+<img src="https://img.shields.io/badge/Version-v3.2.4-00D4FF?style=for-the-badge&logo=rocket&logoColor=white&labelColor=000000" />
 <img src="https://img.shields.io/badge/AI_Powered-100%25-00FF88?style=for-the-badge&logo=brain&logoColor=white&labelColor=000000" />
 <img src="https://img.shields.io/badge/Success_Rate-99.8%25-FFD700?style=for-the-badge&logo=target&logoColor=white&labelColor=000000" />
 <img src="https://img.shields.io/badge/Token_Reduction-90%25-FF6B6B?style=for-the-badge&logo=zap&logoColor=white&labelColor=000000" />
@@ -45,10 +45,10 @@
 
 <!-- Neon Separator -->
 <div align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="800">
+<img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="800">
 </div>
 
-## 🚀 **WHAT'S NEW IN v3.2.3 - ENHANCED README & ANIMATIONS**
+## 🚀 **WHAT'S NEW IN v3.2.4 - DIVERSE CONTEXTUAL ANIMATIONS**
 
 <div align="center">
 
@@ -56,34 +56,34 @@
 <table>
 <tr>
 <td align="center">
-<img src="https://media.giphy.com/media/iY8CRBdQXODJSCERIr/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.gif" width="50"><br>
 <b>🧠 SMART AI CONVERSION</b><br>
 <sub>Like Cursor AI - Instant & Reliable</sub>
 </td>
 <td align="center">
-<img src="https://media.giphy.com/media/3oKIPnAiaMCws8nOsE/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/13GIgrGdslD9oQ/giphy.gif" width="50"><br>
 <b>⚡ 95% FASTER</b><br>
 <sub>Most Files Convert Instantly</sub>
 </td>
 <td align="center">
-<img src="https://media.giphy.com/media/dNgK7Ws7y176U/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" width="50"><br>
 <b>🎯 NO RETRY LOOPS</b><br>
 <sub>Gets It Right First Time</sub>
 </td>
 </tr>
 <tr>
 <td align="center">
-<img src="https://media.giphy.com/media/3o7qDSOvfaCO9b3MlO/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/67ThRZlYBvibtdF9JH/giphy.gif" width="50"><br>
 <b>💰 90% TOKEN REDUCTION</b><br>
 <sub>Only Complex Cases Use AI</sub>
 </td>
 <td align="center">
-<img src="https://media.giphy.com/media/l0HeFCA0Y1fRDaOWs/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/3ornka9rAaKRA2Rkac/giphy.gif" width="50"><br>
 <b>✅ GUARANTEED CODE</b><br>
 <sub>100% Success Rate</sub>
 </td>
 <td align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif" width="50"><br>
 <b>🎨 ORIGINAL EXPERIENCE</b><br>
 <sub>Cool ASCII + Interactive</sub>
 </td>
@@ -94,7 +94,7 @@
 
 <!-- Lightning Effect -->
 <div align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/xTiTnHXbNWbg0Gedhu/giphy.gif" width="1000">
 </div>
 
 ## ✨ **MIND-BLOWING FEATURES**
@@ -110,7 +110,7 @@
 </tr>
 <tr>
 <td align="center" width="33%">
-<img src="https://media.giphy.com/media/iY8CRBdQXODJSCERIr/giphy.gif" width="80"><br>
+<img src="https://media.giphy.com/media/l46Cy1rHbQ92uuLXa/giphy.gif" width="80"><br>
 <h3>🧠 AI ANALYSIS</h3>
 <ul align="left">
 <li>🌐 Web API Intelligence</li>
@@ -120,7 +120,7 @@
 </ul>
 </td>
 <td align="center" width="33%">
-<img src="https://media.giphy.com/media/3oKIPnAiaMCws8nOsE/giphy.gif" width="80"><br>
+<img src="https://media.giphy.com/media/26BRBKqUiq586bRVm/giphy.gif" width="80"><br>
 <h3>🎨 STYLING MAGIC</h3>
 <ul align="left">
 <li>🌊 NativeWind Integration</li>
@@ -130,7 +130,7 @@
 </ul>
 </td>
 <td align="center" width="33%">
-<img src="https://media.giphy.com/media/dNgK7Ws7y176U/giphy.gif" width="80"><br>
+<img src="https://media.giphy.com/media/12Nv3nBSCAbLO0/giphy.gif" width="80"><br>
 <h3>🧭 NAVIGATION PRO</h3>
 <ul align="left">
 <li>📱 React Navigation Setup</li>
@@ -146,7 +146,7 @@
 
 <!-- Plasma Effect -->
 <div align="center">
-<img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/3ov9jLsBqPh6rjuHuM/giphy.gif" width="1000">
 </div>
 
 ## 🤖 **INTERACTIVE AI ASSISTANT - CHATGPT FOR REACT NATIVE!**
@@ -154,7 +154,7 @@
 <div align="center">
 
 <!-- AI Demo GIF -->
-<img src="https://media.giphy.com/media/3o7qDSOvfaCO9b3MlO/giphy.gif" width="100">
+<img src="https://media.giphy.com/media/3o7bu3hSXkNBkRaGqs/giphy.gif" width="100">
 
 <table>
 <tr>
@@ -204,7 +204,7 @@
 
 <!-- Cyber Divider -->
 <div align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="800">
+<img src="https://media.giphy.com/media/5QLOpGuwE8U7T8HfZC/giphy.gif" width="800">
 </div>
 
 ## 🎨 **SHADCN/UI MAGIC CONVERSION**
@@ -215,11 +215,11 @@
 <table>
 <tr>
 <td align="center" width="50%">
-<img src="https://media.giphy.com/media/iY8CRBdQXODJSCERIr/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/du3J3cXyzhj75IOgvA/giphy.gif" width="50"><br>
 <b>🌐 BEFORE (Next.js)</b>
 </td>
 <td align="center" width="50%">
-<img src="https://media.giphy.com/media/3oKIPnAiaMCws8nOsE/giphy.gif" width="50"><br>
+<img src="https://media.giphy.com/media/fwbZnTftCXVocKzfxR/giphy.gif" width="50"><br>
 <b>📱 AFTER (React Native)</b>
 </td>
 </tr>
@@ -296,7 +296,7 @@ export function LoginForm() {
 
 <!-- Electric Separator -->
 <div align="center">
-<img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/3ohs4BSacFKI7A717y/giphy.gif" width="1000">
 </div>
 
 ## ⚡ **INSTALLATION & SETUP**
@@ -335,7 +335,7 @@ echo "GEMINI_API_KEY=your_api_key_here" > .env
 
 <!-- Animated Separator -->
 <div align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="800">
+<img src="https://media.giphy.com/media/xUOrw5LIxb8S9X1LqM/giphy.gif" width="800">
 </div>
 
 ## 🎯 **THREE EPIC MODES TO CHOOSE FROM**
@@ -403,7 +403,7 @@ ntrn --prompt          # ChatGPT-like assistance
 
 <!-- Matrix Effect -->
 <div align="center">
-<img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/3oKIPCdBP7dGDxPJ8Q/giphy.gif" width="1000">
 </div>
 
 ## 💰 **PRICING & TOKEN USAGE**
@@ -451,7 +451,7 @@ ntrn --prompt          # ChatGPT-like assistance
 
 <!-- Holographic Effect -->
 <div align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="800">
+<img src="https://media.giphy.com/media/QpVUMRUJGokfqXyfa1/giphy.gif" width="800">
 </div>
 
 ## 📚 **DOCUMENTATION UNIVERSE**
@@ -499,7 +499,7 @@ ntrn --prompt          # ChatGPT-like assistance
 
 <!-- Cosmic Separator -->
 <div align="center">
-<img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/l378AEZceMwWBoEQE/giphy.gif" width="1000">
 </div>
 
 ## ⚡ **POWERED BY THE BEST**
@@ -542,7 +542,7 @@ ntrn --prompt          # ChatGPT-like assistance
 
 <!-- Lightning Footer -->
 <div align="center">
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="800">
+<img src="https://media.giphy.com/media/3o6nUMRm46ceoDRAd2/giphy.gif" width="800">
 </div>
 
 ## 🚀 **ROADMAP TO THE FUTURE**
@@ -587,7 +587,7 @@ We love contributions! Please check out our [CONTRIBUTING.md](CONTRIBUTING.md) b
 
 <!-- Community Section -->
 <div align="center">
-<img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/L1R1tvI9svkIWwpVYr/giphy.gif" width="1000">
 </div>
 
 ## 🌍 **JOIN THE COMMUNITY**
@@ -646,7 +646,7 @@ If you like this project, show some ❤️
 <img src="https://img.shields.io/badge/License-APACHE%202.0-00D4FF?style=for-the-badge&logo=apache&logoColor=white" />
 
 <!-- Final Animation -->
-<img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" width="1000">
+<img src="https://media.giphy.com/media/3o84sv2u7KSHKbwPza/giphy.gif" width="1000">
 
 </div>
 
