@@ -678,3 +678,6 @@ Do whatever you want, just give credit.
 ### **Made with 💙 by [Amey Kurade](https://www.github.com/AmeyKuradeAK)**
 
 </div>
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-💖-ff69b4?style=for-the-badge)](https://github.com/sponsors/AmeyKuradeAK)
+
