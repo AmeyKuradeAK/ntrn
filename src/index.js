@@ -10,6 +10,7 @@ import { createExpoProject, createProjectFlow } from './createExpoProject.js';
 import InteractivePrompt from './utils/interactivePrompt.js';
 import { aiManager } from './utils/aiProviders.js';
 import { SmartConverter } from './utils/smartConverter.js';
+import { fixProjectRuntimeErrors } from './utils/fixRuntimeErrors.js';
 
 // Get package version from NTRN package directory
 import { fileURLToPath } from 'url';
@@ -81,6 +82,35 @@ program
 program
   .option('--switch-provider', '🔄 Switch between Mistral AI and Gemini providers')
   .action(async (options) => {
+    if (options.switchProvider) {
+      await switchAIProvider();
+      return;
+    }
+    
+    if (options.prompt || options.gpt) {
+      const interactivePrompt = new InteractivePrompt();
+      await interactivePrompt.start();
+      return;
+    }
+    
+    if (options.legacy || options.old) {
+      await runLegacyNTRN();
+      return;
+    }
+    
+    // Default professional conversion
+    await runProfessionalConversion();
+  });
+
+// Runtime Error Fixer command
+program
+  .option('--fix-runtime', '🔧 Fix runtime errors in existing React Native project')
+  .action(async (options) => {
+    if (options.fixRuntime) {
+      await runRuntimeErrorFixer();
+      return;
+    }
+    
     if (options.switchProvider) {
       await switchAIProvider();
       return;
@@ -198,6 +228,42 @@ async function runLegacyNTRN() {
   } catch (error) {
     console.error(chalk.red(`\n❌ Legacy Error: ${error.message}`));
     console.log(chalk.yellow('\n💡 Try the new professional approach: ntrn'));
+    process.exit(1);
+  }
+}
+
+// 🔧 Runtime Error Fixer
+async function runRuntimeErrorFixer() {
+  try {
+    console.clear();
+    
+    console.log(chalk.cyan(figlet.textSync('NTRN FIX', {
+      font: 'Small',
+      horizontalLayout: 'default',
+      verticalLayout: 'default'
+    })));
+    
+    console.log(chalk.cyan('🔧 React Native Runtime Error Fixer'));
+    console.log(chalk.yellow('Fixes: Cannot read property errors, missing imports, nested Text components'));
+    console.log(chalk.yellow('━'.repeat(60)));
+    console.log('');
+
+    const currentDir = process.cwd();
+    console.log(chalk.gray(`Scanning project: ${path.basename(currentDir)}`));
+    
+    // Run the runtime error fixer
+    await fixProjectRuntimeErrors(currentDir);
+    
+    console.log(chalk.green('\n✅ Runtime error fixing complete!'));
+    console.log(chalk.cyan('\n📱 Next steps:'));
+    console.log(chalk.white('1. Run: npm install (to update dependencies)'));
+    console.log(chalk.white('2. Run: npx expo start'));
+    console.log(chalk.white('3. Test your app on device/simulator'));
+    console.log(chalk.yellow('\n💡 If you still have issues, use: ntrn --prompt'));
+    
+  } catch (error) {
+    console.error(chalk.red(`❌ Runtime fixer error: ${error.message}`));
+    console.log(chalk.yellow('💡 Try using the interactive prompt: ntrn --prompt'));
     process.exit(1);
   }
 }

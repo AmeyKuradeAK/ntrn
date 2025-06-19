@@ -2446,7 +2446,7 @@ declare global {
     appJson.expo.platforms = ['ios', 'android', 'web'];
     
     // Ensure SDK version
-    appJson.expo.sdkVersion = '53.0.0';
+    appJson.expo.sdkVersion = '52.0.0';
     
     // Ensure New Architecture
     appJson.expo.newArchEnabled = true;
@@ -2495,13 +2495,24 @@ module.exports = config;`;
     
     // Ensure all critical dependencies are present
     const requiredDeps = {
-      'expo': '~53.0.12',
-      'react': '19.0.0',
-      'react-native': '0.79.0',
-      '@react-navigation/native': '^7.0.0',
-      '@react-navigation/native-stack': '^7.0.0',
-      'react-native-screens': '~4.0.0',
-      'react-native-safe-area-context': '~4.12.0'
+      'expo': '~52.0.19',
+      'react': '18.3.1',
+      'react-native': '0.76.5',
+      '@react-navigation/native': '^6.1.18',
+      '@react-navigation/native-stack': '^6.11.0',
+      '@react-navigation/bottom-tabs': '^6.6.1',
+      'react-native-screens': '~4.11.1',
+      'react-native-safe-area-context': '5.4.0',
+      'react-native-gesture-handler': '~2.24.0',
+      'react-native-reanimated': '~3.17.4',
+      'expo-status-bar': '~2.2.3',
+      'expo-splash-screen': '~0.29.14',
+      'expo-font': '~13.3.1',
+      'expo-image': '~2.3.0',
+      '@react-native-async-storage/async-storage': '2.1.2',
+      'react-native-svg': '15.11.2',
+      '@react-native-community/slider': '4.5.6',
+      'react-native-toast-message': '^2.2.1'
     };
     
     packageJson.dependencies = packageJson.dependencies || {};
