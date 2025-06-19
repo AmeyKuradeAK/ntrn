@@ -739,6 +739,130 @@ Look at the folder name, file names, and code content to determine what this fol
     return purposes[category] || 'Supporting functionality';
   }
 
+  detectShadcnUsage(sourceContent) {
+    if (!sourceContent) {
+      return { hasShadcn: false, components: [], imports: [] };
+    }
+
+    const shadcnImportRegex = /import\s*{\s*([^}]+)\s*}\s*from\s*["'`]@\/components\/ui\/([^"'`]+)["'`]/g;
+    const shadcnComponents = [
+      'Button', 'Input', 'Card', 'CardHeader', 'CardTitle', 'CardContent', 'CardFooter',
+      'Dialog', 'DialogContent', 'DialogHeader', 'DialogTitle', 'DialogTrigger',
+      'Sheet', 'SheetContent', 'SheetHeader', 'SheetTitle', 'SheetTrigger',
+      'Select', 'SelectContent', 'SelectItem', 'SelectTrigger', 'SelectValue',
+      'Checkbox', 'Switch', 'RadioGroup', 'RadioGroupItem',
+      'Tabs', 'TabsList', 'TabsTrigger', 'TabsContent',
+      'Badge', 'Avatar', 'AvatarImage', 'AvatarFallback',
+      'Progress', 'Slider', 'Textarea', 'Label',
+      'Alert', 'AlertDialog', 'AlertDialogAction', 'AlertDialogCancel',
+      'Toast', 'Toaster', 'useToast',
+      'Separator', 'Skeleton', 'ScrollArea',
+      'Command', 'CommandDialog', 'CommandInput', 'CommandList',
+      'Popover', 'PopoverContent', 'PopoverTrigger',
+      'HoverCard', 'HoverCardContent', 'HoverCardTrigger',
+      'DropdownMenu', 'DropdownMenuContent', 'DropdownMenuItem'
+    ];
+
+    const detectedComponents = new Set();
+    const detectedImports = new Set();
+    
+    // Check for import statements
+    let match;
+    while ((match = shadcnImportRegex.exec(sourceContent)) !== null) {
+      const components = match[1].split(',').map(c => c.trim());
+      const importPath = match[2];
+      
+      detectedImports.add(`@/components/ui/${importPath}`);
+      components.forEach(comp => {
+        if (shadcnComponents.includes(comp)) {
+          detectedComponents.add(comp);
+        }
+      });
+    }
+
+    // Check for component usage in JSX
+    shadcnComponents.forEach(component => {
+      const usageRegex = new RegExp(`<${component}\\b`, 'g');
+      if (usageRegex.test(sourceContent)) {
+        detectedComponents.add(component);
+      }
+    });
+
+    return {
+      hasShadcn: detectedComponents.size > 0 || detectedImports.size > 0,
+      components: Array.from(detectedComponents),
+      imports: Array.from(detectedImports)
+    };
+  }
+
+  getShadcnConversionMapping(component) {
+    const mappings = {
+      'Button': '**Button** → TouchableOpacity + Text with proper styling and onPress handler',
+      'Input': '**Input** → TextInput with React Native styling, keyboardType, and onChangeText',
+      'Card': '**Card** → View with shadow/border styling',
+      'CardHeader': '**CardHeader** → View with header styling',
+      'CardTitle': '**CardTitle** → Text with title styling', 
+      'CardContent': '**CardContent** → View with content padding',
+      'CardFooter': '**CardFooter** → View with footer styling',
+      'Dialog': '**Dialog** → Modal with overlay and proper animations',
+      'DialogContent': '**DialogContent** → View with modal content styling',
+      'DialogHeader': '**DialogHeader** → View with modal header',
+      'DialogTitle': '**DialogTitle** → Text with modal title styling',
+      'DialogTrigger': '**DialogTrigger** → TouchableOpacity to open modal',
+      'Sheet': '**Sheet** → Modal with slide-up animation',
+      'SheetContent': '**SheetContent** → View with bottom sheet styling',
+      'SheetHeader': '**SheetHeader** → View with sheet header',
+      'SheetTitle': '**SheetTitle** → Text with sheet title styling',
+      'SheetTrigger': '**SheetTrigger** → TouchableOpacity to open sheet',
+      'Select': '**Select** → Custom picker with TouchableOpacity + Modal + FlatList',
+      'SelectContent': '**SelectContent** → Modal with options list',
+      'SelectItem': '**SelectItem** → TouchableOpacity for each option',
+      'SelectTrigger': '**SelectTrigger** → TouchableOpacity to open picker',
+      'SelectValue': '**SelectValue** → Text showing selected value',
+      'Checkbox': '**Checkbox** → TouchableOpacity with custom checkbox styling',
+      'Switch': '**Switch** → React Native Switch component',
+      'RadioGroup': '**RadioGroup** → Custom radio button group with TouchableOpacity',
+      'RadioGroupItem': '**RadioGroupItem** → TouchableOpacity with radio styling',
+      'Tabs': '**Tabs** → Custom tab implementation with TouchableOpacity',
+      'TabsList': '**TabsList** → View with horizontal tab buttons',
+      'TabsTrigger': '**TabsTrigger** → TouchableOpacity for each tab',
+      'TabsContent': '**TabsContent** → View with tab content',
+      'Badge': '**Badge** → View with badge styling and Text',
+      'Avatar': '**Avatar** → Image with circular styling (expo-image)',
+      'AvatarImage': '**AvatarImage** → Image component',
+      'AvatarFallback': '**AvatarFallback** → Text with fallback styling',
+      'Progress': '**Progress** → Custom progress bar with View components',
+      'Slider': '**Slider** → @react-native-community/slider',
+      'Textarea': '**Textarea** → TextInput with multiline and proper styling',
+      'Label': '**Label** → Text with label styling',
+      'Alert': '**Alert** → View with alert styling and icon',
+      'AlertDialog': '**AlertDialog** → Modal with alert styling',
+      'AlertDialogAction': '**AlertDialogAction** → TouchableOpacity for alert actions',
+      'AlertDialogCancel': '**AlertDialogCancel** → TouchableOpacity for cancel action',
+      'Toast': '**Toast** → react-native-toast-message integration',
+      'Toaster': '**Toaster** → Toast message container',
+      'useToast': '**useToast** → Custom hook for toast notifications',
+      'Separator': '**Separator** → View with border styling',
+      'Skeleton': '**Skeleton** → View with loading animation',
+      'ScrollArea': '**ScrollArea** → ScrollView with proper styling',
+      'Command': '**Command** → Custom command palette with TextInput + FlatList',
+      'CommandDialog': '**CommandDialog** → Modal with command interface',
+      'CommandInput': '**CommandInput** → TextInput for command search',
+      'CommandList': '**CommandList** → FlatList for command results',
+      'Popover': '**Popover** → Modal with popover positioning',
+      'PopoverContent': '**PopoverContent** → View with popover content',
+      'PopoverTrigger': '**PopoverTrigger** → TouchableOpacity to open popover',
+      'HoverCard': '**HoverCard** → TouchableOpacity with long press (no hover in mobile)',
+      'HoverCardContent': '**HoverCardContent** → Modal or tooltip content',
+      'HoverCardTrigger': '**HoverCardTrigger** → TouchableOpacity with long press',
+      'DropdownMenu': '**DropdownMenu** → Modal with dropdown styling',
+      'DropdownMenuContent': '**DropdownMenuContent** → View with menu items',
+      'DropdownMenuItem': '**DropdownMenuItem** → TouchableOpacity for each menu item'
+    };
+
+    return mappings[component] || `**${component}** → Create React Native equivalent using TouchableOpacity, View, Text, and proper styling`;
+  }
+
   convertFileNameToScreenName(filename) {
     // Convert file path to screen name
     const baseName = path.basename(filename, path.extname(filename));
@@ -886,25 +1010,29 @@ Look at the folder name, file names, and code content to determine what this fol
         eject: 'expo eject'
       },
       dependencies: {
-        expo: '~53.0.12',
-        react: '19.0.0',
-        'react-native': '0.79.0',
-        '@react-navigation/native': '^7.0.0',
-        '@react-navigation/native-stack': '^7.0.0',
-        '@react-navigation/bottom-tabs': '^7.0.0',
-        'react-native-screens': '~4.0.0',
-        'react-native-safe-area-context': '~4.12.0',
-        '@react-native-async-storage/async-storage': '~2.1.0',
+        expo: '~52.0.19',
+        react: '18.3.1',
+        'react-native': '0.76.5',
+        '@react-navigation/native': '^6.1.18',
+        '@react-navigation/native-stack': '^6.11.0',
+        '@react-navigation/bottom-tabs': '^6.6.1',
+        'react-native-screens': '3.34.0',
+        'react-native-safe-area-context': '4.12.0',
+        '@react-native-async-storage/async-storage': '1.23.1',
         'react-native-gesture-handler': '~2.20.0',
         'expo-status-bar': '~2.0.0',
-        'expo-font': '~13.0.0',
-        'expo-splash-screen': '~1.0.0'
+        'expo-font': '~12.0.10',
+        'expo-splash-screen': '~0.27.8',
+        'expo-image': '~1.13.0',
+        '@react-native-community/slider': '4.5.3',
+        'react-native-toast-message': '^2.2.1',
+        'react-native-reanimated': '~3.16.1',
+        'react-native-svg': '15.8.0'
       },
       devDependencies: {
         '@babel/core': '^7.25.0',
-        '@types/react': '~19.0.0',
-        '@types/react-native': '^0.79.0',
-        'typescript': '~5.8.3'
+        '@types/react': '~18.3.12',
+        'typescript': '~5.3.3'
       }
     };
 
@@ -976,43 +1104,43 @@ export default function App(): JSX.Element {
 
     // Fixed app.json - Official Expo SDK 53 React Native configuration
     const appJson = {
-      expo: {
-        name: path.basename(this.outputPath),
-        slug: path.basename(this.outputPath).toLowerCase(),
-        version: '1.0.0',
-        orientation: 'portrait',
-        icon: './assets/icon.png',
-        userInterfaceStyle: 'light',
-        newArchEnabled: true, // Enable New Architecture by default for SDK 53
-        splash: {
-          image: './assets/splash.png',
-          resizeMode: 'contain',
-          backgroundColor: '#ffffff'
-        },
-        assetBundlePatterns: ['**/*'],
-        ios: {
-          supportsTablet: true,
-          bundleIdentifier: `com.${path.basename(this.outputPath).toLowerCase()}.app`,
-          deploymentTarget: '15.1' // SDK 53 minimum iOS version
-        },
-        android: {
-          adaptiveIcon: {
-            foregroundImage: './assets/adaptive-icon.png',
-            backgroundColor: '#FFFFFF'
+              expo: {
+          name: path.basename(this.outputPath),
+          slug: path.basename(this.outputPath).toLowerCase(),
+          version: '1.0.0',
+          orientation: 'portrait',
+          icon: './assets/icon.png',
+          userInterfaceStyle: 'light',
+          newArchEnabled: true, // Enable New Architecture by default for SDK 52
+          splash: {
+            image: './assets/splash.png',
+            resizeMode: 'contain',
+            backgroundColor: '#ffffff'
           },
-          package: `com.${path.basename(this.outputPath).toLowerCase()}.app`,
-          compileSdkVersion: 35, // SDK 53 requirement
-          targetSdkVersion: 35,
-          minSdkVersion: 24 // SDK 53 requirement
-        },
-        web: {
-          favicon: './assets/favicon.png',
-          bundler: 'metro'
-        },
-        plugins: [
-          'expo-splash-screen' // Use config plugin for SDK 53
-        ]
-      }
+          assetBundlePatterns: ['**/*'],
+          ios: {
+            supportsTablet: true,
+            bundleIdentifier: `com.${path.basename(this.outputPath).toLowerCase()}.app`,
+            deploymentTarget: '15.1' // SDK 52 minimum iOS version
+          },
+          android: {
+            adaptiveIcon: {
+              foregroundImage: './assets/adaptive-icon.png',
+              backgroundColor: '#FFFFFF'
+            },
+            package: `com.${path.basename(this.outputPath).toLowerCase()}.app`,
+            compileSdkVersion: 34, // SDK 52 requirement
+            targetSdkVersion: 34,
+            minSdkVersion: 23 // SDK 52 requirement
+          },
+          web: {
+            favicon: './assets/favicon.png',
+            bundler: 'metro'
+          },
+          plugins: [
+            'expo-splash-screen' // Use config plugin for SDK 52
+          ]
+        }
     };
 
     await fs.writeJson(path.join(this.outputPath, 'app.json'), appJson, { spaces: 2 });
@@ -2910,9 +3038,43 @@ export default function App() {
   }
 
   createIntelligentScreenPrompt(screenInfo, sourceContent) {
+    // Check for Shadcn/ui usage in the source content
+    const shadcnDetection = this.detectShadcnUsage(sourceContent);
+    
     return `# CREATE REACT NATIVE SCREEN: ${screenInfo.screenName}
 
 You are a Senior Mobile Developer. Create a React Native screen that provides the same functionality as the analyzed Next.js page/component.
+
+${shadcnDetection.hasShadcn ? `
+## 🚨 SHADCN/UI COMPONENTS DETECTED IN PAGE!
+
+**Critical Detection**: This Next.js page uses Shadcn/ui components which must be completely converted to React Native.
+
+**Detected Components**: ${shadcnDetection.components.join(', ')}
+**Detected Imports**: ${shadcnDetection.imports.join(', ')}
+
+### MANDATORY SHADCN CONVERSION FOR MOBILE:
+
+#### 🔄 Component Mappings (MUST IMPLEMENT):
+${shadcnDetection.components.map(comp => this.getShadcnConversionMapping(comp)).join('\n')}
+
+#### 📱 COMPLETE SHADCN REPLACEMENT STRATEGY:
+1. **Remove ALL @/components/ui/ imports** - Replace with React Native components
+2. **Convert each Shadcn component** to proper React Native equivalent
+3. **Add comprehensive StyleSheet** with mobile-optimized styling
+4. **Use TouchableOpacity** instead of Button components
+5. **Implement proper mobile interactions** (onPress, gestures, feedback)
+6. **Add React Native specific props** (activeOpacity, accessibilityLabel, etc.)
+
+#### ⚠️ CRITICAL MOBILE REQUIREMENTS:
+- ALL text must be wrapped in <Text> components
+- Use TouchableOpacity for ALL interactive elements
+- Implement proper mobile navigation patterns
+- Add loading states and error handling
+- Include proper accessibility features
+- Use mobile-optimized styling and spacing
+
+` : ''}
 
 ## SCREEN REQUIREMENTS:
 - **Screen Name**: ${screenInfo.screenName}
@@ -3148,9 +3310,40 @@ export default ${screenInfo.screenName};
   }
 
   createSupportingFilePrompt(fileName, categoryInfo, sourceContent) {
+    // Check for Shadcn/ui usage in the source content
+    const shadcnDetection = this.detectShadcnUsage(sourceContent);
+    
     return `# CONVERT ${categoryInfo.category.toUpperCase()} FILE TO REACT NATIVE: ${fileName}
 
 You are a Senior React Native Developer. Convert this ${categoryInfo.category} file from Next.js to React Native.
+
+${shadcnDetection.hasShadcn ? `
+## 🚨 SHADCN/UI COMPONENTS DETECTED!
+
+**Critical Detection**: This file uses Shadcn/ui components which are NOT compatible with React Native.
+
+**Detected Components**: ${shadcnDetection.components.join(', ')}
+**Detected Imports**: ${shadcnDetection.imports.join(', ')}
+
+### MANDATORY SHADCN CONVERSION REQUIREMENTS:
+
+#### 🔄 Component Mappings (MUST IMPLEMENT):
+${shadcnDetection.components.map(comp => this.getShadcnConversionMapping(comp)).join('\n')}
+
+#### 📱 Required React Native Dependencies:
+- TouchableOpacity, Text, View, TextInput, Modal, ScrollView (from 'react-native')
+- StyleSheet for all styling (NO className allowed)
+- Proper React Native event handlers (onPress, onChangeText)
+
+#### ⚠️ CRITICAL RULES:
+1. **REMOVE ALL @/components/ui/ imports** - These don't exist in React Native
+2. **Convert ALL Shadcn components** to React Native equivalents 
+3. **Replace className with style** using StyleSheet objects
+4. **Convert onClick to onPress** for all interactive elements
+5. **Wrap ALL text in <Text> components** - Never use raw text
+6. **Use proper React Native styling** - No CSS properties
+
+` : ''}
 
 ## FILE INFORMATION:
 - **File Name**: ${fileName}
@@ -3423,9 +3616,40 @@ export interface ${fileName.replace('.ts', '')} {
   }
 
   createEnhancedProblemSolvingPrompt(fileName, categoryInfo, sourceContent) {
+    // Check for Shadcn/ui usage in the source content
+    const shadcnDetection = this.detectShadcnUsage(sourceContent);
+    
     return `# 🚨 ENHANCED CONVERSION CHALLENGE: ${fileName}
 
 You are an EXPERT React Native Developer with 10+ years of experience solving impossible conversion challenges.
+
+${shadcnDetection.hasShadcn ? `
+## 🚨 SHADCN/UI CONVERSION CHALLENGE IDENTIFIED!
+
+**Advanced Challenge**: This file uses Shadcn/ui components which need expert-level conversion.
+
+**Components to Convert**: ${shadcnDetection.components.join(', ')}
+
+### EXPERT SHADCN CONVERSION STRATEGY:
+
+#### 🎯 Priority Conversion Tasks:
+${shadcnDetection.components.map(comp => this.getShadcnConversionMapping(comp)).join('\n')}
+
+#### 🔧 Advanced Implementation Rules:
+1. **Create custom React Native components** that replicate Shadcn functionality
+2. **Build comprehensive StyleSheets** with proper mobile styling
+3. **Implement proper state management** for complex components (modals, selects, etc.)
+4. **Add mobile-specific enhancements** (gestures, animations, accessibility)
+5. **Handle edge cases** that Shadcn handles automatically
+
+#### 💡 Expert Tips:
+- Use Animated API for smooth transitions (Dialog, Sheet animations)
+- Implement custom hooks for complex state (useToast, useDialog)
+- Create reusable components that can replace Shadcn throughout the app
+- Add proper TypeScript interfaces for component props
+- Include accessibility features for React Native
+
+` : ''}
 
 ## CRITICAL SITUATION:
 - **File**: ${fileName} (${categoryInfo.category})
