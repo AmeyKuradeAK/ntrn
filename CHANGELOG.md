@@ -4,6 +4,30 @@ All notable changes to the NTRN (Next.js to React Native) converter project.
 
 ---
 
+## [4.1.2] - 2025-01-03
+
+### 🚀 **Expo SDK 53 Compatibility Update**
+
+#### ✅ Critical Fix
+- **Expo Go Compatibility**: Updated to Expo SDK 53 for immediate compatibility with current Expo Go app
+- **New Architecture**: Enabled by default in all generated projects for future-proof development
+- **React 19 & RN 0.79**: Latest stable versions with performance improvements
+
+#### 🔄 Major Updates
+- **Expo SDK**: 51.0.0 → **53.0.0**
+- **React**: 18.2.0 → **19.0.0**
+- **React Native**: 0.74.5 → **0.79.0**
+- **React Navigation**: v6 → **v7**
+- **TypeScript**: 5.1.3 → **5.8.3**
+
+#### 🛠️ Enhanced Platform Support
+- **iOS**: Minimum deployment target 15.1 (from 13.4)
+- **Android**: Target/Compile SDK 35, Min SDK 24 (from 23)
+- **Edge-to-edge**: Ready for Android 16 requirements
+- **All Dependencies**: Updated to latest stable versions
+
+---
+
 ## [4.1.1] - 2024-12-21
 
 ### 🚀 **Critical Fix: Official Expo React Native Structure**

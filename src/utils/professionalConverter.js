@@ -366,25 +366,25 @@ Be specific and professional. This plan will guide the entire conversion process
         eject: 'expo eject'
       },
       dependencies: {
-        expo: '~51.0.0',
-        react: '18.2.0',
-        'react-native': '0.74.5',
-        '@react-navigation/native': '^6.1.0',
-        '@react-navigation/native-stack': '^6.10.0',
-        '@react-navigation/bottom-tabs': '^6.5.0',
-        'react-native-screens': '~3.31.0',
-        'react-native-safe-area-context': '4.10.5',
-        '@react-native-async-storage/async-storage': '1.23.1',
-        'react-native-gesture-handler': '~2.16.1',
-        'expo-status-bar': '~1.12.1',
-        'expo-font': '~12.0.5',
-        'expo-splash-screen': '~0.27.4'
+        expo: '~53.0.12',
+        react: '19.0.0',
+        'react-native': '0.79.0',
+        '@react-navigation/native': '^7.0.0',
+        '@react-navigation/native-stack': '^7.0.0',
+        '@react-navigation/bottom-tabs': '^7.0.0',
+        'react-native-screens': '~4.0.0',
+        'react-native-safe-area-context': '~4.12.0',
+        '@react-native-async-storage/async-storage': '~2.1.0',
+        'react-native-gesture-handler': '~2.20.0',
+        'expo-status-bar': '~2.0.0',
+        'expo-font': '~13.0.0',
+        'expo-splash-screen': '~1.0.0'
       },
       devDependencies: {
-        '@babel/core': '^7.20.0',
-        '@types/react': '~18.2.45',
-        '@types/react-native': '^0.72.0',
-        'typescript': '^5.1.3'
+        '@babel/core': '^7.25.0',
+        '@types/react': '~19.0.0',
+        '@types/react-native': '^0.79.0',
+        'typescript': '~5.8.3'
       }
     };
 
@@ -454,7 +454,7 @@ export default function App(): JSX.Element {
 
     await fs.writeFile(path.join(this.outputPath, 'App.tsx'), appContent);
 
-    // Fixed app.json - Official Expo React Native configuration
+    // Fixed app.json - Official Expo SDK 53 React Native configuration
     const appJson = {
       expo: {
         name: path.basename(this.outputPath),
@@ -463,6 +463,7 @@ export default function App(): JSX.Element {
         orientation: 'portrait',
         icon: './assets/icon.png',
         userInterfaceStyle: 'light',
+        newArchEnabled: true, // Enable New Architecture by default for SDK 53
         splash: {
           image: './assets/splash.png',
           resizeMode: 'contain',
@@ -471,19 +472,26 @@ export default function App(): JSX.Element {
         assetBundlePatterns: ['**/*'],
         ios: {
           supportsTablet: true,
-          bundleIdentifier: `com.${path.basename(this.outputPath).toLowerCase()}.app`
+          bundleIdentifier: `com.${path.basename(this.outputPath).toLowerCase()}.app`,
+          deploymentTarget: '15.1' // SDK 53 minimum iOS version
         },
         android: {
           adaptiveIcon: {
             foregroundImage: './assets/adaptive-icon.png',
             backgroundColor: '#FFFFFF'
           },
-          package: `com.${path.basename(this.outputPath).toLowerCase()}.app`
+          package: `com.${path.basename(this.outputPath).toLowerCase()}.app`,
+          compileSdkVersion: 35, // SDK 53 requirement
+          targetSdkVersion: 35,
+          minSdkVersion: 24 // SDK 53 requirement
         },
         web: {
           favicon: './assets/favicon.png',
           bundler: 'metro'
-        }
+        },
+        plugins: [
+          'expo-splash-screen' // Use config plugin for SDK 53
+        ]
       }
     };
 
