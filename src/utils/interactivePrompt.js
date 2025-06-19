@@ -33,6 +33,9 @@ export class InteractivePrompt {
       return;
     }
 
+    // Check for failed conversion files and offer to fix them
+    await this.checkForFailedConversions();
+
     // Analyze the current project
     console.log(chalk.gray('📊 Analyzing your React Native project...'));
     await this.analyzeProject();
@@ -103,12 +106,14 @@ export class InteractivePrompt {
     console.log(chalk.white('  • "Convert this component to TypeScript"'));
     console.log(chalk.white('  • "Add API service for user management"'));
     console.log('');
-    console.log(chalk.cyan('🔧 Commands:'));
-    console.log(chalk.white('  • type "exit" or "quit" to leave'));
+    console.log(chalk.cyan('🔧 Quick Commands:'));
+    console.log(chalk.white('  • type "fix" to automatically fix conversion issues'));
+    console.log(chalk.white('  • type "analyze" to get a detailed project analysis'));
     console.log(chalk.white('  • type "clear" to clear conversation history'));
-    console.log(chalk.white('  • type "help" to see this again'));
     console.log(chalk.white('  • type "status" to see project info'));
     console.log(chalk.white('  • type "provider" to switch AI provider'));
+    console.log(chalk.white('  • type "help" to see this again'));
+    console.log(chalk.white('  • type "exit" or "quit" to leave'));
     console.log('');
   }
 
@@ -173,6 +178,17 @@ export class InteractivePrompt {
 
       case 'provider':
         await this.switchAIProvider();
+        return true;
+
+      case 'fix':
+      case 'fix failed':
+      case 'fix conversion':
+        await this.quickFixFailedFiles();
+        return true;
+
+      case 'analyze':
+      case 'analyze project':
+        await this.quickAnalyzeProject();
         return true;
 
       default:
@@ -497,10 +513,172 @@ Now respond professionally to: "${userInput}"`;
     }
   }
 
-  async switchAIProvider() {
-    // Implement the logic to switch between AI providers
-    console.log(chalk.cyan('🤖 Switching AI provider...'));
-    // This is a placeholder and should be replaced with actual provider switching logic
+  async checkForFailedConversions() {
+    try {
+      // Look for common signs of incomplete conversion
+      const packageJsonPath = path.join(this.projectPath, 'package.json');
+      const srcPath = path.join(this.projectPath, 'src');
+      
+      if (!await fs.exists(srcPath)) {
+        console.log(chalk.yellow('⚠️ No src/ directory found. This might be an incomplete conversion.'));
+        
+        const response = await this.askToFixConversion('Looks like the conversion might be incomplete. Would you like me to analyze and fix it?');
+        if (response) {
+          await this.offerConversionFix();
+          return;
+        }
+      }
+
+      // Check for missing navigation setup
+      const navigationPath = path.join(this.projectPath, 'src', 'navigation');
+      const screensPath = path.join(this.projectPath, 'src', 'screens');
+      
+      if (!await fs.exists(navigationPath) || !await fs.exists(screensPath)) {
+        console.log(chalk.yellow('⚠️ Missing navigation or screens directory.'));
+        
+        const response = await this.askToFixConversion('Would you like me to set up missing React Native navigation and screens?');
+        if (response) {
+          await this.offerNavigationFix();
+          return;
+        }
+      }
+
+      // Check for remaining Next.js files that weren't converted
+      const possibleNextJsFiles = [
+        'pages',
+        'app',
+        'next.config.js',
+        'next.config.mjs'
+      ];
+
+      let hasUnconvertedFiles = false;
+      for (const file of possibleNextJsFiles) {
+        const filePath = path.join(this.projectPath, file);
+        if (await fs.exists(filePath)) {
+          hasUnconvertedFiles = true;
+          break;
+        }
+      }
+
+      if (hasUnconvertedFiles) {
+        console.log(chalk.yellow('⚠️ Found Next.js files that might need conversion.'));
+        
+        const response = await this.askToFixConversion('Would you like me to analyze and convert any remaining Next.js files?');
+        if (response) {
+          await this.offerRemainingFilesConversion();
+          return;
+        }
+      }
+
+    } catch (error) {
+      // Silently continue if can't check for failed conversions
+    }
+  }
+
+  async askToFixConversion(message) {
+    try {
+      const prompts = await import('prompts');
+      const response = await prompts.default({
+        type: 'confirm',
+        name: 'fix',
+        message: message,
+        initial: true
+      });
+      return response.fix;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async offerConversionFix() {
+    console.log(chalk.cyan('\n🔧 Analyzing conversion issues...'));
+    
+    const analysisPrompt = `Analyze this React Native project directory structure and identify what's missing or incorrectly converted from Next.js:
+
+Project directory: ${this.projectPath}
+
+Please provide a comprehensive analysis and list specific files/folders that need to be created or fixed for a proper React Native Expo project structure.`;
+
+    try {
+      const response = await aiManager.callAI(analysisPrompt, {
+        task: 'project-analysis',
+        temperature: 0.2,
+        maxTokens: 2048
+      });
+
+      console.log(chalk.cyan('\n🤖 Analysis Results:'));
+      console.log(chalk.white(response.content));
+      
+      console.log(chalk.yellow('\n💡 I can help you fix these issues automatically!'));
+      console.log(chalk.gray('Just ask me things like:'));
+      console.log(chalk.white('• "Fix the project structure"'));
+      console.log(chalk.white('• "Create missing navigation setup"'));
+      console.log(chalk.white('• "Add missing screens and components"'));
+      
+    } catch (error) {
+      console.log(chalk.red('❌ Error analyzing project: ' + error.message));
+      console.log(chalk.yellow('You can still ask me to fix specific issues manually.'));
+    }
+  }
+
+  async offerNavigationFix() {
+    console.log(chalk.cyan('\n🧭 I can set up React Navigation for you automatically!'));
+    
+    const message = `Create a complete React Navigation setup for this React Native project. Include:
+1. AppNavigator.tsx with TypeScript
+2. Navigation types in src/types/navigation.ts  
+3. Update App.tsx to use navigation
+4. Create at least a HomeScreen if none exists
+5. Ensure all imports and dependencies are correct`;
+
+    await this.processUserRequest(message);
+  }
+
+  async offerRemainingFilesConversion() {
+    console.log(chalk.cyan('\n📄 I can convert remaining Next.js files to React Native!'));
+    
+    const message = `Analyze this directory for any Next.js files (pages/, components/, etc.) that haven't been converted to React Native yet, and convert them to proper React Native TypeScript files with:
+1. Pages → Screens in src/screens/
+2. Components → Components in src/components/  
+3. API routes → Services in src/services/
+4. Contexts → Contexts in src/contexts/
+5. Update navigation to include new screens`;
+
+    await this.processUserRequest(message);
+  }
+
+  async quickFixFailedFiles() {
+    console.log(chalk.cyan('\n🔧 Quick Fix Mode: Analyzing and fixing conversion issues...'));
+    
+    const fixMessage = `Please analyze this React Native project and fix any conversion issues:
+
+1. Check for missing navigation setup (AppNavigator.tsx, navigation types)
+2. Look for Next.js files that weren't converted (pages/, api/, etc.)
+3. Ensure proper TypeScript project structure
+4. Fix any broken imports or missing dependencies
+5. Create missing screens, components, or services
+6. Update App.tsx if needed
+
+Automatically fix what you can and tell me what was fixed.`;
+
+    await this.processUserRequest(fixMessage);
+  }
+
+  async quickAnalyzeProject() {
+    console.log(chalk.cyan('\n📊 Quick Analysis Mode: Examining project structure...'));
+    
+    const analysisMessage = `Please analyze this React Native project and provide a detailed report:
+
+1. Project structure completeness
+2. Navigation setup status
+3. TypeScript configuration
+4. Missing or broken files
+5. Conversion quality assessment
+6. Specific recommendations for improvement
+
+Give me a comprehensive status report.`;
+
+    await this.processUserRequest(analysisMessage);
   }
 }
 

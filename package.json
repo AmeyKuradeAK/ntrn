@@ -1,11 +1,11 @@
 {
   "name": "ntrn",
-  "version": "4.0.0",
-  "description": "⚡ A powerful AI-powered CLI to convert your Next.js App Router project into a fully functional React Native Expo app with professional code quality, intelligent analysis, and auto-fixing. Powered by Mistral AI & Gemini 2.0 Flash.",
+  "version": "4.1.1",
+  "description": "🚀 Professional AI-powered Next.js to React Native converter with Mistral AI, Gemini 2.0 Flash, intelligent project analysis, and official Expo React Native structure generation",
   "type": "module",
-  "main": "src/index.js",
+  "main": "bin/ntrn.js",
   "bin": {
-    "ntrn": "src/index.js"
+    "ntrn": "./bin/ntrn.js"
   },
   "exports": {
     ".": "./src/index.js"
@@ -19,7 +19,7 @@
   "scripts": {
     "start": "node ./src/index.js",
     "dev": "nodemon ./src/index.js",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -30,30 +30,25 @@
   },
   "homepage": "https://github.com/AmeyKuradeAK/ntrn#readme",
   "keywords": [
-    "cli",
     "nextjs",
     "react-native",
+    "converter", 
     "expo",
-    "nativewind",
-    "converter",
-    "mistral",
-    "gemini",
-    "ai",
     "typescript",
-    "automation",
-    "interactive",
-    "chatgpt",
-    "assistant",
-    "professional",
+    "ai-powered",
+    "mistral-ai",
+    "gemini",
+    "mobile-development",
+    "react-navigation",
+    "professional-conversion",
     "intelligent-analysis",
     "auto-fixing",
-    "mobile-first",
-    "production-ready"
+    "cross-platform"
   ],
-  "author": "Amey Kurade",
+  "author": "NTRN Team",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@babel/generator": "^7.23.6",
@@ -61,15 +56,17 @@
     "@babel/traverse": "^7.23.9",
     "@babel/types": "^7.23.9",
     "@google/genai": "^0.7.0",
-    "axios": "^1.8.4",
-    "chalk": "^5.4.1",
-    "commander": "^13.1.0",
-    "dotenv": "^16.4.7",
+    "axios": "^1.6.2",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
     "figlet": "^1.8.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.2.0",
     "glob": "^10.3.0",
     "minimatch": "^9.0.0",
     "node-fetch": "^3.3.2",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "inquirer": "^9.2.12",
+    "ora": "^7.0.1"
   }
 }

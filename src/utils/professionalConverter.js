@@ -146,29 +146,13 @@ export class ProfessionalConverter {
     console.log(chalk.yellow('Phase 4: Professional Code Conversion'));
     const results = await this.performProfessionalConversion();
 
-    // Step 5: Code Quality Assurance & Fixing
-    console.log(chalk.yellow('Phase 5: Code Quality Assurance'));
-    await this.performQualityAssurance(results);
+    // Show conversion summary
+    this.showConversionSummary(results.filter(r => r.success).length, results.filter(r => !r.success && !r.skipped).length, results.filter(r => r.skipped).length);
 
-    // Step 6: Final Validation
-    console.log(chalk.yellow('Phase 6: Final Project Validation'));
-    await this.validateProject();
+    // Perform detailed analysis of results
+    await this.performPostConversionAnalysis(results);
 
-    console.log(chalk.green('\n🎉 Professional conversion completed!'));
-    console.log(chalk.green('📱 Your React Native app is ready!'));
-    
-    console.log(chalk.cyan('\n📋 Next Steps:'));
-    console.log(chalk.white(`1. cd ${path.basename(this.outputPath)}`));
-    console.log(chalk.white('2. npm install'));
-    console.log(chalk.white('3. npx expo start'));
-
-    return {
-      success: true,
-      analysis: this.projectAnalysis,
-      conversionPlan: this.conversionPlan,
-      results,
-      outputPath: this.outputPath
-    };
+    return results;
   }
 
   async generateConversionPlan() {
@@ -378,7 +362,8 @@ Be specific and professional. This plan will guide the entire conversion process
         android: 'expo start --android',
         ios: 'expo start --ios',
         web: 'expo start --web',
-        'type-check': 'tsc --noEmit'
+        'type-check': 'tsc --noEmit',
+        eject: 'expo eject'
       },
       dependencies: {
         expo: '~51.0.0',
@@ -391,7 +376,9 @@ Be specific and professional. This plan will guide the entire conversion process
         'react-native-safe-area-context': '4.10.5',
         '@react-native-async-storage/async-storage': '1.23.1',
         'react-native-gesture-handler': '~2.16.1',
-        'expo-status-bar': '~1.12.1'
+        'expo-status-bar': '~1.12.1',
+        'expo-font': '~12.0.5',
+        'expo-splash-screen': '~0.27.4'
       },
       devDependencies: {
         '@babel/core': '^7.20.0',
@@ -467,7 +454,7 @@ export default function App(): JSX.Element {
 
     await fs.writeFile(path.join(this.outputPath, 'App.tsx'), appContent);
 
-    // Enhanced app.json with better configuration
+    // Fixed app.json - Official Expo React Native configuration
     const appJson = {
       expo: {
         name: path.basename(this.outputPath),
@@ -496,14 +483,21 @@ export default function App(): JSX.Element {
         web: {
           favicon: './assets/favicon.png',
           bundler: 'metro'
-        },
-        plugins: [
-          'expo-router'
-        ]
+        }
       }
     };
 
     await fs.writeJson(path.join(this.outputPath, 'app.json'), appJson, { spaces: 2 });
+
+    // Create babel.config.js for proper Expo setup
+    const babelConfig = `module.exports = function(api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+  };
+};`;
+
+    await fs.writeFile(path.join(this.outputPath, 'babel.config.js'), babelConfig);
 
     // Create metro.config.js for TypeScript support
     const metroConfig = `const { getDefaultConfig } = require('expo/metro-config');
@@ -516,6 +510,128 @@ config.resolver.sourceExts.push('tsx', 'ts');
 module.exports = config;`;
 
     await fs.writeFile(path.join(this.outputPath, 'metro.config.js'), metroConfig);
+
+    // Create .expo/README.md to mark as Expo project
+    await fs.ensureDir(path.join(this.outputPath, '.expo'));
+    const expoReadme = `# Expo Project
+
+This folder is created when an Expo project is started using "expo start" command.
+
+## Required Files (generated automatically by Expo):
+- icon.png (1024x1024) - App icon
+- splash.png (1242x2436) - Splash screen image  
+- adaptive-icon.png (1024x1024) - Android adaptive icon
+- favicon.png (48x48) - Web favicon
+
+## Adding Custom Assets:
+1. Place images, fonts, and other assets in this folder
+2. Import them in your components:
+   \`\`\`typescript
+   import logo from '../assets/logo.png';
+   <Image source={logo} />
+   \`\`\`
+
+Expo will automatically generate the required app icons and splash screens when you build your app.`;
+
+    await fs.writeFile(path.join(this.outputPath, '.expo/README.md'), expoReadme);
+
+    // Create essential .gitignore for Expo project
+    const gitignoreContent = `# OSX
+#
+.DS_Store
+
+# Xcode
+#
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx/
+
+# node.js
+#
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# BUCK
+buck-out/
+\\.buckd/
+*.keystore
+!debug.keystore
+
+# Bundle artifacts
+*.jsbundle
+
+# CocoaPods
+/ios/Pods/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# @generated expo-cli sync-2b81b286409207a5da26e14c78851eb30d8ccbdb
+# The following patterns were generated by expo-cli
+
+expo-env.d.ts
+# @end expo-cli`;
+
+    await fs.writeFile(path.join(this.outputPath, '.gitignore'), gitignoreContent);
+
+    // Create placeholder assets that app.json references
+    await fs.ensureDir(path.join(this.outputPath, 'assets'));
+    
+    // Create a simple README for assets folder
+    const assetsReadme = `# Assets
+
+This folder contains the static assets for your Expo React Native app.
+
+## Required Files (generated automatically by Expo):
+- icon.png (1024x1024) - App icon
+- splash.png (1242x2436) - Splash screen image  
+- adaptive-icon.png (1024x1024) - Android adaptive icon
+- favicon.png (48x48) - Web favicon
+
+## Adding Custom Assets:
+1. Place images, fonts, and other assets in this folder
+2. Import them in your components:
+   \`\`\`typescript
+   import logo from '../assets/logo.png';
+   <Image source={logo} />
+   \`\`\`
+
+Expo will automatically generate the required app icons and splash screens when you build your app.`;
+
+    await fs.writeFile(path.join(this.outputPath, 'assets/README.md'), assetsReadme);
+
+    // Create expo-env.d.ts for TypeScript support
+    const expoEnvTypes = `/// <reference types="expo/types" />`;
+    await fs.writeFile(path.join(this.outputPath, 'expo-env.d.ts'), expoEnvTypes);
+
+    
   }
 
   async createNavigationSetup() {
@@ -1040,6 +1156,207 @@ export interface RefreshTokenRequest {
       console.log(chalk.white('  npm install'));
       console.log(chalk.white('  expo start'));
     }
+  }
+
+  async performPostConversionAnalysis(results) {
+    console.log(chalk.cyan('\n🔍 ANALYZING CONVERSION RESULTS'));
+    console.log(chalk.cyan('═'.repeat(50)));
+
+    const failedFiles = results.filter(r => !r.success && !r.skipped);
+    const skippedFiles = results.filter(r => r.skipped);
+    const successfulFiles = results.filter(r => r.success);
+
+    if (failedFiles.length === 0 && skippedFiles.length === 0) {
+      console.log(chalk.green('🎉 Perfect! All files converted successfully.'));
+      return;
+    }
+
+    // Analyze failed files
+    if (failedFiles.length > 0) {
+      console.log(chalk.red(`\n❌ FAILED FILES ANALYSIS (${failedFiles.length} files):`));
+      
+      for (const file of failedFiles) {
+        console.log(chalk.red(`\n📄 ${file.sourceFile}`));
+        console.log(chalk.gray(`   Error: ${file.error}`));
+        
+        // Analyze the specific failure reason
+        const analysis = await this.analyzeFailureReason(file);
+        console.log(chalk.yellow(`   Issue: ${analysis.reason}`));
+        console.log(chalk.blue(`   Fix: ${analysis.solution}`));
+        
+        if (analysis.canAutoFix) {
+          console.log(chalk.green(`   🔧 Can be auto-fixed with interactive mode`));
+        } else {
+          console.log(chalk.yellow(`   ⚠️ Needs manual review`));
+        }
+      }
+
+      // Provide batch solution
+      console.log(chalk.cyan('\n🛠️ BATCH SOLUTIONS FOR FAILED FILES:'));
+      console.log(chalk.white('1. Use interactive mode to fix failed files:'));
+      console.log(chalk.green('   ntrn --prompt'));
+      console.log(chalk.gray('   Then ask: "Fix the failed conversion files"'));
+      console.log(chalk.white('\n2. Manual fixes needed for:'));
+      
+      const manualFixFiles = failedFiles.filter(f => !this.canAutoFix(f));
+      if (manualFixFiles.length > 0) {
+        manualFixFiles.forEach(f => {
+          console.log(chalk.yellow(`   • ${f.sourceFile} - ${this.getManualFixGuidance(f)}`));
+        });
+      } else {
+        console.log(chalk.green('   (No manual fixes needed - all can be auto-fixed!)'));
+      }
+    }
+
+    // Analyze skipped files
+    if (skippedFiles.length > 0) {
+      console.log(chalk.yellow(`\n⏭️ RATE LIMITED FILES (${skippedFiles.length} files):`));
+      
+      skippedFiles.forEach(file => {
+        console.log(chalk.yellow(`   • ${file.sourceFile}`));
+      });
+
+      console.log(chalk.cyan('\n🔄 TO CONVERT SKIPPED FILES:'));
+      console.log(chalk.white('1. Wait 2-3 minutes for rate limits to reset'));
+      console.log(chalk.white('2. Run conversion again (will skip completed files)'));
+      console.log(chalk.white('3. Or switch provider: ntrn --switch-provider'));
+    }
+
+    // Show what was successfully created
+    console.log(chalk.green(`\n✅ SUCCESSFULLY CREATED (${successfulFiles.length} files):`));
+    
+    const screens = successfulFiles.filter(f => f.outputFile?.includes('/screens/'));
+    const components = successfulFiles.filter(f => f.outputFile?.includes('/components/'));
+    const services = successfulFiles.filter(f => f.outputFile?.includes('/services/'));
+    const contexts = successfulFiles.filter(f => f.outputFile?.includes('/contexts/'));
+
+    if (screens.length > 0) {
+      console.log(chalk.blue(`   📱 Screens (${screens.length}):`));
+      screens.forEach(s => console.log(chalk.gray(`      • ${s.outputFile}`)));
+    }
+    
+    if (components.length > 0) {
+      console.log(chalk.blue(`   🧩 Components (${components.length}):`));
+      components.forEach(c => console.log(chalk.gray(`      • ${c.outputFile}`)));
+    }
+    
+    if (services.length > 0) {
+      console.log(chalk.blue(`   🌐 API Services (${services.length}):`));
+      services.forEach(s => console.log(chalk.gray(`      • ${s.outputFile}`)));
+    }
+
+    if (contexts.length > 0) {
+      console.log(chalk.blue(`   🔄 Contexts (${contexts.length}):`));
+      contexts.forEach(c => console.log(chalk.gray(`      • ${c.outputFile}`)));
+    }
+
+    // Generate actionable next steps
+    console.log(chalk.cyan('\n🎯 YOUR NEXT STEPS:'));
+    console.log(chalk.white('1. Test what was created:'));
+    console.log(chalk.green('   cd ' + path.basename(this.outputPath)));
+    console.log(chalk.green('   npm install'));
+    console.log(chalk.green('   expo start'));
+    
+    if (failedFiles.length > 0 || skippedFiles.length > 0) {
+      console.log(chalk.white('\n2. Fix remaining files:'));
+      console.log(chalk.yellow('   ntrn --prompt'));
+      console.log(chalk.gray('   Ask: "Fix failed conversion files and add missing screens"'));
+    }
+
+    console.log(chalk.white('\n3. Need help? Ask the AI assistant:'));
+    console.log(chalk.blue('   • "Add navigation between screens"'));
+    console.log(chalk.blue('   • "Create API service for [your API]"'));
+    console.log(chalk.blue('   • "Fix this error: [paste error]"'));
+  }
+
+  async analyzeFailureReason(failedFile) {
+    const error = failedFile.error?.toLowerCase() || '';
+    const fileName = failedFile.sourceFile?.toLowerCase() || '';
+
+    // Analyze common failure patterns
+    if (error.includes('rate limit') || error.includes('429')) {
+      return {
+        reason: 'AI API rate limit exceeded',
+        solution: 'Wait a few minutes and retry, or switch AI provider',
+        canAutoFix: true
+      };
+    }
+
+    if (error.includes('validation failed') || error.includes('syntax')) {
+      return {
+        reason: 'Generated code has syntax errors',
+        solution: 'AI can regenerate with better prompts',
+        canAutoFix: true
+      };
+    }
+
+    if (fileName.includes('_app.') || fileName.includes('_document.')) {
+      return {
+        reason: 'Next.js-specific file (not needed in React Native)',
+        solution: 'This file is intentionally skipped - React Native uses App.tsx instead',
+        canAutoFix: false
+      };
+    }
+
+    if (fileName.includes('/api/') || fileName.includes('route.')) {
+      return {
+        reason: 'Next.js API route (server-side code)',
+        solution: 'Convert to React Native API service class',
+        canAutoFix: true
+      };
+    }
+
+    if (error.includes('file not found')) {
+      return {
+        reason: 'Source file was not found',
+        solution: 'Check if file exists or was moved',
+        canAutoFix: false
+      };
+    }
+
+    if (error.includes('unsupported') || error.includes('not supported')) {
+      return {
+        reason: 'File contains patterns not convertible to React Native',
+        solution: 'Needs manual rewrite for mobile platform',
+        canAutoFix: false
+      };
+    }
+
+    // Generic analysis
+    return {
+      reason: 'Unknown conversion error',
+      solution: 'Try using interactive mode for detailed analysis',
+      canAutoFix: true
+    };
+  }
+
+  canAutoFix(failedFile) {
+    const error = failedFile.error?.toLowerCase() || '';
+    const fileName = failedFile.sourceFile?.toLowerCase() || '';
+
+    // Files that can't be auto-fixed
+    if (fileName.includes('_app.') || fileName.includes('_document.')) return false;
+    if (error.includes('file not found')) return false;
+    if (error.includes('unsupported')) return false;
+
+    // Most other errors can be auto-fixed
+    return true;
+  }
+
+  getManualFixGuidance(failedFile) {
+    const fileName = failedFile.sourceFile?.toLowerCase() || '';
+    
+    if (fileName.includes('_app.')) {
+      return 'Not needed - App.tsx already created';
+    }
+    if (fileName.includes('_document.')) {
+      return 'Not needed - HTML document not used in React Native';
+    }
+    if (fileName.includes('middleware.')) {
+      return 'Convert server logic to React Native context/hooks';
+    }
+    
+    return 'Review file manually and ask AI assistant for specific help';
   }
 
   async convertFile(filePath, phase) {

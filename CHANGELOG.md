@@ -1,0 +1,134 @@
+# 📜 NTRN Changelog
+
+All notable changes to the NTRN (Next.js to React Native) converter project.
+
+---
+
+## [4.1.1] - 2024-12-21
+
+### 🚀 **Critical Fix: Official Expo React Native Structure**
+
+#### ✅ Fixed
+- **Expo Router Plugin Error**: Removed `expo-router` plugin from app.json that was causing startup failures
+- **Project Structure**: Now generates official Expo React Native projects with proper dependencies
+- **Configuration Files**: Added essential files (babel.config.js, metro.config.js, expo-env.d.ts, .gitignore)
+- **Immediate Compatibility**: Projects now work with `npx expo start --tunnel` out of the box
+
+#### 🏗️ Enhanced
+- **Official Expo 51.0**: Complete Expo React Native 0.74.5 project structure
+- **TypeScript-First**: Full TypeScript configuration with path aliases
+- **React Navigation 6**: Proper navigation setup with TypeScript support
+- **Asset Management**: Created assets folder with comprehensive documentation
+- **Production Ready**: Immediate deployment readiness for iOS/Android
+
+#### 🧹 Project Cleanup
+- **Removed 13 outdated files**: Cleaned up v3.x documentation and demo files
+- **Updated package.json**: Proper version, description, and dependency management
+- **Streamlined README**: Updated to reflect v4.1.1 capabilities and commands
+
+---
+
+## [4.0.0] - 2024-12-20
+
+### 🧠 **Revolutionary AI-Powered Conversion**
+
+#### ✨ New Features
+- **Dual AI System**: Choose between Mistral AI (primary) and Gemini 2.0 Flash (fallback)
+- **Intelligent Analysis**: Deep project structure understanding before conversion
+- **Professional Converter**: 6-phase conversion process with auto-fixing
+- **API Key Management**: One-time setup with secure .env storage
+- **Interactive AI Assistant**: Enhanced `--prompt` mode with project awareness
+
+#### 🔧 Technical Improvements
+- **Smart Failover**: Automatic switching between AI providers on rate limits
+- **Auto-Fixing System**: Intelligent error resolution with user consent
+- **Pages→Screens Conversion**: Automatic Next.js pages to React Native screens
+- **API Routes→Services**: Convert Next.js API routes to React Native services
+- **Context Providers**: Complete app architecture with Theme/Auth contexts
+
+---
+
+## [3.2.4] - 2024-11-15
+
+### 🎨 **Diverse Contextual Animations**
+
+#### 🔄 Fixed
+- **Repetitive GIF Usage**: Added 25+ unique, contextually relevant animations
+- **Visual Experience**: Eliminated boring repetition with thematic coherence
+- **Professional Polish**: Enterprise-grade README presentation
+
+---
+
+## [3.1.0] - 2024-10-20
+
+### ⚡ **Performance & Token Optimization**
+
+#### 🚀 Enhanced
+- **90% Token Reduction**: Surgical fixes for common conversion patterns
+- **Smart Conversion**: AI only for complex cases, deterministic for simple ones
+- **Faster Processing**: Significant speed improvements in conversion time
+
+---
+
+## [3.0.0] - 2024-09-15
+
+### 🤖 **AI Assistant Integration**
+
+#### ✨ New Features
+- **Interactive Mode**: `ntrn --prompt` for conversational development
+- **Context Awareness**: AI understands project structure and requirements
+- **Real-time Modifications**: Live file updates based on user requests
+
+---
+
+## [2.2.9] - 2024-08-10
+
+### 🎨 **Shadcn/ui Conversion**
+
+#### 🔄 Enhanced
+- **Automatic Detection**: Intelligent Shadcn/ui component recognition
+- **Mobile Conversion**: Transform web UI to React Native equivalents
+- **Style Preservation**: Maintain visual design in mobile format
+
+---
+
+## [2.0.0] - 2024-07-01
+
+### 🏗️ **Complete Architecture Overhaul**
+
+#### ✨ Major Features
+- **Expo Integration**: Full Expo React Native project generation
+- **Navigation Setup**: React Navigation configuration
+- **Component Conversion**: Advanced HTML to React Native component mapping
+- **TypeScript Support**: Complete TypeScript project setup
+
+---
+
+## [1.0.0] - 2024-06-01
+
+### 🌟 **Initial Release**
+
+#### ✨ Core Features
+- **Basic Conversion**: Next.js to React Native file conversion
+- **CLI Interface**: Simple command-line tool
+- **File Processing**: Component and page conversion
+- **Dependency Management**: Package.json generation
+
+---
+
+## 🔮 **Upcoming Features**
+
+- **v4.2.0**: Enhanced error detection and fixing
+- **v4.3.0**: Advanced component optimization
+- **v4.4.0**: Integrated testing suite generation
+- **v5.0.0**: Visual conversion interface
+
+---
+
+**Legend:**
+- 🚀 Major Release
+- ✨ New Feature
+- 🔧 Enhancement
+- 🐛 Bug Fix
+- 🧹 Cleanup
+- 📝 Documentation 

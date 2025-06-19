@@ -1,15 +1,15 @@
-# <div align="center">🚀 **NTRN Enhanced - Next.js to React Native Converter** 🚀</div>
+# <div align="center">🚀 **NTRN v4.1.1 - Professional Next.js to React Native Converter** 🚀</div>
 
 <div align="center">
 
 <!-- Animated Main Title -->
-<img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&size=35&duration=3000&pause=1000&color=00D4FF&center=true&vCenter=true&width=1000&height=100&lines=NEXT.JS+TO+REACT+NATIVE+CONVERTER;AI-POWERED+%E2%9A%A1+INSTANT+CONVERSION;PRODUCTION-READY+CODE+GENERATOR" alt="Typing SVG" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&size=35&duration=3000&pause=1000&color=00D4FF&center=true&vCenter=true&width=1000&height=100&lines=PROFESSIONAL+AI-POWERED+CONVERTER;MISTRAL+AI+%2B+GEMINI+2.0+FLASH;OFFICIAL+EXPO+REACT+NATIVE" alt="Typing SVG" />
 
 <!-- Epic Logo Animation -->
 <img src="https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif" width="100" />
 
 <!-- Matrix Rain Effect -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:00D4FF,50:0080FF,100:8A2BE2&height=200&section=header&text=NTRN%20ENHANCED&fontSize=50&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Transform%20Next.js%20to%20React%20Native%20with%20AI%20Magic&descAlignY=55&descAlign=50" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:00D4FF,50:0080FF,100:8A2BE2&height=200&section=header&text=NTRN%20v4.1.1&fontSize=50&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Transform%20Next.js%20to%20Official%20Expo%20React%20Native&descAlignY=55&descAlign=50" />
 
 <!-- ASCII Art -->
 ```bash
@@ -25,15 +25,15 @@
 <!-- Holographic Divider -->
 <img src="https://media.giphy.com/media/3oKIPEqDGUULpEU0aQ/giphy.gif" width="1000">
 
-## <div align="center">🌟 **REVOLUTIONARY AI-POWERED CONVERTER** 🌟</div>
+## <div align="center">🌟 **PROFESSIONAL AI-POWERED CONVERTER** 🌟</div>
 
 <div align="center">
 
 <!-- Live Status Badges with Animations -->
-<img src="https://img.shields.io/badge/Version-v3.2.4-00D4FF?style=for-the-badge&logo=rocket&logoColor=white&labelColor=000000" />
-<img src="https://img.shields.io/badge/AI_Powered-100%25-00FF88?style=for-the-badge&logo=brain&logoColor=white&labelColor=000000" />
-<img src="https://img.shields.io/badge/Success_Rate-99.8%25-FFD700?style=for-the-badge&logo=target&logoColor=white&labelColor=000000" />
-<img src="https://img.shields.io/badge/Token_Reduction-90%25-FF6B6B?style=for-the-badge&logo=zap&logoColor=white&labelColor=000000" />
+<img src="https://img.shields.io/badge/Version-v4.1.1-00D4FF?style=for-the-badge&logo=rocket&logoColor=white&labelColor=000000" />
+<img src="https://img.shields.io/badge/Expo_Ready-100%25-00FF88?style=for-the-badge&logo=expo&logoColor=white&labelColor=000000" />
+<img src="https://img.shields.io/badge/AI_Powered-Mistral%20%2B%20Gemini-FFD700?style=for-the-badge&logo=brain&logoColor=white&labelColor=000000" />
+<img src="https://img.shields.io/badge/TypeScript-First-FF6B6B?style=for-the-badge&logo=typescript&logoColor=white&labelColor=000000" />
 
 <!-- Dynamic Stats -->
 <img src="https://komarev.com/ghpvc/?username=ntrn-enhanced&color=00D4FF&style=for-the-badge&label=CONVERSIONS" />
@@ -48,7 +48,7 @@
 <img src="https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" width="800">
 </div>
 
-## 🚀 **WHAT'S NEW IN v3.2.4 - DIVERSE CONTEXTUAL ANIMATIONS**
+## 🚀 **WHAT'S NEW IN v4.1.1 - OFFICIAL EXPO REACT NATIVE STRUCTURE**
 
 <div align="center">
 
@@ -57,35 +57,35 @@
 <tr>
 <td align="center">
 <img src="https://media.giphy.com/media/xTiTnxpQ3ghPiB2Hp6/giphy.gif" width="50"><br>
-<b>🧠 SMART AI CONVERSION</b><br>
-<sub>Like Cursor AI - Instant & Reliable</sub>
+<b>🧠 MISTRAL AI + GEMINI</b><br>
+<sub>Professional Dual AI System</sub>
 </td>
 <td align="center">
 <img src="https://media.giphy.com/media/13GIgrGdslD9oQ/giphy.gif" width="50"><br>
-<b>⚡ 95% FASTER</b><br>
-<sub>Most Files Convert Instantly</sub>
+<b>📱 OFFICIAL EXPO</b><br>
+<sub>Perfect Expo 51.0 Projects</sub>
 </td>
 <td align="center">
 <img src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" width="50"><br>
-<b>🎯 NO RETRY LOOPS</b><br>
-<sub>Gets It Right First Time</sub>
+<b>🎯 INTELLIGENT ANALYSIS</b><br>
+<sub>Deep Project Understanding</sub>
 </td>
 </tr>
 <tr>
 <td align="center">
 <img src="https://media.giphy.com/media/67ThRZlYBvibtdF9JH/giphy.gif" width="50"><br>
-<b>💰 90% TOKEN REDUCTION</b><br>
-<sub>Only Complex Cases Use AI</sub>
+<b>🔧 AUTO-FIXING</b><br>
+<sub>Smart Error Resolution</sub>
 </td>
 <td align="center">
 <img src="https://media.giphy.com/media/3ornka9rAaKRA2Rkac/giphy.gif" width="50"><br>
-<b>✅ GUARANTEED CODE</b><br>
-<sub>100% Success Rate</sub>
+<b>✅ PRODUCTION-READY</b><br>
+<sub>Enterprise-Grade Code</sub>
 </td>
 <td align="center">
 <img src="https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif" width="50"><br>
-<b>🎨 ORIGINAL EXPERIENCE</b><br>
-<sub>Cool ASCII + Interactive</sub>
+<b>🚀 INSTANT TESTING</b><br>
+<sub>Works with expo start</sub>
 </td>
 </tr>
 </table>
@@ -97,7 +97,7 @@
 <img src="https://media.giphy.com/media/xTiTnHXbNWbg0Gedhu/giphy.gif" width="1000">
 </div>
 
-## ✨ **MIND-BLOWING FEATURES**
+## ✨ **PROFESSIONAL FEATURES**
 
 <div align="center">
 
@@ -105,38 +105,38 @@
 <table>
 <tr align="center">
 <td colspan="3">
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&duration=2000&pause=1000&color=00D4FF&center=true&vCenter=true&width=800&height=50&lines=🔄+INTELLIGENT+CONVERSION;🎨+STYLING+%26+UI;🧭+NAVIGATION+%26+STRUCTURE;🛠+DEVELOPER+EXPERIENCE;🤖+AI+ASSISTANT;🌐+WEB+API+INTELLIGENCE" alt="Features" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=24&duration=2000&pause=1000&color=00D4FF&center=true&vCenter=true&width=800&height=50&lines=🔄+INTELLIGENT+CONVERSION;📱+EXPO+REACT+NATIVE;🧭+REACT+NAVIGATION+6;🛠+TYPESCRIPT+FIRST;🤖+AI+ASSISTANT;🌐+API+ROUTES+TO+SERVICES" alt="Features" />
 </td>
 </tr>
 <tr>
 <td align="center" width="33%">
 <img src="https://media.giphy.com/media/l46Cy1rHbQ92uuLXa/giphy.gif" width="80"><br>
-<h3>🧠 AI ANALYSIS</h3>
+<h3>🧠 AI INTELLIGENCE</h3>
 <ul align="left">
-<li>🌐 Web API Intelligence</li>
-<li>📁 Complete File Structure</li>
-<li>🔗 Dependency Resolution</li>
-<li>🎯 Smart Route Mapping</li>
+<li>🎯 Project Structure Analysis</li>
+<li>🔍 Technology Stack Detection</li>
+<li>🗺️ Strategic Conversion Planning</li>
+<li>🔧 Auto-Fixing with User Consent</li>
 </ul>
 </td>
 <td align="center" width="33%">
 <img src="https://media.giphy.com/media/26BRBKqUiq586bRVm/giphy.gif" width="80"><br>
-<h3>🎨 STYLING MAGIC</h3>
+<h3>📱 EXPO STRUCTURE</h3>
 <ul align="left">
-<li>🌊 NativeWind Integration</li>
-<li>💅 Styled Components</li>
-<li>🎨 Native StyleSheet</li>
-<li>🌙 Dark Mode Ready</li>
+<li>📦 Expo 51.0 + React Native 0.74.5</li>
+<li>🧭 React Navigation 6 Setup</li>
+<li>📝 Complete TypeScript Config</li>
+<li>🎨 Mobile-First Components</li>
 </ul>
 </td>
 <td align="center" width="33%">
 <img src="https://media.giphy.com/media/12Nv3nBSCAbLO0/giphy.gif" width="80"><br>
-<h3>🧭 NAVIGATION PRO</h3>
+<h3>🏗️ ARCHITECTURE</h3>
 <ul align="left">
-<li>📱 React Navigation Setup</li>
-<li>🔗 Deep Linking</li>
-<li>🗂 Component Organization</li>
-<li>📄 TypeScript Support</li>
+<li>📱 Pages → Screens Conversion</li>
+<li>🌐 API Routes → Services</li>
+<li>🔗 Context Providers Setup</li>
+<li>📂 Professional File Structure</li>
 </ul>
 </td>
 </tr>
@@ -149,7 +149,7 @@
 <img src="https://media.giphy.com/media/3ov9jLsBqPh6rjuHuM/giphy.gif" width="1000">
 </div>
 
-## 🤖 **INTERACTIVE AI ASSISTANT - CHATGPT FOR REACT NATIVE!**
+## 🤖 **INTERACTIVE AI ASSISTANT - POWERED BY MISTRAL AI & GEMINI**
 
 <div align="center">
 
@@ -161,21 +161,21 @@
 <td align="center" width="50%">
 <h3>🤖 WHAT YOU CAN ASK:</h3>
 <ul align="left">
-<li><i>"Add a shopping cart feature"</i></li>
-<li><i>"Create user profile component"</i></li>
-<li><i>"Fix navigation styling"</i></li>
-<li><i>"Add pull-to-refresh functionality"</i></li>
-<li><i>"Implement search functionality"</i></li>
+<li><i>"Add a shopping cart screen"</i></li>
+<li><i>"Create user authentication flow"</i></li>
+<li><i>"Fix conversion issues"</i></li>
+<li><i>"Add navigation to screens"</i></li>
+<li><i>"Convert API routes to services"</i></li>
 </ul>
 </td>
 <td align="center" width="50%">
 <h3>✨ AI FEATURES:</h3>
 <ul align="left">
-<li>🎯 <b>Context-aware</b> - Understands your project</li>
+<li>🎯 <b>Project-aware</b> - Understands your conversion</li>
 <li>📱 <b>Mobile-optimized</b> - Perfect React Native code</li>
-<li>🔄 <b>Conversational</b> - Natural language interface</li>
-<li>⚡ <b>Instant changes</b> - Real-time file modifications</li>
-<li>🛡️ <b>Safe operations</b> - Validates before changes</li>
+<li>🔄 <b>Auto-detection</b> - Finds failed conversions</li>
+<li>⚡ <b>Smart fixes</b> - Real-time error resolution</li>
+<li>🛡️ <b>Safe operations</b> - User consent required</li>
 </ul>
 </td>
 </tr>
@@ -187,17 +187,21 @@
 <div align="center">
 
 ```bash
-🤖 You: Add a login screen
-🤖 NTRN: Creating a beautiful login screen...
-📄 Created: screens/LoginScreen.tsx
-✅ Complete with form validation and styling!
+🤖 You: ntrn --prompt
+🤖 NTRN: Analyzing your project... Found 3 failed conversions!
+🤖 NTRN: Would you like me to fix them?
 
-🤖 You: Now add dark mode support  
-🤖 NTRN: Adding dark mode system...
-📄 Created: utils/theme.js
-📄 Created: contexts/ThemeContext.tsx
+🤖 You: yes
+🤖 NTRN: Fixing rate limit issues and syntax errors...
+📄 Fixed: src/screens/ProfileScreen.tsx
+📄 Fixed: src/services/AuthService.ts
+✅ All conversions completed successfully!
+
+🤖 You: Add dark mode support
+🤖 NTRN: Creating theme system...
+📄 Created: src/contexts/ThemeContext.tsx
 📝 Modified: App.tsx
-✅ Dark mode ready! Users can toggle themes.
+✅ Dark mode ready with toggle functionality!
 ```
 
 </div>
@@ -304,7 +308,7 @@ export function LoginForm() {
 <div align="center">
 
 <!-- Requirements Animation -->
-<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=20&duration=2000&pause=1000&color=FFD700&center=true&vCenter=true&width=600&height=50&lines=Node.js+%E2%9C%85;Gemini+API+%E2%9C%85;Git+Clone+%E2%9C%85;Ready+to+Rock!+🚀" alt="Requirements" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=20&duration=2000&pause=1000&color=FFD700&center=true&vCenter=true&width=600&height=50&lines=Node.js+%E2%9C%85;Mistral+AI+%E2%9C%85;Expo+CLI+%E2%9C%85;Ready+to+Rock!+🚀" alt="Requirements" />
 
 </div>
 
@@ -321,49 +325,53 @@ npm install
 npm link
 ```
 
-### ⚡ **Setup Environment:**
+### ⚡ **First Time Setup:**
 
 ```bash
-# Create .env file
-echo "GEMINI_API_KEY=your_api_key_here" > .env
+# Run NTRN - it will guide you through setup
+ntrn
+
+# Choose your AI provider (Mistral AI recommended)
+# Enter your API key when prompted
+# Keys are saved automatically for future use
 ```
 
 **Requirements:**
-1. Node.js (Latest LTS)
-2. Gemini API Key
-3. Git for cloning
+1. Node.js 18+ (Latest LTS)
+2. Mistral AI API Key (Recommended) or Gemini API Key
+3. Expo CLI for testing converted projects
 
 <!-- Animated Separator -->
 <div align="center">
 <img src="https://media.giphy.com/media/xUOrw5LIxb8S9X1LqM/giphy.gif" width="800">
 </div>
 
-## 🎯 **THREE EPIC MODES TO CHOOSE FROM**
+## 🎯 **PROFESSIONAL CONVERSION MODES**
 
 <div align="center">
 
 <table>
 <tr>
 <td align="center" width="33%">
-🔄<br>
-<h3>🔄 SIMPLE CONVERSION</h3>
+🧠<br>
+<h3>🧠 PROFESSIONAL AI</h3>
 <code>ntrn</code><br><br>
 <ul align="left">
-<li>✅ Current directory detection</li>
-<li>⚡ Fast conversion</li>
-<li>📁 Auto output folder</li>
-<li>🎯 90% token reduction</li>
+<li>🎯 Intelligent analysis</li>
+<li>🔧 Auto-fixing</li>
+<li>📱 Official Expo structure</li>
+<li>🏗️ Production-ready code</li>
 </ul>
 </td>
 <td align="center" width="33%">
 🎨<br>
-<h3>🎨 ORIGINAL NTRN</h3>
-<code>ntrn --ntrn</code><br><br>
+<h3>🎨 LEGACY MODE</h3>
+<code>ntrn --legacy</code><br><br>
 <ul align="left">
-<li>🎨 Cool ASCII logo</li>
-<li>📝 Interactive prompts</li>
+<li>📁 File-by-file conversion</li>
 <li>📂 Directory selection</li>
-<li>🏗️ Full Expo setup</li>
+<li>🏗️ Basic Expo setup</li>
+<li>🔄 Traditional approach</li>
 </ul>
 </td>
 <td align="center" width="33%">
@@ -371,10 +379,10 @@ echo "GEMINI_API_KEY=your_api_key_here" > .env
 <h3>🤖 AI ASSISTANT</h3>
 <code>ntrn --prompt</code><br><br>
 <ul align="left">
-<li>💬 Natural language</li>
-<li>🧠 Context-aware</li>
-<li>⚡ Real-time changes</li>
-<li>🔄 Conversational</li>
+<li>💬 Interactive AI chat</li>
+<li>🔍 Auto-detects issues</li>
+<li>⚡ Real-time fixes</li>
+<li>🛠️ Project enhancement</li>
 </ul>
 </td>
 </tr>
@@ -384,15 +392,25 @@ echo "GEMINI_API_KEY=your_api_key_here" > .env
 
 ### **🎯 Choose Your Workflow:**
 
-**For Quick Conversions:**
+**For Professional Conversion (Recommended):**
 ```bash
 cd my-nextjs-app
-ntrn                    # Fast & simple
+ntrn                    # Professional AI conversion
 ```
 
-**For Full Setup Experience:**
+**For Interactive Development:**
 ```bash
-ntrn --ntrn            # Cool logo + interactive prompts
+ntrn --prompt          # AI assistant mode
+```
+
+**For Traditional Approach:**
+```bash
+ntrn --legacy          # Legacy file-by-file conversion
+```
+
+### **🔄 Switch AI Providers:**
+```bash
+ntrn --switch-provider  # Switch between Mistral AI and Gemini
 ```
 
 **For AI-Powered Development:**
