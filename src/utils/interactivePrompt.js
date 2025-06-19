@@ -25,12 +25,30 @@ export class InteractivePrompt {
     // Initialize AI Manager
     await aiManager.initialize();
 
-    // Verify we're in a React Native project
+    // Check project type and adapt accordingly
     const isRNProject = await this.verifyReactNativeProject();
-    if (!isRNProject) {
-      console.log(chalk.red('❌ This doesn\'t appear to be a React Native project.'));
-      console.log(chalk.yellow('💡 Use `ntrn` (without flags) to convert a Next.js project first.'));
-      return;
+    const isNextJSProject = await this.verifyNextJSProject();
+    
+    if (!isRNProject && !isNextJSProject) {
+      console.log(chalk.yellow('⚠️ This doesn\'t appear to be a React Native or Next.js project.'));
+      console.log(chalk.gray('💡 You can still use the AI assistant for general React Native questions!\n'));
+      this.projectContext = {
+        totalFiles: 0,
+        componentFiles: [],
+        pageFiles: [],
+        dependencies: {},
+        projectMetadata: { framework: 'General' }
+      };
+    } else if (isNextJSProject && !isRNProject) {
+      console.log(chalk.blue('📦 Next.js project detected!'));
+      console.log(chalk.yellow('💡 Use `ntrn` (without flags) to convert this to React Native first.\n'));
+      this.projectContext = {
+        totalFiles: 0,
+        componentFiles: [],
+        pageFiles: [],
+        dependencies: {},
+        projectMetadata: { framework: 'Next.js' }
+      };
     }
 
     // Check for failed conversion files and offer to fix them
@@ -73,6 +91,29 @@ export class InteractivePrompt {
     }
   }
 
+  async verifyNextJSProject() {
+    try {
+      const packageJsonPath = path.join(this.projectPath, 'package.json');
+      if (!await fs.exists(packageJsonPath)) {
+        return false;
+      }
+
+      const packageJson = await fs.readJson(packageJsonPath);
+      const dependencies = { ...packageJson.dependencies, ...packageJson.devDependencies };
+      
+      // Check for Next.js indicators
+      return !!(
+        dependencies['next'] || 
+        await fs.exists(path.join(this.projectPath, 'next.config.js')) ||
+        await fs.exists(path.join(this.projectPath, 'next.config.mjs')) ||
+        await fs.exists(path.join(this.projectPath, 'pages')) ||
+        await fs.exists(path.join(this.projectPath, 'app'))
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
   async analyzeProject() {
     try {
       const analyzer = new ProjectAnalyzer(this.projectPath);
@@ -108,6 +149,7 @@ export class InteractivePrompt {
     console.log('');
     console.log(chalk.cyan('🔧 Quick Commands:'));
     console.log(chalk.white('  • type "fix" to automatically fix conversion issues'));
+    console.log(chalk.white('  • type "errors" to fix runtime errors (Cannot read property, etc.)'));
     console.log(chalk.white('  • type "analyze" to get a detailed project analysis'));
     console.log(chalk.white('  • type "clear" to clear conversation history'));
     console.log(chalk.white('  • type "status" to see project info'));
@@ -189,6 +231,14 @@ export class InteractivePrompt {
       case 'analyze':
       case 'analyze project':
         await this.quickAnalyzeProject();
+        return true;
+
+      case 'errors':
+      case 'runtime':
+      case 'debug':
+      case 'fix errors':
+      case 'fix runtime':
+        await this.fixRuntimeErrors();
         return true;
 
       default:
@@ -437,6 +487,20 @@ You must respond in this JSON format:
 - Update AppNavigator.tsx with new route
 - Test navigation flow
 
+### "Fix runtime errors"
+- Scan for common React Native conversion issues
+- Fix missing React Native component imports
+- Convert HTML elements to RN components (div→View, span→Text)
+- Fix event handlers (onClick→onPress)
+- Add missing StyleSheet imports
+- Use action type "fix_runtime_errors" to trigger automatic fixes
+
+## 🚨 COMMON RUNTIME ERROR FIXES:
+- **"Cannot read property 'default' of undefined"** → Missing or broken imports
+- **"Cannot read property 'S' of undefined"** → Missing StyleSheet import
+- **Element type is invalid** → HTML elements not converted to RN
+- **Text strings must be rendered within a <Text> component** → Wrap loose text
+
 Now respond professionally to: "${userInput}"`;
   }
 
@@ -486,26 +550,34 @@ Now respond professionally to: "${userInput}"`;
       case 'create_file':
         await fs.ensureDir(path.dirname(fullPath));
         await fs.writeFile(fullPath, action.content, 'utf-8');
-        console.log(chalk.blue(`📄 Created: ${action.path}`));
+        console.log(chalk.green(`📄 Created: ${action.path}`));
         break;
 
       case 'modify_file':
         if (await fs.exists(fullPath)) {
+          // Create backup before modifying
+          const backupPath = `${fullPath}.backup`;
+          await fs.copy(fullPath, backupPath);
           await fs.writeFile(fullPath, action.content, 'utf-8');
-          console.log(chalk.blue(`📝 Modified: ${action.path}`));
+          console.log(chalk.green(`📝 Modified: ${action.path} (backup created)`));
         } else {
           // Create if doesn't exist
           await fs.ensureDir(path.dirname(fullPath));
           await fs.writeFile(fullPath, action.content, 'utf-8');
-          console.log(chalk.blue(`📄 Created: ${action.path}`));
+          console.log(chalk.green(`📄 Created: ${action.path}`));
         }
         break;
 
       case 'delete_file':
         if (await fs.exists(fullPath)) {
           await fs.remove(fullPath);
-          console.log(chalk.blue(`🗑️ Deleted: ${action.path}`));
+          console.log(chalk.green(`🗑️ Deleted: ${action.path}`));
         }
+        break;
+
+      case 'fix_runtime_errors':
+        await this.fixRuntimeErrors();
+        console.log(chalk.green(`🔧 Fixed runtime errors`));
         break;
 
       default:
@@ -679,6 +751,151 @@ Automatically fix what you can and tell me what was fixed.`;
 Give me a comprehensive status report.`;
 
     await this.processUserRequest(analysisMessage);
+  }
+
+  async fixRuntimeErrors() {
+    console.log(chalk.cyan('\n🔧 Scanning for common React Native runtime errors...'));
+    
+    try {
+      const srcPath = path.join(this.projectPath, 'src');
+      if (!await fs.exists(srcPath)) {
+        console.log(chalk.yellow('⚠️ No src directory found, scanning root directory...'));
+        await this.scanAndFixDirectory(this.projectPath);
+      } else {
+        await this.scanAndFixDirectory(srcPath);
+      }
+      
+      // Also check App.tsx in root
+      const appTsxPath = path.join(this.projectPath, 'App.tsx');
+      if (await fs.exists(appTsxPath)) {
+        await this.fixFileRuntimeErrors(appTsxPath);
+      }
+      
+      console.log(chalk.green('✅ Runtime error scan complete'));
+    } catch (error) {
+      console.log(chalk.red(`❌ Error during runtime error fix: ${error.message}`));
+    }
+  }
+
+  async scanAndFixDirectory(dirPath) {
+    const files = await fs.readdir(dirPath);
+    
+    for (const file of files) {
+      const filePath = path.join(dirPath, file);
+      const stat = await fs.stat(filePath);
+      
+      if (stat.isDirectory() && !['node_modules', '.git', '.expo'].includes(file)) {
+        await this.scanAndFixDirectory(filePath);
+      } else if (stat.isFile() && /\.(tsx?|jsx?)$/.test(file)) {
+        await this.fixFileRuntimeErrors(filePath);
+      }
+    }
+  }
+
+  async fixFileRuntimeErrors(filePath) {
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      let fixedContent = content;
+      let hasChanges = false;
+
+      // Fix 1: Missing React import
+      if (!content.includes('import React') && content.includes('React.')) {
+        fixedContent = `import React from 'react';\n${fixedContent}`;
+        hasChanges = true;
+      }
+
+      // Fix 2: Missing React Native component imports
+      const rnComponents = ['View', 'Text', 'StyleSheet', 'TouchableOpacity', 'TextInput', 'ScrollView', 'FlatList', 'Image'];
+      for (const component of rnComponents) {
+        if (content.includes(`<${component}`) && !content.includes(`import.*${component}`)) {
+          // Add to existing RN import or create new one
+          if (content.includes('from \'react-native\'')) {
+            fixedContent = fixedContent.replace(
+              /import\s*{([^}]+)}\s*from\s*'react-native'/,
+              (match, imports) => {
+                if (!imports.includes(component)) {
+                  return `import { ${imports.trim()}, ${component} } from 'react-native'`;
+                }
+                return match;
+              }
+            );
+          } else {
+            fixedContent = `import { ${component} } from 'react-native';\n${fixedContent}`;
+          }
+          hasChanges = true;
+        }
+      }
+
+      // Fix 3: HTML elements to React Native components
+      const htmlToRn = {
+        '<div': '<View',
+        '</div>': '</View>',
+        '<span': '<Text',
+        '</span>': '</Text>',
+        '<p': '<Text',
+        '</p>': '</Text>',
+        '<button': '<TouchableOpacity',
+        '</button>': '</TouchableOpacity>',
+        '<input': '<TextInput',
+        'onClick': 'onPress',
+        'className': 'style'
+      };
+
+      for (const [html, rn] of Object.entries(htmlToRn)) {
+        if (fixedContent.includes(html)) {
+          fixedContent = fixedContent.replace(new RegExp(html, 'g'), rn);
+          hasChanges = true;
+        }
+      }
+
+      // Fix 4: Add StyleSheet if styles are used
+      if (content.includes('style={') && !content.includes('StyleSheet')) {
+        if (content.includes('from \'react-native\'')) {
+          fixedContent = fixedContent.replace(
+            /import\s*{([^}]+)}\s*from\s*'react-native'/,
+            (match, imports) => {
+              if (!imports.includes('StyleSheet')) {
+                return `import { ${imports.trim()}, StyleSheet } from 'react-native'`;
+              }
+              return match;
+            }
+          );
+        } else {
+          fixedContent = `import { StyleSheet } from 'react-native';\n${fixedContent}`;
+        }
+        hasChanges = true;
+      }
+
+      // Fix 5: Wrap loose text in Text components
+      const lines = fixedContent.split('\n');
+      const fixedLines = lines.map(line => {
+        // Look for JSX with loose text (simplified regex)
+        if (line.includes('>') && line.includes('<') && />[^<>]+</.test(line)) {
+          // This is a simplified fix - in practice, you'd need more sophisticated parsing
+          return line.replace(/>([\w\s]+)</g, (match, text) => {
+            if (text.trim() && !text.includes('<Text>')) {
+              return `><Text>${text}</Text><`;
+            }
+            return match;
+          });
+        }
+        return line;
+      });
+      
+      if (fixedLines.join('\n') !== fixedContent) {
+        fixedContent = fixedLines.join('\n');
+        hasChanges = true;
+      }
+
+      // Save fixed content
+      if (hasChanges) {
+        await fs.writeFile(filePath, fixedContent, 'utf-8');
+        console.log(chalk.green(`🔧 Fixed: ${path.relative(this.projectPath, filePath)}`));
+      }
+
+    } catch (error) {
+      console.log(chalk.yellow(`⚠️ Could not fix ${filePath}: ${error.message}`));
+    }
   }
 }
 

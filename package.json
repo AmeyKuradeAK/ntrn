@@ -1,7 +1,7 @@
 {
   "name": "ntrn",
-  "version": "4.1.6",
-  "description": "🚀 Professional AI-powered Next.js to React Native converter with intelligent screen creation, never-fail conversion system, comprehensive auto-fix, automatic asset handling, Mistral AI problem-solving, intelligent Shadcn/ui conversion, and guaranteed working Expo SDK 53 apps",
+  "version": "4.1.7",
+  "description": "🚀 Professional AI-powered Next.js to React Native converter with intelligent screen creation, never-fail conversion system, comprehensive auto-fix, automatic runtime error fixing, AI assistant, Mistral AI problem-solving, intelligent Shadcn/ui conversion, and guaranteed working Expo SDK 52 apps",
   "type": "module",
   "main": "bin/ntrn.js",
   "bin": {
