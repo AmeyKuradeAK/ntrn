@@ -178,27 +178,27 @@ export class RuntimeErrorFixer {
 
       const packageJson = await fs.readJson(packageJsonPath);
       
-      // Update to proper Expo SDK 52 dependencies
+      // Update to proper Expo SDK 53 dependencies (official versions)
       const updatedDependencies = {
         "@babel/core": "^7.25.0",
-        "@react-native-async-storage/async-storage": "2.1.2",
-        "@react-native-community/slider": "4.5.6",
+        "@react-native-async-storage/async-storage": "1.23.1",
+        "@react-native-community/slider": "4.5.5",
         "@react-navigation/bottom-tabs": "^6.6.1",
         "@react-navigation/native": "^6.1.18",
         "@react-navigation/native-stack": "^6.11.0",
         "@types/react": "~19.0.10",
-        "expo": "~52.0.19",
-        "expo-font": "~13.3.1",
-        "expo-image": "~2.3.0",
+        "expo": "~53.0.12",
+        "expo-font": "~13.0.4",
+        "expo-image": "~2.0.7",
         "expo-splash-screen": "~0.29.14",
-        "expo-status-bar": "~2.2.3",
-        "react": "18.3.1",
-        "react-native": "0.76.5",
-        "react-native-gesture-handler": "~2.24.0",
-        "react-native-reanimated": "~3.17.4",
-        "react-native-safe-area-context": "5.4.0",
-        "react-native-screens": "~4.11.1",
-        "react-native-svg": "15.11.2",
+        "expo-status-bar": "~2.0.1",
+        "react": "19.0.0",
+        "react-native": "0.76.9",
+        "react-native-gesture-handler": "~2.20.2",
+        "react-native-reanimated": "~3.16.1",
+        "react-native-safe-area-context": "4.12.0",
+        "react-native-screens": "~4.4.0",
+        "react-native-svg": "15.8.0",
         "react-native-toast-message": "^2.2.1",
         "typescript": "~5.8.3"
       };
