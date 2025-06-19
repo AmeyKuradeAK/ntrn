@@ -5,7 +5,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import prompts from 'prompts';
-import { callGeminiAPI } from './geminiClient.js';
+import { aiManager } from './aiProviders.js';
 import { ProjectAnalyzer } from './projectAnalyzer.js';
 
 export class InteractivePrompt {
@@ -17,9 +17,13 @@ export class InteractivePrompt {
   }
 
   async start() {
-    console.log(chalk.cyan('🤖 NTRN Interactive AI Assistant'));
-    console.log(chalk.cyan('==================================='));
-    console.log(chalk.green('ChatGPT-like interface for your React Native project\n'));
+    console.log(chalk.cyan('🤖 NTRN AI Assistant Pro'));
+    console.log(chalk.cyan('==========================='));
+    console.log(chalk.green('Professional AI assistant for your React Native project'));
+    console.log(chalk.gray('Powered by Mistral AI & Gemini 2.0 Flash\n'));
+
+    // Initialize AI Manager
+    await aiManager.initialize();
 
     // Verify we're in a React Native project
     const isRNProject = await this.verifyReactNativeProject();
@@ -90,18 +94,21 @@ export class InteractivePrompt {
   showCommands() {
     console.log(chalk.cyan('💬 What can you ask me?'));
     console.log(chalk.gray('Examples:'));
-    console.log(chalk.white('  • "Add a login screen"'));
+    console.log(chalk.white('  • "Add a login screen with TypeScript"'));
     console.log(chalk.white('  • "Create a user profile component"'));
     console.log(chalk.white('  • "Fix the navigation styling"'));
-    console.log(chalk.white('  • "Add dark mode support"'));
+    console.log(chalk.white('  • "Add dark mode support with context"'));
     console.log(chalk.white('  • "Update button styles to be more modern"'));
     console.log(chalk.white('  • "Add pull-to-refresh functionality"'));
+    console.log(chalk.white('  • "Convert this component to TypeScript"'));
+    console.log(chalk.white('  • "Add API service for user management"'));
     console.log('');
     console.log(chalk.cyan('🔧 Commands:'));
     console.log(chalk.white('  • type "exit" or "quit" to leave'));
     console.log(chalk.white('  • type "clear" to clear conversation history'));
     console.log(chalk.white('  • type "help" to see this again'));
     console.log(chalk.white('  • type "status" to see project info'));
+    console.log(chalk.white('  • type "provider" to switch AI provider'));
     console.log('');
   }
 
@@ -164,8 +171,36 @@ export class InteractivePrompt {
         this.showProjectStatus();
         return true;
 
+      case 'provider':
+        await this.switchAIProvider();
+        return true;
+
       default:
         return false;
+    }
+  }
+
+  async switchAIProvider() {
+    try {
+      console.log(chalk.cyan('\n🔄 Current AI Provider: ') + chalk.white(aiManager.currentProvider?.name || 'None'));
+      
+      const response = await prompts({
+        type: 'select',
+        name: 'provider',
+        message: 'Choose AI provider:',
+        choices: [
+          { title: '🧠 Mistral AI (Recommended)', value: 'mistral' },
+          { title: '🤖 Gemini 2.0 Flash', value: 'gemini' },
+          { title: '❌ Cancel', value: 'cancel' }
+        ]
+      });
+
+      if (response.provider && response.provider !== 'cancel') {
+        await aiManager.switchProvider(response.provider);
+        console.log(chalk.green(`✅ Switched to ${response.provider === 'mistral' ? 'Mistral AI' : 'Gemini 2.0 Flash'}`));
+      }
+    } catch (error) {
+      console.log(chalk.red(`❌ Error switching provider: ${error.message}`));
     }
   }
 
@@ -175,7 +210,8 @@ export class InteractivePrompt {
     console.log(`   📱 Framework: ${this.projectContext.projectMetadata.framework}`);
     console.log(`   📄 Components: ${this.projectContext.componentFiles.length}`);
     console.log(`   🧩 Screens: ${this.projectContext.pageFiles.length}`);
-    console.log(`   💬 Conversation: ${this.conversationHistory.length} messages\n`);
+    console.log(`   💬 Conversation: ${this.conversationHistory.length} messages`);
+    console.log(`   🤖 AI Provider: ${aiManager.currentProvider?.name || 'None'}\n`);
   }
 
   async processUserRequest(userInput) {
@@ -189,8 +225,8 @@ export class InteractivePrompt {
         timestamp: new Date().toISOString()
       });
 
-      // Generate AI response with project context
-      const aiResponse = await this.generateAIResponse(userInput);
+      // Generate AI response with project context and retry logic
+      const aiResponse = await this.generateAIResponseWithRetry(userInput);
       
       // Add AI response to history
       this.conversationHistory.push({
@@ -199,34 +235,95 @@ export class InteractivePrompt {
         timestamp: new Date().toISOString()
       });
 
-      // Execute any file changes
+      // Display AI response
+      console.log(chalk.cyan('\n🤖 AI Assistant:'));
+      console.log(chalk.white(aiResponse.content));
+
+      // Execute any actions if the AI provided them
       if (aiResponse.actions && aiResponse.actions.length > 0) {
         await this.executeActions(aiResponse.actions);
       }
 
-      // Display response
-      console.log(chalk.green(`\n🤖 NTRN: ${aiResponse.content}\n`));
-
     } catch (error) {
-      console.error(chalk.red(`❌ Error processing request: ${error.message}\n`));
+      console.error(chalk.red(`❌ Error: ${error.message}`));
+      
+      if (error.message.includes('rate limit') || error.message.includes('429')) {
+        console.log(chalk.yellow('\n⏱️ Rate limit reached. Suggestions:'));
+        console.log(chalk.white('1. Wait a moment and try again'));
+        console.log(chalk.white('2. Switch AI provider: type "provider"'));
+        console.log(chalk.white('3. Break your request into smaller parts'));
+      }
     }
+    
+    console.log(''); // Add spacing
+  }
+
+  async generateAIResponseWithRetry(userInput, maxRetries = 3) {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // Show retry attempt if not the first
+        if (attempt > 1) {
+          console.log(chalk.yellow(`🔄 Retry attempt ${attempt}/${maxRetries}...`));
+          
+          // Wait before retry with exponential backoff
+          const waitTime = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+
+        const aiResponse = await this.generateAIResponse(userInput);
+        return aiResponse;
+        
+      } catch (error) {
+        lastError = error;
+        
+        // If it's a rate limit error, wait longer
+        if (error.message.includes('rate limit') || error.message.includes('429')) {
+          if (attempt < maxRetries) {
+            const waitTime = 5000 * attempt; // 5s, 10s, 15s
+            console.log(chalk.yellow(`⏱️ Rate limit hit. Waiting ${waitTime/1000}s before retry...`));
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
+          }
+        }
+        
+        // If it's the last attempt or non-rate-limit error, break
+        if (attempt === maxRetries || !error.message.includes('rate limit')) {
+          break;
+        }
+      }
+    }
+    
+    // If all retries failed, throw the last error
+    throw lastError;
   }
 
   async generateAIResponse(userInput) {
     const prompt = this.buildContextualPrompt(userInput);
     
     try {
-      const response = await callGeminiAPI(prompt, 'interactive-prompt', this.projectContext);
-      return this.parseAIResponse(response);
+      const response = await aiManager.callAI(prompt, {
+        task: 'interactive-assistance',
+        temperature: 0.3,
+        maxTokens: 4096
+      });
+      
+      return this.parseAIResponse(response.content);
     } catch (error) {
-      throw new Error(`AI request failed: ${error.message}`);
+      // Enhanced error handling
+      if (error.message.includes('rate limit') || error.message.includes('429')) {
+        throw new Error(`Rate limit exceeded. Please wait a moment before trying again. Current provider: ${aiManager.currentProvider?.name || 'Unknown'}`);
+      }
+      
+      throw new Error(`AI generation failed: ${error.message}`);
     }
   }
 
   buildContextualPrompt(userInput) {
-    return `# 🤖 NTRN Interactive AI Assistant
+    return `# 🤖 NTRN AI Assistant Pro
 
-You are an expert React Native developer helping a user modify their existing React Native project through natural language commands.
+You are a Senior React Native Developer helping modify an existing React Native project through natural language commands.
 
 ## 📱 PROJECT CONTEXT
 - **Project Type**: ${this.projectContext.projectMetadata.framework}
@@ -257,36 +354,74 @@ You must respond in this JSON format:
 }
 \`\`\`
 
-## 🎨 GUIDELINES
-1. **Conversational**: Respond naturally like ChatGPT
-2. **React Native Focus**: Generate mobile-optimized code
-3. **Best Practices**: Follow RN conventions and patterns
-4. **Practical**: Create working, production-ready code
-5. **Explanation**: Explain what you're doing and why
+## 🎨 PROFESSIONAL GUIDELINES
 
-## 🚀 EXAMPLES OF WHAT YOU CAN DO:
+### 1. **TypeScript-First Development**
+- All files must be .tsx/.ts (NO .jsx/.js)
+- Strict TypeScript types for all props, state, functions
+- Proper interface definitions and generic types
+- Import types with \`import type\`
 
-### "Add a login screen"
-- Create LoginScreen.tsx with proper RN components
-- Include form validation, loading states, error handling
-- Add proper styling and mobile UX patterns
+### 2. **React Native Best Practices**
+- **ALL text must be in <Text> components**
+- Use proper React Native components (View, TouchableOpacity, etc.)
+- Mobile-optimized styling with StyleSheet.create()
+- Touch targets minimum 44pt for accessibility
+- Handle keyboard interactions properly
 
-### "Create user profile component"
-- Build UserProfile.tsx with avatar, info, settings
-- Add proper navigation and state management
-- Include edit functionality and proper styling
+### 3. **Professional Architecture**
+- Follow established project structure:
+  - Screens: \`src/screens/ScreenName.tsx\`
+  - Components: \`src/components/ComponentName.tsx\`
+  - Services: \`src/services/ServiceName.ts\`
+  - Contexts: \`src/contexts/ContextName.tsx\`
+  - Types: \`src/types/TypeName.ts\`
 
-### "Fix navigation styling"
-- Analyze existing navigation code
-- Update styles for better mobile experience
-- Add proper transitions and animations
+### 4. **Navigation & State Management**
+- Use proper TypeScript navigation types
+- Context providers for global state
+- Proper screen lifecycle management
+- Update navigation configuration when adding screens
 
-### "Add dark mode support"
-- Create theme system with light/dark variants
+### 5. **Code Quality Standards**
+- Production-ready, maintainable code
+- Proper error handling and validation
+- Performance optimizations (memoization, FlatList)
+- Accessibility considerations
+
+## 🚀 ENHANCED CAPABILITIES:
+
+### "Add a login screen with TypeScript"
+- Create LoginScreen.tsx with proper TypeScript types
+- Include form validation with proper error states
+- Add to navigation with type safety
+- Modern mobile UX with loading states
+
+### "Create API service for users"
+- Build UserService.ts with TypeScript interfaces
+- Proper API client integration
+- Error handling and response types
+- Authentication token management
+
+### "Add dark mode with context"
+- Create ThemeContext.tsx with TypeScript
+- Light/dark theme definitions
+- Provider integration in App.tsx
 - Update existing components to use theme
-- Add theme toggle functionality
 
-Now respond to the user's request: "${userInput}"`;
+### "Convert component to TypeScript"
+- Analyze existing JavaScript component
+- Add proper TypeScript types and interfaces
+- Convert styling to mobile-optimized patterns
+- Ensure React Native best practices
+
+### "Fix navigation and add new screen"
+- Update navigation types in src/types/navigation.ts
+- Add screen component with proper props
+- Update AppNavigator.tsx with new route
+- Test navigation flow
+
+Now respond professionally to: "${userInput}"`;
   }
 
   parseAIResponse(response) {
@@ -360,6 +495,12 @@ Now respond to the user's request: "${userInput}"`;
       default:
         console.log(chalk.yellow(`⚠️ Unknown action type: ${action.type}`));
     }
+  }
+
+  async switchAIProvider() {
+    // Implement the logic to switch between AI providers
+    console.log(chalk.cyan('🤖 Switching AI provider...'));
+    // This is a placeholder and should be replaced with actual provider switching logic
   }
 }
 

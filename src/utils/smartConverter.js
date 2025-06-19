@@ -4,10 +4,249 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
+import prompts from 'prompts';
 
 export class SmartConverter {
   constructor() {
+    this.nextjsPath = null;
+    this.outputPath = null;
     this.initializeSmartPatterns();
+  }
+
+  async start() {
+    console.log(chalk.yellow('⚙️ NTRN Legacy Mode'));
+    console.log(chalk.gray('Traditional file-by-file conversion approach\n'));
+
+    // Project selection
+    await this.selectProjectPaths();
+
+    // Start legacy conversion process
+    await this.performLegacyConversion();
+  }
+
+  async selectProjectPaths() {
+    console.log(chalk.cyan('📁 Project Selection'));
+    console.log(chalk.gray('Choose your Next.js project and output location\n'));
+
+    const { nextjsPath, outputName } = await prompts([
+      {
+        type: 'text',
+        name: 'nextjsPath',
+        message: 'Enter the path to your Next.js project:',
+        initial: process.cwd(),
+        validate: async (input) => {
+          if (!input) return 'Path is required';
+          
+          const fullPath = path.resolve(input);
+          if (!await fs.exists(fullPath)) return 'Path does not exist';
+          
+          // Check if it's actually a Next.js project
+          const packageJsonPath = path.join(fullPath, 'package.json');
+          if (await fs.exists(packageJsonPath)) {
+            try {
+              const pkg = await fs.readJson(packageJsonPath);
+              const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+              if (!deps.next) {
+                console.log(chalk.yellow('⚠️ This doesn\'t appear to be a Next.js project (no "next" dependency found)'));
+                const proceed = await prompts({
+                  type: 'toggle',
+                  name: 'continue',
+                  message: 'Continue anyway?',
+                  initial: false,
+                  active: 'yes',
+                  inactive: 'no'
+                });
+                if (!proceed.continue) return 'Please provide a valid Next.js project path';
+              }
+            } catch (error) {
+              return 'Could not read package.json - please verify this is a valid Next.js project';
+            }
+          }
+          
+          return true;
+        }
+      },
+      {
+        type: 'text',
+        name: 'outputName',
+        message: 'Enter the name for your React Native project folder:',
+        initial: 'converted-react-native',
+        validate: (name) => {
+          if (!name) return 'Project name is required';
+          if (!/^[a-zA-Z0-9-_]+$/.test(name)) {
+            return 'Project name can only contain letters, numbers, hyphens, and underscores';
+          }
+          return true;
+        }
+      }
+    ]);
+
+    if (!nextjsPath || !outputName) {
+      console.log(chalk.red('❌ Project selection cancelled.'));
+      process.exit(1);
+    }
+
+    // Resolve full paths
+    this.nextjsPath = path.resolve(nextjsPath);
+    this.outputPath = path.resolve(outputName);
+
+    // Check if output directory already exists
+    if (await fs.exists(this.outputPath)) {
+      const overwrite = await prompts({
+        type: 'toggle',
+        name: 'overwrite',
+        message: `Directory "${outputName}" already exists. Overwrite?`,
+        initial: false,
+        active: 'yes',
+        inactive: 'no'
+      });
+
+      if (!overwrite.overwrite) {
+        console.log(chalk.red('❌ Project creation cancelled.'));
+        process.exit(1);
+      }
+
+      await fs.remove(this.outputPath);
+    }
+
+    console.log(chalk.green('\n✅ Project paths configured:'));
+    console.log(chalk.blue(`📂 Input:  ${this.nextjsPath}`));
+    console.log(chalk.blue(`📂 Output: ${this.outputPath}\n`));
+  }
+
+  async performLegacyConversion() {
+    console.log(chalk.cyan('🔄 Starting legacy conversion process...\n'));
+
+    try {
+      // Create basic Expo project structure
+      await this.createBasicExpoProject();
+
+      // Import and use the legacy conversion function
+      const { convertPagesToScreens } = await import('../convertPagesToScreens.js');
+
+      // Convert pages and components using legacy approach
+      console.log(chalk.cyan('🔄 Converting Next.js components to React Native...\n'));
+      const result = await convertPagesToScreens(this.nextjsPath, this.outputPath);
+
+      if (result.success) {
+        console.log(chalk.green('\n🎉 Legacy conversion completed!'));
+        console.log(chalk.green('📱 Your React Native app is ready!'));
+        
+        console.log(chalk.cyan('\n📋 Next Steps:'));
+        console.log(chalk.white(`1. cd ${path.basename(this.outputPath)}`));
+        console.log(chalk.white('2. npm install'));
+        console.log(chalk.white('3. npx expo start'));
+        
+        console.log(chalk.cyan('\n💡 Upgrade Recommendation:'));
+        console.log(chalk.yellow('Try the new professional converter: ') + chalk.green('ntrn'));
+        console.log(chalk.gray('Better code quality, intelligent analysis, and auto-fixing'));
+        
+      } else {
+        console.log(chalk.red('\n❌ Legacy conversion encountered some issues.'));
+        console.log(chalk.yellow('Try the new professional approach: ntrn'));
+      }
+    } catch (error) {
+      console.error(chalk.red('❌ Legacy conversion failed:'), error.message);
+      console.log(chalk.yellow('Try the new professional approach: ntrn'));
+    }
+  }
+
+  async createBasicExpoProject() {
+    console.log(chalk.cyan('📱 Creating basic Expo project structure...'));
+    
+    // Create directory structure
+    await fs.ensureDir(this.outputPath);
+    
+    // Create basic package.json for React Native Expo
+    const packageJson = {
+      "name": path.basename(this.outputPath),
+      "version": "1.0.0",
+      "main": "node_modules/expo/AppEntry.js",
+      "scripts": {
+        "start": "expo start",
+        "android": "expo start --android",
+        "ios": "expo start --ios",
+        "web": "expo start --web"
+      },
+      "dependencies": {
+        "expo": "~50.0.0",
+        "react": "18.2.0",
+        "react-native": "0.73.0",
+        "@react-navigation/native": "^6.1.0",
+        "@react-navigation/stack": "^6.3.0",
+        "react-native-screens": "~3.29.0",
+        "react-native-safe-area-context": "4.8.2",
+        "@react-native-async-storage/async-storage": "1.21.0"
+      },
+      "devDependencies": {
+        "@babel/core": "^7.20.0",
+        "@types/react": "~18.2.45",
+        "typescript": "^5.1.3"
+      }
+    };
+    
+    await fs.writeJson(path.join(this.outputPath, 'package.json'), packageJson, { spaces: 2 });
+    
+    // Create app.json
+    const appJson = {
+      "expo": {
+        "name": "Converted React Native App",
+        "slug": path.basename(this.outputPath),
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "splash": {
+          "image": "./assets/splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        },
+        "assetBundlePatterns": [
+          "**/*"
+        ],
+        "ios": {
+          "supportsTablet": true
+        },
+        "android": {
+          "adaptiveIcon": {
+            "foregroundImage": "./assets/adaptive-icon.png",
+            "backgroundColor": "#FFFFFF"
+          }
+        },
+        "web": {
+          "favicon": "./assets/favicon.png"
+        }
+      }
+    };
+    
+    await fs.writeJson(path.join(this.outputPath, 'app.json'), appJson, { spaces: 2 });
+    
+    // Create basic App.tsx
+    const appTsx = `import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import HomeScreen from './screens/HomeScreen';
+
+const Stack = createStackNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}`;
+    
+    await fs.writeFile(path.join(this.outputPath, 'App.tsx'), appTsx);
+    
+    // Create directories
+    await fs.ensureDir(path.join(this.outputPath, 'screens'));
+    await fs.ensureDir(path.join(this.outputPath, 'components'));
+    await fs.ensureDir(path.join(this.outputPath, 'assets'));
+    
+    console.log(chalk.green('✅ Basic Expo project structure created'));
   }
 
   initializeSmartPatterns() {

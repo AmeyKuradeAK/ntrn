@@ -1,0 +1,10 @@
+{
+  "selectedProvider": "MISTRAL",
+  "features": {
+    "smartAnalysis": true,
+    "codeFixing": true,
+    "contextualConversion": true,
+    "qualityValidation": true
+  },
+  "created": "2025-06-19T15:02:38.573Z"
+}
