@@ -166,7 +166,7 @@ export class ProfessionalConverter {
       maxTokens: 4096
     });
 
-    const plan = this.parsePlanFromResponse(response.content);
+    const plan = await this.parsePlanFromResponse(response.content);
     
     console.log(chalk.green('✅ Conversion plan generated'));
     this.displayConversionPlan(plan);
@@ -309,7 +309,7 @@ Based on your analysis, determine what the complete mobile app needs:
 Be intelligent, creative, and mobile-first in your approach!`;
   }
 
-  parsePlanFromResponse(content) {
+  async parsePlanFromResponse(content) {
     try {
       // Extract JSON from the response
       const jsonMatch = content.match(/```(?:json)?\s*({[\s\S]*?})\s*```/) || content.match(/({[\s\S]*})/);
@@ -340,16 +340,16 @@ Be intelligent, creative, and mobile-first in your approach!`;
       }
       
       // Fallback plan if parsing fails
-      return this.createFallbackPlan();
+      return await this.createFallbackPlan();
     } catch (error) {
       console.warn(chalk.yellow('⚠️ Could not parse AI plan, using fallback'));
-      return this.createFallbackPlan();
+      return await this.createFallbackPlan();
     }
   }
 
-  createFallbackPlan() {
+  async createFallbackPlan() {
     // Scan for supporting files in the Next.js project
-    const supportingFiles = this.scanForSupportingFiles();
+    const supportingFiles = await this.scanForSupportingFiles();
     
     return {
       appPurpose: "Next.js application converted to React Native",
@@ -391,11 +391,13 @@ Be intelligent, creative, and mobile-first in your approach!`;
     };
   }
 
-  scanForSupportingFiles() {
+  async scanForSupportingFiles() {
     const supportingFiles = [];
     
-    // Scan for common Next.js folders and files
-    const scanCategories = [
+    console.log(chalk.blue('🔍 Intelligent auto-discovery of ALL project folders...'));
+    
+    // Phase 1: Scan for known patterns
+    const knownCategories = [
       { folder: 'components', category: 'components' },
       { folder: 'lib', category: 'utils' },
       { folder: 'utils', category: 'utils' },
@@ -403,37 +405,338 @@ Be intelligent, creative, and mobile-first in your approach!`;
       { folder: 'constants', category: 'constants' },
       { folder: 'hooks', category: 'hooks' },
       { folder: 'types', category: 'types' },
+      { folder: 'services', category: 'services' },
+      { folder: 'helpers', category: 'utils' },
+      { folder: 'stores', category: 'stores' },
+      { folder: 'context', category: 'contexts' },
+      { folder: 'contexts', category: 'contexts' },
+      { folder: 'providers', category: 'contexts' },
+      
+      // Nested src patterns
       { folder: 'src/components', category: 'components' },
       { folder: 'src/lib', category: 'utils' },
       { folder: 'src/utils', category: 'utils' },
       { folder: 'src/api', category: 'api' },
       { folder: 'src/constants', category: 'constants' },
       { folder: 'src/hooks', category: 'hooks' },
-      { folder: 'src/types', category: 'types' }
+      { folder: 'src/types', category: 'types' },
+      { folder: 'src/services', category: 'services' },
+      { folder: 'src/helpers', category: 'utils' },
+      { folder: 'src/stores', category: 'stores' },
+      { folder: 'src/context', category: 'contexts' },
+      { folder: 'src/contexts', category: 'contexts' },
+      { folder: 'src/providers', category: 'contexts' },
+      
+      // App router patterns
+      { folder: 'app/(components)', category: 'components' },
+      { folder: 'app/components', category: 'components' },
+      { folder: 'app/lib', category: 'utils' },
+      { folder: 'app/utils', category: 'utils' },
+      { folder: 'app/api', category: 'api' },
+      
+      // Common "noob developer" patterns
+      { folder: 'my-components', category: 'components' },
+      { folder: 'mycomponents', category: 'components' },
+      { folder: 'ui', category: 'components' },
+      { folder: 'ui-components', category: 'components' },
+      { folder: 'shared', category: 'components' },
+      { folder: 'common', category: 'utils' },
+      { folder: 'helper', category: 'utils' },
+      { folder: 'helpers', category: 'utils' },
+      { folder: 'data', category: 'api' },
+      { folder: 'requests', category: 'api' },
+      { folder: 'fetch', category: 'api' },
+      { folder: 'apis', category: 'api' },
+      { folder: 'configs', category: 'constants' },
+      { folder: 'config', category: 'constants' },
+      { folder: 'settings', category: 'constants' },
+      { folder: 'consts', category: 'constants' },
+      { folder: 'custom-hooks', category: 'hooks' },
+      { folder: 'customhooks', category: 'hooks' },
+      { folder: 'my-hooks', category: 'hooks' },
+      { folder: 'typings', category: 'types' },
+      { folder: 'type-definitions', category: 'types' },
+      { folder: 'interfaces', category: 'types' },
+      { folder: 'models', category: 'types' },
+      { folder: 'business-logic', category: 'services' },
+      { folder: 'logic', category: 'services' },
+      { folder: 'core', category: 'services' },
+      { folder: 'providers', category: 'contexts' },
+      { folder: 'context-providers', category: 'contexts' },
+      { folder: 'state', category: 'contexts' },
+      { folder: 'store', category: 'stores' },
+      { folder: 'redux', category: 'stores' },
+      { folder: 'zustand', category: 'stores' },
+      { folder: 'external', category: 'lib' },
+      { folder: 'third-party', category: 'lib' },
+      { folder: 'integrations', category: 'lib' },
     ];
 
-    // This would normally scan the file system, but for now return example structure
-    // In a real implementation, this would scan the actual project
+    // Phase 2: Discover unknown folders with intelligent analysis
+    const discoveredFolders = await this.discoverUnknownFolders();
     
-    if (this.projectAnalysis.fileStructure.components > 0) {
-      supportingFiles.push({
-        category: 'components',
-        files: ['Button.tsx', 'Header.tsx', 'Card.tsx'],
-        purpose: 'Reusable UI components',
-        sourceFolder: 'components/'
-      });
+    // Phase 3: Scan known folders
+    for (const { folder, category } of knownCategories) {
+      const fullPath = path.join(this.nextjsPath, folder);
+      try {
+        if (await fs.pathExists(fullPath)) {
+          const files = await this.scanFolderForFiles(fullPath);
+          if (files.length > 0) {
+            console.log(chalk.green(`✅ Found ${category}: ${folder}/ (${files.length} files)`));
+            supportingFiles.push({
+              category,
+              files: files.map(f => path.basename(f)),
+              purpose: this.getCategoryPurpose(category),
+              sourceFolder: folder + '/',
+              fullPath,
+              discoveredFiles: files
+            });
+          }
+        }
+      } catch (error) {
+        // Folder doesn't exist or can't be accessed, skip silently
+      }
     }
 
-    if (this.projectAnalysis.fileStructure.utils > 0) {
-      supportingFiles.push({
-        category: 'utils',
-        files: ['helpers.ts', 'validation.ts', 'formatters.ts'],
-        purpose: 'Utility functions and helpers',
-        sourceFolder: 'lib/ or utils/'
-      });
+    // Phase 4: Process discovered unknown folders
+    for (const discoveredFolder of discoveredFolders) {
+      console.log(chalk.yellow(`🧠 Analyzing unknown folder: ${discoveredFolder.path}`));
+      const category = await this.intelligentlyCategorizeFolderWithAI(discoveredFolder);
+      
+      if (category && category !== 'ignore') {
+        console.log(chalk.green(`✅ Categorized as: ${category} (${discoveredFolder.files.length} files)`));
+        supportingFiles.push({
+          category,
+          files: discoveredFolder.files.map(f => path.basename(f)),
+          purpose: this.getCategoryPurpose(category),
+          sourceFolder: path.relative(this.nextjsPath, discoveredFolder.fullPath) + '/',
+          fullPath: discoveredFolder.fullPath,
+          discoveredFiles: discoveredFolder.files,
+          aiCategorized: true
+        });
+      } else {
+        console.log(chalk.gray(`⏭️ Skipping folder: ${discoveredFolder.path} (not relevant for mobile)`));
+      }
     }
 
+    console.log(chalk.green(`🎯 Auto-discovery complete: Found ${supportingFiles.length} categories`));
     return supportingFiles;
+  }
+
+  async discoverUnknownFolders() {
+    const discoveredFolders = [];
+    const scannedPaths = new Set();
+
+    // Recursively scan the project for ANY folders with code files
+    const scanDirectory = async (dirPath, depth = 0) => {
+      if (depth > 4) return; // Prevent infinite recursion
+      if (scannedPaths.has(dirPath)) return;
+      scannedPaths.add(dirPath);
+
+      try {
+        const entries = await fs.readdir(dirPath, { withFileTypes: true });
+        
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            const fullPath = path.join(dirPath, entry.name);
+            const relativePath = path.relative(this.nextjsPath, fullPath);
+            
+            // Skip common irrelevant folders
+            if (this.shouldSkipFolder(entry.name, relativePath)) {
+              continue;
+            }
+
+            // Check if this folder contains code files
+            const files = await this.scanFolderForFiles(fullPath);
+            if (files.length > 0) {
+              // Check if it's not already in our known categories
+              if (!this.isKnownCategory(relativePath)) {
+                discoveredFolders.push({
+                  name: entry.name,
+                  path: relativePath,
+                  fullPath,
+                  files,
+                  depth
+                });
+              }
+            }
+
+            // Recursively scan subdirectories
+            await scanDirectory(fullPath, depth + 1);
+          }
+        }
+      } catch (error) {
+        // Can't read directory, skip
+      }
+    };
+
+    await scanDirectory(this.nextjsPath);
+    return discoveredFolders;
+  }
+
+  shouldSkipFolder(folderName, relativePath) {
+    const skipPatterns = [
+      'node_modules', '.next', '.git', 'dist', 'build', 'out',
+      '.vscode', '.idea', 'coverage', '__tests__', '.storybook',
+      'public', 'static', 'assets', 'images', 'fonts', 'icons',
+      '.env', '.env.local', '.env.development', '.env.production',
+      'styles', 'css', 'scss', 'sass', // Skip pure styling folders
+      'docs', 'documentation', 'readme',
+    ];
+
+    return skipPatterns.some(pattern => 
+      folderName.toLowerCase().includes(pattern.toLowerCase()) ||
+      relativePath.toLowerCase().includes(pattern.toLowerCase())
+    );
+  }
+
+  isKnownCategory(relativePath) {
+    const knownPaths = [
+      'components', 'lib', 'utils', 'api', 'constants', 'hooks', 'types', 'services',
+      'src/components', 'src/lib', 'src/utils', 'src/api', 'src/constants', 
+      'src/hooks', 'src/types', 'src/services', 'app/components', 'app/lib', 
+      'app/utils', 'app/api', 'pages/api'
+    ];
+
+    return knownPaths.some(known => relativePath === known || relativePath.startsWith(known + '/'));
+  }
+
+  async scanFolderForFiles(folderPath) {
+    const files = [];
+    try {
+      const entries = await fs.readdir(folderPath, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        if (entry.isFile()) {
+          const filePath = path.join(folderPath, entry.name);
+          // Only include TypeScript/JavaScript files
+          if (this.isCodeFile(entry.name)) {
+            files.push(filePath);
+          }
+        } else if (entry.isDirectory() && !this.shouldSkipFolder(entry.name, entry.name)) {
+          // Recursively scan subdirectories (max 2 levels deep)
+          const subFiles = await this.scanFolderForFiles(path.join(folderPath, entry.name));
+          files.push(...subFiles);
+        }
+      }
+    } catch (error) {
+      // Can't read folder, return empty array
+    }
+    
+    return files;
+  }
+
+  isCodeFile(fileName) {
+    const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.vue', '.svelte'];
+    return codeExtensions.some(ext => fileName.endsWith(ext));
+  }
+
+  async intelligentlyCategorizeFolderWithAI(discoveredFolder) {
+    try {
+      // Read a few sample files to understand the folder's purpose
+      const sampleFiles = discoveredFolder.files.slice(0, 3);
+      let sampleContent = '';
+      
+      for (const filePath of sampleFiles) {
+        try {
+          const content = await fs.readFile(filePath, 'utf8');
+          sampleContent += `\n// File: ${path.basename(filePath)}\n${content.substring(0, 500)}...\n`;
+        } catch (error) {
+          // Skip if can't read file
+        }
+      }
+
+             const categorizationPrompt = `# INTELLIGENT FOLDER CATEGORIZATION FOR ANY PROJECT STRUCTURE
+
+You are an expert developer analyzing a Next.js project with unknown folder structure. Your job is to intelligently categorize ANY folder, even if the developer used weird or non-standard naming.
+
+## UNKNOWN FOLDER ANALYSIS:
+- **Folder Name**: ${discoveredFolder.name}
+- **Folder Path**: ${discoveredFolder.path}  
+- **Files Found**: ${discoveredFolder.files.length}
+- **File Names**: ${discoveredFolder.files.map(f => path.basename(f)).join(', ')}
+
+## SAMPLE CODE FROM FILES:
+\`\`\`typescript
+${sampleContent}
+\`\`\`
+
+## YOUR INTELLIGENT ANALYSIS TASK:
+Look at the folder name, file names, and code content to determine what this folder contains. Handle ANY naming convention, including non-standard ones from noob developers.
+
+**Available Categories:**
+- \`components\` - UI components, React components, reusable elements
+- \`utils\` - Helper functions, utilities, shared logic, formatters
+- \`api\` - API calls, data fetching, HTTP requests, backend communication
+- \`constants\` - Configuration, constants, config files, settings
+- \`hooks\` - Custom React hooks, state logic
+- \`types\` - TypeScript types, interfaces, type definitions
+- \`services\` - Business logic services, classes, core functionality
+- \`contexts\` - React context providers, state management
+- \`stores\` - State management (Redux, Zustand, etc.)
+- \`lib\` - Third-party integrations, external libraries
+- \`ignore\` - Not relevant for mobile app (skip this folder)
+
+**Pattern Recognition Examples:**
+- "ui", "shared", "common-components", "my-components" → \`components\`
+- "helper", "tools", "shared-utils", "common" → \`utils\`
+- "data", "requests", "fetch", "api-calls" → \`api\`
+- "config", "settings", "env", "constants" → \`constants\`
+- "custom-hooks", "hooks", "state-hooks" → \`hooks\`
+- "types", "interfaces", "models", "typings" → \`types\`
+- "logic", "business", "core", "services" → \`services\`
+- "context", "providers", "state" → \`contexts\`
+- "store", "redux", "zustand", "state-mgmt" → \`stores\`
+- "external", "third-party", "integrations" → \`lib\`
+- "server", "backend", "database", "docs" → \`ignore\`
+
+**Content Analysis:**
+- Files with JSX/TSX and return statements → \`components\`
+- Files with export function/const (utilities) → \`utils\`
+- Files with fetch/axios calls → \`api\`
+- Files with export const CONFIG → \`constants\`
+- Files with useEffect/useState → \`hooks\`
+- Files with interface/type definitions → \`types\`
+- Files with class definitions or business logic → \`services\`
+- Files with createContext/Provider → \`contexts\`
+- Files with store/dispatch/reducer → \`stores\`
+
+**BE INTELLIGENT:** Look beyond the folder name at the actual content and purpose.
+
+**Respond with ONLY the category name (no explanation):**`;
+
+      const response = await aiManager.callAI(categorizationPrompt, {
+        task: 'categorization',
+        temperature: 0.1,
+        maxTokens: 50
+      });
+
+      const category = response.content.trim().toLowerCase();
+      
+      // Validate the category
+      const validCategories = ['components', 'utils', 'api', 'constants', 'hooks', 'types', 'services', 'contexts', 'stores', 'lib', 'ignore'];
+      return validCategories.includes(category) ? category : 'utils'; // Default to utils if uncertain
+      
+    } catch (error) {
+      console.log(chalk.yellow(`⚠️ Could not categorize folder ${discoveredFolder.name}, defaulting to utils`));
+      return 'utils'; // Safe default
+    }
+  }
+
+  getCategoryPurpose(category) {
+    const purposes = {
+      'components': 'Reusable UI components',
+      'utils': 'Utility functions and helpers',
+      'api': 'API calls and data fetching logic',
+      'constants': 'App configuration and constants',
+      'hooks': 'Custom React hooks',
+      'types': 'TypeScript type definitions',
+      'services': 'Business logic and service classes',
+      'contexts': 'React context providers and state management',
+      'stores': 'State management (Redux, Zustand, etc.)',
+      'lib': 'Third-party integrations and external libraries'
+    };
+    return purposes[category] || 'Supporting functionality';
   }
 
   convertFileNameToScreenName(filename) {
