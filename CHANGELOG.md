@@ -4,6 +4,33 @@ All notable changes to the NTRN (Next.js to React Native) converter project.
 
 ---
 
+## [4.1.3] - 2025-01-03
+
+### 🧠 **Intelligent Screen Creation & Asset Handling Revolution**
+
+#### ✅ Critical User Feedback Addressed
+- **Fixed Issue**: "Why layout.tsx and page.tsx saved in RN project" - NTRN now does intelligent screen creation instead of naive file conversion
+- **Proper Terminology**: React Native uses "screens" not "pages" - fixed throughout
+- **Asset Handling**: Automatic copying and optimization from public/ folder to assets/
+
+#### 🚀 Major Breakthroughs
+- **Intelligent AI Analysis**: AI now understands website purpose and functionality instead of just converting files
+- **Screen Mapping**: `app/layout.tsx` → Tab Navigator setup, `app/page.tsx` → HomeScreen.tsx, etc.
+- **Mobile-First Design**: Creates mobile-optimized screens with native patterns
+- **Automatic Assets**: Smart copying from public/ folder with filtering and indexing
+
+#### 🔄 Enhanced Conversion Process
+- **Website Analysis**: AI analyzes entire Next.js project to understand purpose
+- **Mobile App Design**: Creates appropriate navigation (Tab/Stack/Drawer) based on analysis  
+- **Screen Creation**: Generates proper React Native screens with mobile enhancements
+- **Asset Processing**: Copies assets with mobile optimization and auto-generated imports
+
+#### 📱 Mobile Enhancements
+- **Native Navigation**: Proper Tab/Stack/Drawer patterns instead of web routing
+- **Mobile Components**: TouchableOpacity, pull-to-refresh, haptic feedback
+- **Asset Organization**: assets/images/, assets/fonts/, assets/icons/ with index.ts
+- **Performance**: Optimized for React Native 0.79 + New Architecture
+
 ## [4.1.2] - 2025-01-03
 
 ### 🚀 **Expo SDK 53 Compatibility Update**

@@ -1,7 +1,7 @@
 {
   "name": "ntrn",
-  "version": "4.1.2",
-  "description": "🚀 Professional AI-powered Next.js to React Native converter with Mistral AI, Gemini 2.0 Flash, intelligent project analysis, and official Expo SDK 53 React Native structure generation with New Architecture support",
+  "version": "4.1.3",
+  "description": "🚀 Professional AI-powered Next.js to React Native converter with intelligent screen creation, automatic asset handling, Mistral AI, Gemini 2.0 Flash, and official Expo SDK 53 structure generation",
   "type": "module",
   "main": "bin/ntrn.js",
   "bin": {

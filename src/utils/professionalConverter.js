@@ -175,72 +175,100 @@ export class ProfessionalConverter {
   }
 
   createPlanningPrompt() {
-    return `# PROFESSIONAL REACT NATIVE CONVERSION PLAN
+    return `# INTELLIGENT REACT NATIVE APP CREATION PLAN
 
-You are a Senior React Native Developer with 8+ years of experience converting Next.js projects to React Native. Analyze this project and create a comprehensive conversion plan.
+You are a Senior Mobile App Developer with 10+ years of experience. Your task is to analyze this Next.js website and create a native mobile app that provides the same functionality and user experience.
 
-## PROJECT ANALYSIS:
+## NEXT.JS PROJECT ANALYSIS:
 ${JSON.stringify(this.projectAnalysis, null, 2)}
 
-## YOUR TASK:
-Create a detailed, step-by-step conversion plan that addresses:
+## YOUR MISSION:
+Understand the website's PURPOSE, FUNCTIONALITY, and USER FLOW. Then design a mobile app that delivers the same value through native mobile patterns.
 
-### 1. ARCHITECTURE DECISIONS
-- Navigation structure (Stack, Tab, Drawer)
-- State management approach
-- File organization strategy
-- Performance considerations
+### 🧠 INTELLIGENT ANALYSIS REQUIRED:
 
-### 2. TECHNOLOGY MAPPING
-- UI component conversions (Next.js → React Native)
-- Styling approach (CSS → StyleSheet/NativeWind)
-- API handling (SSR/SSG → Client-side)
-- Asset management
+#### 1. **Website Understanding**
+- What is the main purpose of this website?
+- What are the key user journeys and flows?
+- What are the main features and functionality?
+- How should this translate to mobile app experience?
 
-### 3. CRITICAL ISSUES TO ADDRESS
-- ${this.projectAnalysis.recommendations.map(r => r.title).join(', ')}
+#### 2. **Mobile App Architecture Design**
+- What navigation pattern fits best? (Tab Bar, Stack, Drawer)
+- Which screens are needed to recreate the website functionality?
+- How should the mobile user flow differ from web?
+- What mobile-specific features should be added?
 
-### 4. CONVERSION PRIORITY
-- High priority files (core functionality)
-- Medium priority files (features)
-- Low priority files (utilities)
+#### 3. **Screen Mapping Strategy**
+- DON'T just convert files 1:1
+- ANALYZE content and functionality
+- CREATE appropriate mobile screens
+- DESIGN mobile-first user experience
 
-### 5. QUALITY ASSURANCE STRATEGY
-- Code validation points
-- Testing approach
-- Performance optimization
+### 📱 EXAMPLES OF INTELLIGENT CONVERSION:
 
-## OUTPUT FORMAT:
-Provide a structured JSON plan with:
+**Instead of converting files directly:**
+❌ \`app/layout.tsx\` → \`layout.tsx\` (Wrong!)
+❌ \`app/page.tsx\` → \`page.tsx\` (Wrong!)
+
+**Do intelligent analysis:**
+✅ \`app/layout.tsx\` (navigation/header) → Design Tab Navigator
+✅ \`app/page.tsx\` (homepage content) → HomeScreen.tsx  
+✅ \`app/login/page.tsx\` (login functionality) → LoginScreen.tsx
+✅ \`app/dashboard/page.tsx\` (dashboard functionality) → DashboardScreen.tsx
+
+### 🎯 REACT NATIVE SCREENS TO CREATE:
+Based on your analysis, determine what screens the mobile app needs:
+
 {
+  "appPurpose": "Brief description of what this website/app does",
+  "userJourneys": ["Journey 1", "Journey 2", "Journey 3"],
+  "mobileScreens": [
+    {
+      "screenName": "HomeScreen",
+      "purpose": "Landing/main functionality",
+      "sourceAnalysis": "Based on app/page.tsx content",
+      "mobileFeatures": ["Feature 1", "Feature 2"]
+    },
+    {
+      "screenName": "LoginScreen", 
+      "purpose": "User authentication",
+      "sourceAnalysis": "Based on app/login/page.tsx",
+      "mobileFeatures": ["Biometric login", "Remember me"]
+    }
+  ],
   "architecture": {
     "navigation": "stack|tab|drawer",
+    "reasoning": "Why this navigation pattern fits the app",
     "stateManagement": "native|redux|zustand",
-    "styling": "stylesheet|nativewind|styled-components"
+    "styling": "stylesheet|nativewind"
   },
-  "phases": [
-    {
-      "name": "Phase Name",
-      "priority": "high|medium|low",
-      "files": ["file1.tsx", "file2.tsx"],
-      "strategy": "Strategy description",
-      "estimatedTime": "5-10 minutes"
-    }
-  ],
-  "criticalIssues": [
-    {
-      "issue": "Issue description",
-      "solution": "Solution approach",
-      "priority": "high|medium|low"
-    }
-  ],
-  "qualityChecks": [
-    "Check 1",
-    "Check 2"
+  "conversionStrategy": {
+    "phases": [
+      {
+        "name": "Core Screens Creation",
+        "priority": "high", 
+        "screens": ["HomeScreen", "LoginScreen"],
+        "strategy": "Create main user flow screens",
+        "estimatedTime": "10-15 minutes"
+      }
+    ]
+  },
+  "mobileEnhancements": [
+    "Push notifications",
+    "Offline functionality", 
+    "Native gestures",
+    "Haptic feedback"
   ]
 }
 
-Be specific and professional. This plan will guide the entire conversion process.`;
+## 🚀 THINK LIKE A MOBILE APP DESIGNER:
+- How can we make this mobile experience BETTER than the website?
+- What mobile-specific features would enhance user experience?
+- How should navigation work on small screens?
+- What content should be prioritized on mobile?
+
+Be intelligent, creative, and mobile-first in your approach!`;
   }
 
   parsePlanFromResponse(content) {
@@ -248,7 +276,28 @@ Be specific and professional. This plan will guide the entire conversion process
       // Extract JSON from the response
       const jsonMatch = content.match(/```(?:json)?\s*({[\s\S]*?})\s*```/) || content.match(/({[\s\S]*})/);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[1]);
+        const plan = JSON.parse(jsonMatch[1]);
+        
+        // Transform the new intelligent format to the expected format
+        if (plan.mobileScreens && plan.conversionStrategy) {
+          return {
+            appPurpose: plan.appPurpose,
+            userJourneys: plan.userJourneys,
+            mobileScreens: plan.mobileScreens,
+            architecture: plan.architecture,
+            phases: plan.conversionStrategy.phases,
+            mobileEnhancements: plan.mobileEnhancements,
+            criticalIssues: [],
+            qualityChecks: [
+              'Validate all imports are React Native compatible',
+              'Ensure all text is wrapped in Text components', 
+              'Verify navigation structure works',
+              'Check for runtime errors'
+            ]
+          };
+        }
+        
+        return plan;
       }
       
       // Fallback plan if parsing fails
@@ -290,22 +339,65 @@ Be specific and professional. This plan will guide the entire conversion process
   }
 
   displayConversionPlan(plan) {
-    console.log(chalk.cyan('\n📋 Professional Conversion Plan'));
-    console.log(chalk.cyan('=' .repeat(50)));
+    console.log(chalk.cyan('\n📱 Intelligent Mobile App Creation Plan'));
+    console.log(chalk.cyan('=' .repeat(60)));
 
-    console.log(chalk.yellow('\n🏗️ Architecture Decisions:'));
-    console.log(`   Navigation: ${plan.architecture.navigation}`);
-    console.log(`   State Management: ${plan.architecture.stateManagement}`);
-    console.log(`   Styling: ${plan.architecture.styling}`);
+    if (plan.appPurpose) {
+      console.log(chalk.yellow('\n🎯 App Purpose:'));
+      console.log(`   ${plan.appPurpose}`);
+    }
 
-    console.log(chalk.yellow('\n📅 Conversion Phases:'));
-    plan.phases.forEach((phase, index) => {
-      const priority = phase.priority === 'high' ? '🔴' : phase.priority === 'medium' ? '🟡' : '🟢';
-      console.log(`   ${index + 1}. ${priority} ${phase.name} (${phase.estimatedTime})`);
-      console.log(`      Files: ${phase.files.length} files`);
-    });
+    if (plan.userJourneys) {
+      console.log(chalk.yellow('\n🛤️ Key User Journeys:'));
+      plan.userJourneys.forEach((journey, index) => {
+        console.log(`   ${index + 1}. ${journey}`);
+      });
+    }
 
-    if (plan.criticalIssues.length > 0) {
+    if (plan.mobileScreens) {
+      console.log(chalk.yellow('\n📱 Mobile Screens to Create:'));
+      plan.mobileScreens.forEach((screen, index) => {
+        console.log(`   ${index + 1}. ${chalk.green(screen.screenName)}`);
+        console.log(`      Purpose: ${screen.purpose}`);
+        console.log(`      Based on: ${screen.sourceAnalysis}`);
+        if (screen.mobileFeatures?.length > 0) {
+          console.log(`      Mobile Features: ${screen.mobileFeatures.join(', ')}`);
+        }
+      });
+    }
+
+    if (plan.architecture) {
+      console.log(chalk.yellow('\n🏗️ Architecture Decisions:'));
+      console.log(`   Navigation: ${plan.architecture.navigation}`);
+      if (plan.architecture.reasoning) {
+        console.log(`   Reasoning: ${plan.architecture.reasoning}`);
+      }
+      console.log(`   State Management: ${plan.architecture.stateManagement}`);
+      console.log(`   Styling: ${plan.architecture.styling}`);
+    }
+
+    if (plan.phases) {
+      console.log(chalk.yellow('\n📅 Development Phases:'));
+      plan.phases.forEach((phase, index) => {
+        const priority = phase.priority === 'high' ? '🔴' : phase.priority === 'medium' ? '🟡' : '🟢';
+        console.log(`   ${index + 1}. ${priority} ${phase.name} (${phase.estimatedTime})`);
+        console.log(`      Strategy: ${phase.strategy}`);
+        if (phase.screens) {
+          console.log(`      Screens: ${phase.screens.join(', ')}`);
+        } else if (phase.files) {
+          console.log(`      Files: ${phase.files.length} files`);
+        }
+      });
+    }
+
+    if (plan.mobileEnhancements?.length > 0) {
+      console.log(chalk.yellow('\n🚀 Mobile Enhancements:'));
+      plan.mobileEnhancements.forEach(enhancement => {
+        console.log(`   ✨ ${enhancement}`);
+      });
+    }
+
+    if (plan.criticalIssues?.length > 0) {
       console.log(chalk.yellow('\n⚠️ Critical Issues to Address:'));
       plan.criticalIssues.slice(0, 3).forEach(issue => {
         const priority = issue.priority === 'high' ? '🔴' : '🟡';
@@ -348,6 +440,9 @@ Be specific and professional. This plan will guide the entire conversion process
     await this.createNavigationSetup();
     await this.createContextProviders();
     await this.createApiServices();
+
+    // Copy and process assets from public folder
+    await this.copyAndProcessAssets();
 
     console.log(chalk.green('✅ React Native project structure created'));
   }
@@ -1091,30 +1186,221 @@ export interface RefreshTokenRequest {
     await fs.writeFile(path.join(this.outputPath, 'src/types/api.ts'), apiTypesContent);
   }
 
+  async copyAndProcessAssets() {
+    console.log(chalk.blue('📁 Processing assets from public folder...'));
+
+    const publicPath = path.join(this.nextjsPath, 'public');
+    const assetsPath = path.join(this.outputPath, 'assets');
+
+    // Check if public folder exists
+    if (!await fs.exists(publicPath)) {
+      console.log(chalk.yellow('⚠️ No public folder found, creating default assets...'));
+      await this.createDefaultAssets();
+      return;
+    }
+
+    try {
+      // Copy all assets from public to assets folder
+      await fs.copy(publicPath, assetsPath, {
+        filter: (src) => {
+          // Filter out files that don't belong in mobile assets
+          const filename = path.basename(src);
+          const ext = path.extname(filename).toLowerCase();
+          
+          // Skip non-image files and web-specific assets
+          const skipFiles = ['.html', '.xml', 'robots.txt', 'sitemap.xml', 'manifest.json', '.ico'];
+          const isSkippedFile = skipFiles.some(skip => filename.includes(skip) || ext === skip);
+          
+          if (isSkippedFile) {
+            console.log(chalk.gray(`⏭️ Skipping web-specific file: ${filename}`));
+            return false;
+          }
+
+          // Allow image files and other mobile-friendly assets
+          const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.pdf', '.json', '.ttf', '.otf'];
+          const isAllowed = allowedExtensions.includes(ext) || fs.statSync(src).isDirectory();
+          
+          if (!isAllowed) {
+            console.log(chalk.gray(`⏭️ Skipping unsupported file type: ${filename}`));
+          }
+          
+          return isAllowed;
+        }
+      });
+
+      // Create asset index file for easy imports
+      await this.createAssetIndex();
+
+      console.log(chalk.green('✅ Assets copied and processed successfully'));
+      
+      // Show which assets were copied
+      const copiedAssets = await this.listCopiedAssets();
+      if (copiedAssets.length > 0) {
+        console.log(chalk.cyan(`📋 Copied ${copiedAssets.length} assets:`));
+        copiedAssets.slice(0, 5).forEach(asset => {
+          console.log(chalk.gray(`   • ${asset}`));
+        });
+        if (copiedAssets.length > 5) {
+          console.log(chalk.gray(`   ... and ${copiedAssets.length - 5} more`));
+        }
+      }
+
+    } catch (error) {
+      console.warn(chalk.yellow(`⚠️ Error copying assets: ${error.message}`));
+      console.log(chalk.blue('Creating default assets instead...'));
+      await this.createDefaultAssets();
+    }
+  }
+
+  async createDefaultAssets() {
+    const assetsPath = path.join(this.outputPath, 'assets');
+    
+    // Create default asset structure
+    await fs.ensureDir(path.join(assetsPath, 'images'));
+    await fs.ensureDir(path.join(assetsPath, 'fonts'));
+    await fs.ensureDir(path.join(assetsPath, 'icons'));
+
+    // Create placeholder assets info
+    const assetReadme = `# Assets Folder
+
+This folder contains your React Native app assets.
+
+## Structure:
+- **images/**: App images and graphics
+- **fonts/**: Custom fonts (TTF, OTF)
+- **icons/**: App icons and small graphics
+
+## Usage:
+\`\`\`tsx
+// Import images
+import logo from '../assets/images/logo.png';
+
+// Use in components
+<Image source={logo} style={styles.logo} />
+\`\`\`
+
+## Expo Asset Requirements:
+- Images: PNG, JPG, GIF, WebP
+- Fonts: TTF, OTF
+- Maximum file size: 20MB per asset
+`;
+
+    await fs.writeFile(path.join(assetsPath, 'README.md'), assetReadme);
+
+    // Create default icon placeholder
+    const iconPlaceholder = `// Default icon exports
+// Add your icons here as they're added to the assets/icons folder
+
+export const icons = {
+  // placeholder: require('./icons/placeholder.png'),
+  // logo: require('./icons/logo.png'),
+  // Add more icons as needed
+} as const;
+`;
+
+    await fs.writeFile(path.join(assetsPath, 'icons.ts'), iconPlaceholder);
+  }
+
+  async createAssetIndex() {
+    const assetsPath = path.join(this.outputPath, 'assets');
+    
+    // Scan for images
+    const imagesPath = path.join(assetsPath, 'images');
+    let imageExports = '';
+    
+    if (await fs.exists(imagesPath)) {
+      const imageFiles = await fs.readdir(imagesPath);
+      const validImages = imageFiles.filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.png', '.jpg', '.jpeg', '.gif', '.webp'].includes(ext);
+      });
+
+      validImages.forEach(image => {
+        const name = path.basename(image, path.extname(image));
+        const camelCaseName = name.replace(/[^a-zA-Z0-9]/g, '').replace(/^./, c => c.toLowerCase());
+        imageExports += `  ${camelCaseName}: require('./images/${image}'),\n`;
+      });
+    }
+
+    const indexContent = `// Asset exports for React Native
+// Auto-generated - modify with care
+
+export const images = {
+${imageExports}
+} as const;
+
+// Export individual assets for easier imports
+${imageExports.split('\n').filter(line => line.trim()).map(line => {
+  const match = line.match(/^\s*(\w+):/);
+  if (match) {
+    const name = match[1];
+    return `export const ${name} = images.${name};`;
+  }
+  return '';
+}).join('\n')}
+
+// Font exports (add as fonts are added)
+export const fonts = {
+  // Add custom fonts here
+} as const;
+`;
+
+    await fs.writeFile(path.join(assetsPath, 'index.ts'), indexContent);
+  }
+
+  async listCopiedAssets() {
+    try {
+      const assetsPath = path.join(this.outputPath, 'assets');
+      const files = [];
+      
+      const addFiles = async (dir, prefix = '') => {
+        if (await fs.exists(dir)) {
+          const items = await fs.readdir(dir);
+          for (const item of items) {
+            const fullPath = path.join(dir, item);
+            const stat = await fs.stat(fullPath);
+            
+            if (stat.isDirectory()) {
+              await addFiles(fullPath, `${prefix}${item}/`);
+            } else {
+              files.push(`${prefix}${item}`);
+            }
+          }
+        }
+      };
+      
+      await addFiles(assetsPath);
+      return files.filter(file => !file.includes('README.md') && !file.includes('index.ts'));
+    } catch (error) {
+      return [];
+    }
+  }
+
   async performProfessionalConversion() {
-    console.log(chalk.blue('👨‍💻 Starting professional conversion process...'));
+    console.log(chalk.blue('📱 Starting intelligent mobile app creation...'));
     
     const results = [];
     let successCount = 0;
     let failureCount = 0;
     let skippedCount = 0;
 
-    // Process each phase in the conversion plan
-    for (const phase of this.conversionPlan.phases) {
-      console.log(chalk.cyan(`\n📋 ${phase.name} (${phase.priority} priority)`));
+    // Check if we have the new intelligent plan format
+    if (this.conversionPlan.mobileScreens) {
+      // NEW: Intelligent screen creation based on analysis
+      console.log(chalk.cyan('\n🧠 Creating mobile screens based on intelligent analysis...'));
       
-      for (const file of phase.files) {
-        if (!file) continue;
-        
+      for (const screenInfo of this.conversionPlan.mobileScreens) {
         try {
-          console.log(chalk.blue(`🔄 Converting: ${file}`));
+          console.log(chalk.blue(`📱 Creating: ${screenInfo.screenName}`));
+          console.log(chalk.gray(`   Purpose: ${screenInfo.purpose}`));
+          console.log(chalk.gray(`   Based on: ${screenInfo.sourceAnalysis}`));
           
-          const result = await this.convertFile(file, phase);
+          const result = await this.createIntelligentScreen(screenInfo);
           results.push(result);
           
           if (result.success) {
             successCount++;
-            console.log(chalk.green(`✅ Converted: ${result.outputFile}`));
+            console.log(chalk.green(`✅ Created: ${result.outputFile}`));
           } else if (result.skipped) {
             skippedCount++;
             console.log(chalk.yellow(`⏭️ Skipped: ${result.error}`));
@@ -1123,13 +1409,50 @@ export interface RefreshTokenRequest {
             console.log(chalk.red(`❌ Failed: ${result.error}`));
           }
         } catch (error) {
-          console.error(chalk.red(`❌ Error converting ${file}: ${error.message}`));
+          console.error(chalk.red(`❌ Error creating ${screenInfo.screenName}: ${error.message}`));
           results.push({
-            sourceFile: file,
+            sourceFile: screenInfo.sourceAnalysis,
+            screenName: screenInfo.screenName,
             success: false,
             error: error.message
           });
           failureCount++;
+        }
+      }
+    } else {
+      // FALLBACK: Process traditional phases if no intelligent plan
+      for (const phase of this.conversionPlan.phases) {
+        console.log(chalk.cyan(`\n📋 ${phase.name} (${phase.priority} priority)`));
+        
+        const files = phase.files || phase.screens || [];
+        for (const file of files) {
+          if (!file) continue;
+          
+          try {
+            console.log(chalk.blue(`🔄 Converting: ${file}`));
+            
+            const result = await this.convertFile(file, phase);
+            results.push(result);
+            
+            if (result.success) {
+              successCount++;
+              console.log(chalk.green(`✅ Converted: ${result.outputFile}`));
+            } else if (result.skipped) {
+              skippedCount++;
+              console.log(chalk.yellow(`⏭️ Skipped: ${result.error}`));
+            } else {
+              failureCount++;
+              console.log(chalk.red(`❌ Failed: ${result.error}`));
+            }
+          } catch (error) {
+            console.error(chalk.red(`❌ Error converting ${file}: ${error.message}`));
+            results.push({
+              sourceFile: file,
+              success: false,
+              error: error.message
+            });
+            failureCount++;
+          }
         }
       }
     }
@@ -1138,6 +1461,199 @@ export interface RefreshTokenRequest {
     this.showConversionSummary(successCount, failureCount, skippedCount);
 
     return results;
+  }
+
+  async createIntelligentScreen(screenInfo) {
+    try {
+      // Find the source file that this screen is based on
+      const sourceFile = this.findSourceFile(screenInfo.sourceAnalysis);
+      let sourceContent = '';
+      
+      if (sourceFile && await fs.exists(path.join(this.nextjsPath, sourceFile))) {
+        sourceContent = await fs.readFile(path.join(this.nextjsPath, sourceFile), 'utf-8');
+      }
+
+      // Create intelligent prompt for screen creation
+      const prompt = this.createIntelligentScreenPrompt(screenInfo, sourceContent);
+      
+      console.log(chalk.gray('🧠 Using Mistral AI...'));
+      const response = await this.callAIWithRetry(prompt, screenInfo.screenName, 3);
+      
+      if (!response) {
+        return {
+          sourceFile: screenInfo.sourceAnalysis,
+          screenName: screenInfo.screenName,
+          success: false,
+          skipped: true,
+          error: 'AI request rate limited or failed'
+        };
+      }
+
+      // Extract and validate the generated screen code
+      const screenCode = this.extractCodeFromResponse(response.content);
+      if (!screenCode) {
+        return {
+          sourceFile: screenInfo.sourceAnalysis,
+          screenName: screenInfo.screenName,
+          success: false,
+          error: 'Could not extract valid React Native code from AI response'
+        };
+      }
+
+      // Validate the generated code
+      const validation = await this.validateConvertedCode(screenCode, screenInfo.screenName);
+      let finalCode = screenCode;
+
+      if (!validation.isValid && this.userPreferences.autoFix) {
+        console.log(chalk.yellow(`🔧 Auto-fixing issues in ${screenInfo.screenName}...`));
+        const fixedCode = await this.attemptCodeFix(screenCode, validation.issues, screenInfo.screenName);
+        if (fixedCode) {
+          finalCode = fixedCode;
+        }
+      }
+
+      // Save the screen file
+      const outputPath = `src/screens/${screenInfo.screenName}.tsx`;
+      const fullOutputPath = path.join(this.outputPath, outputPath);
+      await fs.ensureDir(path.dirname(fullOutputPath));
+      await fs.writeFile(fullOutputPath, finalCode);
+
+      // Update navigation to include the new screen
+      await this.updateNavigationForNewScreen(outputPath);
+
+      return {
+        sourceFile: screenInfo.sourceAnalysis,
+        screenName: screenInfo.screenName,
+        outputFile: outputPath,
+        success: true
+      };
+      
+    } catch (error) {
+      return {
+        sourceFile: screenInfo.sourceAnalysis,
+        screenName: screenInfo.screenName,
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  findSourceFile(sourceAnalysis) {
+    // Extract file path from source analysis text
+    const matches = sourceAnalysis.match(/([^/]+\.tsx?)/g);
+    if (matches && matches.length > 0) {
+      return matches[0];
+    }
+    
+    // Try to find based on description
+    if (sourceAnalysis.includes('app/page.tsx')) return 'app/page.tsx';
+    if (sourceAnalysis.includes('app/login')) return 'app/login/page.tsx';
+    if (sourceAnalysis.includes('app/dashboard')) return 'app/dashboard/page.tsx';
+    if (sourceAnalysis.includes('pages/')) {
+      const pageMatch = sourceAnalysis.match(/pages\/([^/]+)/);
+      if (pageMatch) return `pages/${pageMatch[1]}.tsx`;
+    }
+    
+    return null;
+  }
+
+  createIntelligentScreenPrompt(screenInfo, sourceContent) {
+    return `# CREATE REACT NATIVE SCREEN: ${screenInfo.screenName}
+
+You are a Senior Mobile Developer. Create a React Native screen that provides the same functionality as the analyzed Next.js page/component.
+
+## SCREEN REQUIREMENTS:
+- **Screen Name**: ${screenInfo.screenName}
+- **Purpose**: ${screenInfo.purpose}
+- **Source Analysis**: ${screenInfo.sourceAnalysis}
+- **Mobile Features to Include**: ${screenInfo.mobileFeatures?.join(', ') || 'Standard mobile patterns'}
+
+## SOURCE CONTENT (Next.js Page/Component):
+\`\`\`tsx
+${sourceContent || '// No source content available - create based on purpose and analysis'}
+\`\`\`
+
+## IMPORTANT MOBILE CONVENTIONS:
+- React Native uses **SCREENS**, not "pages"
+- Images come from **assets/** folder, not public/
+- Use proper mobile navigation patterns
+- Text must be wrapped in <Text> components
+- Buttons use TouchableOpacity, not HTML buttons
+
+## YOUR TASK:
+Create a professional React Native screen that:
+
+### 1. **Analyze the Source Content**
+- Understand the main functionality and purpose
+- Identify key UI elements and user interactions  
+- Note any data fetching or state management needs
+
+### 2. **Design Mobile-First Experience**
+- Convert web UI patterns to mobile equivalents
+- Use React Native components (View, Text, TextInput, TouchableOpacity, etc.)
+- Implement mobile-specific navigation patterns
+- Add mobile enhancements like haptic feedback, gestures
+
+### 3. **Professional React Native Code**
+- Use TypeScript with proper types
+- Follow React Native best practices
+- Include proper imports and navigation
+- Add responsive design for different screen sizes
+- Include loading states and error handling
+
+### 4. **Mobile Enhancements**
+- Add pull-to-refresh if applicable
+- Include keyboard avoiding view for forms
+- Use safe area context for proper spacing
+- Add haptic feedback for interactions
+- Import images from assets: import logo from '../../assets/images/logo.png'
+
+## OUTPUT FORMAT:
+Provide ONLY the complete React Native screen code:
+
+\`\`\`tsx
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  Image,
+  Alert
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { RootStackScreenProps } from '../types/navigation';
+// Import assets (if needed)
+// import { images } from '../../assets';
+
+interface ${screenInfo.screenName}Props {}
+
+export const ${screenInfo.screenName}: React.FC<${screenInfo.screenName}Props> = () => {
+  const navigation = useNavigation<RootStackScreenProps<'${screenInfo.screenName.replace('Screen', '')}'>['navigation']>();
+
+  // Your intelligent React Native implementation here
+  
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Your mobile-optimized UI here */}
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  // Your styles here
+});
+
+export default ${screenInfo.screenName};
+\`\`\`
+
+Create a screen that's better than the web version by leveraging native mobile capabilities!`;
   }
 
   showConversionSummary(successCount, failureCount, skippedCount) {
