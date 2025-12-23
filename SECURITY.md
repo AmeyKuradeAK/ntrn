@@ -6,12 +6,12 @@ The table below outlines which versions of the **NTRN CLI** are currently suppor
 
 | Version  | Supported          |
 | -------- | ------------------ |
-| 0.1.6    | :white_check_mark: |
-| 0.1.5    | :white_check_mark: |
-| 0.1.1    | :x:                |
-| < 0.1.1  | :x:                |
+| 0.3.0    | :white_check_mark: |
+| 0.2.x    | :white_check_mark: |
+| 0.1.x    | :x:                |
+| < 0.1.0  | :x:                |
 
-We recommend upgrading to the latest version (`v0.1.6`) to benefit from the latest features, bug fixes, and security patches.
+We recommend upgrading to the latest version (`v0.3.0`) to benefit from the latest features, bug fixes, and security patches.
 
 ## Reporting a Vulnerability
 

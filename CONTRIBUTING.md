@@ -58,7 +58,18 @@ Depending on how large the project is, you may want to outsource the questioning
 ## I Want To Contribute
 
 > ### Legal Notice <!-- omit in toc -->
-> When contributing to this project, you must agree that you have authored 100% of the content, that you have the necessary rights to the content and that the content you contribute may be provided under the project licence.
+> 
+> **License Agreement**: This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. By contributing to this project, you agree to the following:
+> 
+> 1. **You have authored 100% of the content** you are contributing, or you have the necessary rights and permissions to contribute it.
+> 
+> 2. **Your contributions will be licensed under GPL-3.0**: Any code, documentation, or other content you contribute will be made available under the same GPL-3.0 license that covers this project.
+> 
+> 3. **Copyleft requirement**: The GPL-3.0 is a copyleft license, which means that any derivative works or modifications must also be licensed under GPL-3.0. This ensures that the software remains free and open source.
+> 
+> 4. **No warranty**: The software is provided "as is" without warranty of any kind, as stated in the GPL-3.0 license.
+> 
+> For the full license text, see [LICENSE](../LICENSE) or visit [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html).
 
 ### Reporting Bugs
 
@@ -126,10 +137,50 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/AmeyKu
 <!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
 ### Your First Code Contribution
-<!-- TODO
-include Setup of env, IDE and typical getting started instructions?
 
--->
+#### License Compliance
+
+Before submitting code contributions, please ensure:
+
+- **Your code is original** or you have proper attribution for any third-party code
+- **You understand GPL-3.0**: Your contributions will be licensed under GPL-3.0, which means:
+  - Your code will be freely available to others
+  - Any derivative works must also be GPL-3.0
+  - Users can modify and distribute the code, but must share their modifications under GPL-3.0
+
+#### Development Setup
+
+1. **Fork and clone** the repository:
+   ```bash
+   git clone https://github.com/AmeyKuradeAK/ntrn.git
+   cd ntrn
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Link the package** for local development:
+   ```bash
+   npm link
+   ```
+
+4. **Make your changes** and test them:
+   ```bash
+   npm start
+   # or
+   npm run dev
+   ```
+
+5. **Create a pull request** with a clear description of your changes.
+
+#### Code Style
+
+- Follow existing code style and patterns
+- Add comments for complex logic
+- Update documentation if needed
+- Test your changes before submitting
 
 ### Improving The Documentation
 <!-- TODO
