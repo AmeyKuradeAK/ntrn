@@ -287,7 +287,7 @@ If NTRN helps you:
 
 ## 📄 License
 
-MIT License — free for personal & commercial use.
+GPL-3.0 License — free for personal & commercial use.
 
 ---
 
