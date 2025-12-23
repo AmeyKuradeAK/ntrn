@@ -291,4 +291,4 @@ MIT License — free for personal & commercial use.
 
 ---
 
-<p align="center">Maintained by <b>Amey Kurade</b></p>
+<p align="center">Maintained by <b>Ammey Kuraaday</b></p>
