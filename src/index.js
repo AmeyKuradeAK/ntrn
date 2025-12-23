@@ -5,14 +5,11 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import figlet from 'figlet';
-import { ProfessionalConverter } from './utils/professionalConverter.js';
-import { createExpoProject, createProjectFlow } from './createExpoProject.js';
-import InteractivePrompt from './utils/interactivePrompt.js';
-import { aiManager } from './utils/aiProviders.js';
-import { SmartConverter } from './utils/smartConverter.js';
-import { fixProjectRuntimeErrors } from './utils/fixRuntimeErrors.js';
+import prompts from 'prompts';
+import { ProjectAnalyzer } from './analyzer.js';
+import { FlutterGenerator } from './flutterGenerator.js';
 
-// Get package version from NTRN package directory
+// Get package version
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,318 +18,457 @@ const packageJson = await fs.readJson(packageJsonPath);
 
 program
   .name('ntrn')
-  .description('🚀 Next.js to React Native Converter with Professional AI Assistant')
-  .version(packageJson.version);
+  .description('🚀 Next.js/React to Flutter Converter')
+  .version(packageJson.version)
+  .option('-v, --verbose', 'Show detailed analysis logs');
 
-// Default command - Professional Conversion (new approach)
+// Default command
 program
-  .action(async () => {
-    await runProfessionalConversion();
-  });
-
-// Professional AI Conversion (new default)
-program
-  .option('--professional', '🧠 Professional AI-powered conversion with Mistral AI and intelligent analysis')
-  .option('--ai', '🧠 Professional AI-powered conversion (alias for --professional)')
   .action(async (options) => {
-    if (options.professional || options.ai) {
-      await runProfessionalConversion();
-      return;
-    }
-    
-    // Default professional conversion
-    await runProfessionalConversion();
+    await runConversion(options.verbose || false);
   });
 
-// Legacy NTRN Interactive Experience (for backwards compatibility)
-program
-  .option('--legacy', '🎨 Legacy NTRN experience with old conversion approach')
-  .option('--old', '🎨 Legacy NTRN experience (alias for --legacy)')
-  .action(async (options) => {
-    if (options.legacy || options.old) {
-      await runLegacyNTRN();
-      return;
-    }
-    
-    // Default professional conversion
-    await runProfessionalConversion();
-  });
-
-// Interactive AI Assistant command
-program
-  .option('--prompt', '🤖 Start interactive AI assistant for React Native projects')
-  .option('--gpt', '🤖 Start interactive AI assistant for React Native projects (alias for --prompt)')
-  .action(async (options) => {
-    if (options.prompt || options.gpt) {
-      const interactivePrompt = new InteractivePrompt();
-      await interactivePrompt.start();
-      return;
-    }
-    
-    if (options.legacy || options.old) {
-      await runLegacyNTRN();
-      return;
-    }
-    
-    // Default professional conversion
-    await runProfessionalConversion();
-  });
-
-// Switch AI Provider command
-program
-  .option('--switch-provider', '🔄 Switch between Mistral AI and Gemini providers')
-  .action(async (options) => {
-    if (options.switchProvider) {
-      await switchAIProvider();
-      return;
-    }
-    
-    if (options.prompt || options.gpt) {
-      const interactivePrompt = new InteractivePrompt();
-      await interactivePrompt.start();
-      return;
-    }
-    
-    if (options.legacy || options.old) {
-      await runLegacyNTRN();
-      return;
-    }
-    
-    // Default professional conversion
-    await runProfessionalConversion();
-  });
-
-// Runtime Error Fixer command
-program
-  .option('--fix-runtime', '🔧 Fix runtime errors in existing React Native project')
-  .action(async (options) => {
-    if (options.fixRuntime) {
-      await runRuntimeErrorFixer();
-      return;
-    }
-    
-    if (options.switchProvider) {
-      await switchAIProvider();
-      return;
-    }
-    
-    if (options.prompt || options.gpt) {
-      const interactivePrompt = new InteractivePrompt();
-      await interactivePrompt.start();
-      return;
-    }
-    
-    if (options.legacy || options.old) {
-      await runLegacyNTRN();
-      return;
-    }
-    
-    // Default professional conversion
-    await runProfessionalConversion();
-  });
-
-// Professional conversion command
+// Convert command
 program
   .command('convert')
-  .description('Professional AI-powered conversion with intelligent analysis')
-  .action(async () => {
-    await runProfessionalConversion();
+  .description('Convert Next.js/React project to Flutter')
+  .option('-v, --verbose', 'Show detailed analysis logs')
+  .action(async (options) => {
+    await runConversion(options.verbose);
   });
 
-// Legacy command
-program
-  .command('legacy')
-  .description('Legacy NTRN experience with old conversion approach')
-  .action(async () => {
-    await runLegacyNTRN();
-  });
-
-// 🧠 Professional AI-Powered Conversion (New Default Approach)
-async function runProfessionalConversion() {
+// Main conversion function
+async function runConversion(verbose = false) {
   try {
-    // Clear console for better experience
     console.clear();
     
-    // Show professional ASCII logo
-    console.log(chalk.cyan(figlet.textSync('NTRN PRO', {
+    console.log(chalk.cyan(figlet.textSync('NTRN', {
       font: 'Big',
       horizontalLayout: 'default',
       verticalLayout: 'default'
     })));
     
-    console.log(chalk.cyan('🚀 Professional Next.js to React Native Converter'));
-    console.log(chalk.yellow('Powered by Mistral AI & Gemini 2.0 Flash'));
-    console.log(chalk.gray('Acting as Senior React Native + Next.js Developer'));
+    console.log(chalk.cyan('🚀 Next.js/React to Flutter Converter'));
+    console.log(chalk.gray('v0.1 - Project structure conversion'));
     console.log(chalk.yellow('━'.repeat(60)));
     console.log('');
 
-    // Initialize Professional Converter with project selection
-    const converter = new ProfessionalConverter();
-    
-    // Run professional conversion with project selection
-    const result = await converter.start();
-
-    if (result.success) {
-      console.log(chalk.cyan('\n🔧 Project Features:'));
-      console.log(chalk.white('• Professional code quality with best practices'));
-      console.log(chalk.white('• Mobile-first design patterns'));
-      console.log(chalk.white('• Proper React Navigation setup'));
-      console.log(chalk.white('• TypeScript support'));
-      console.log(chalk.white('• Auto-fixed common issues'));
-      console.log(chalk.white('• Production-ready structure'));
-      
-      console.log(chalk.cyan('\n🤖 Need to make changes? Use the AI Assistant:'));
-      console.log(chalk.green('   ntrn --prompt') + chalk.gray('  (in your RN project directory)'));
-      
-    } else {
-      console.log(chalk.red('\n❌ Professional conversion encountered some issues.'));
-      console.log(chalk.yellow('Check the generated files and logs for details.'));
-      console.log(chalk.gray('Consider trying the legacy approach: ntrn --legacy'));
-    }
-
-  } catch (error) {
-    console.error(chalk.red(`\n❌ Professional Conversion Error: ${error.message}`));
-    console.log(chalk.yellow('\n💡 Suggestions:'));
-    console.log(chalk.white('1. Check your API keys are properly configured'));
-    console.log(chalk.white('2. Ensure you have a stable internet connection'));
-    console.log(chalk.white('3. Try the legacy approach: ntrn --legacy'));
-    console.log(chalk.white('4. Use the interactive prompt: ntrn --prompt'));
-    process.exit(1);
-  }
-}
-
-// 🎨 Legacy NTRN Experience (Old Approach for Backwards Compatibility)
-async function runLegacyNTRN() {
-  try {
-    // Clear console for better experience
-    console.clear();
-    
-    // Show legacy ASCII logo
-    console.log(chalk.yellow(figlet.textSync('NTRN', {
-      font: 'Big',
-      horizontalLayout: 'default',
-      verticalLayout: 'default'
-    })));
-    
-    console.log(chalk.yellow('🎨 Legacy Next.js to React Native Converter'));
-    console.log(chalk.gray('Traditional file-by-file conversion approach'));
-    console.log(chalk.yellow('━'.repeat(60)));
-    console.log('');
-    
-    // Initialize Smart Converter with project selection
-    const converter = new SmartConverter();
-    
-    // Run legacy conversion with project selection
-    await converter.start();
-    
-  } catch (error) {
-    console.error(chalk.red(`\n❌ Legacy Error: ${error.message}`));
-    console.log(chalk.yellow('\n💡 Try the new professional approach: ntrn'));
-    process.exit(1);
-  }
-}
-
-// 🔧 Runtime Error Fixer
-async function runRuntimeErrorFixer() {
-  try {
-    console.clear();
-    
-    console.log(chalk.cyan(figlet.textSync('NTRN FIX', {
-      font: 'Small',
-      horizontalLayout: 'default',
-      verticalLayout: 'default'
-    })));
-    
-    console.log(chalk.cyan('🔧 React Native Runtime Error Fixer'));
-    console.log(chalk.yellow('Fixes: Cannot read property errors, missing imports, nested Text components'));
-    console.log(chalk.yellow('━'.repeat(60)));
-    console.log('');
-
-    const currentDir = process.cwd();
-    console.log(chalk.gray(`Scanning project: ${path.basename(currentDir)}`));
-    
-    // Run the runtime error fixer
-    await fixProjectRuntimeErrors(currentDir);
-    
-    console.log(chalk.green('\n✅ Runtime error fixing complete!'));
-    console.log(chalk.cyan('\n📱 Next steps:'));
-    console.log(chalk.white('1. Run: npm install (to update dependencies)'));
-    console.log(chalk.white('2. Run: npx expo start'));
-    console.log(chalk.white('3. Test your app on device/simulator'));
-    console.log(chalk.yellow('\n💡 If you still have issues, use: ntrn --prompt'));
-    
-  } catch (error) {
-    console.error(chalk.red(`❌ Runtime fixer error: ${error.message}`));
-    console.log(chalk.yellow('💡 Try using the interactive prompt: ntrn --prompt'));
-    process.exit(1);
-  }
-}
-
-// 🔄 Switch AI Provider
-async function switchAIProvider() {
-  try {
-    // Clear console for better experience
-    console.clear();
-    
-    console.log(chalk.cyan('🔄 NTRN AI Provider Switch'));
-    console.log(chalk.cyan('==========================='));
-    console.log('');
-
-    // Initialize AI Manager
-    await aiManager.initialize();
-    
-    console.log(chalk.cyan('Current AI Provider: ') + chalk.white(aiManager.currentProvider?.name || 'None'));
-    console.log('');
-    
-    const prompts = await import('prompts');
-    const response = await prompts.default({
-      type: 'select',
-      name: 'provider',
-      message: 'Choose AI provider:',
-      choices: [
-        { title: '🧠 Mistral AI (Recommended)', value: 'mistral' },
-        { title: '🤖 Gemini 2.0 Flash', value: 'gemini' },
-        { title: '❌ Cancel', value: 'cancel' }
-      ]
+    // Step 1: Get Next.js project path
+    const { nextjsPath } = await prompts({
+      type: 'text',
+      name: 'nextjsPath',
+      message: 'Enter the path to your Next.js/React project:',
+      initial: process.cwd(),
+      validate: async (input) => {
+        if (!input) return 'Path is required';
+        
+        const fullPath = path.resolve(input);
+        if (!await fs.exists(fullPath)) {
+          return 'Path does not exist';
+        }
+        
+        // Check if it's a Next.js or React project
+        const packageJsonPath = path.join(fullPath, 'package.json');
+        if (await fs.exists(packageJsonPath)) {
+          try {
+            const pkg = await fs.readJson(packageJsonPath);
+            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+            if (!deps.next && !deps.react) {
+              return 'This does not appear to be a Next.js or React project';
+            }
+          } catch (error) {
+            return 'Could not read package.json';
+          }
+        } else {
+          return 'No package.json found - is this a valid project?';
+        }
+        
+        return true;
+      }
     });
 
-    if (response.provider && response.provider !== 'cancel') {
-      await aiManager.switchProvider(response.provider);
-      console.log(chalk.green(`\n✅ Successfully switched to ${response.provider === 'mistral' ? 'Mistral AI' : 'Gemini 2.0 Flash'}`));
-      console.log(chalk.gray('Your choice has been saved for future conversions.'));
+    if (!nextjsPath) {
+      console.log(chalk.yellow('❌ Conversion cancelled.'));
+      process.exit(0);
+    }
+
+    const resolvedNextjsPath = path.resolve(nextjsPath);
+    console.log(chalk.blue(`\n📁 Analyzing project: ${resolvedNextjsPath}\n`));
+
+    // Step 2: Analyze project
+    const analyzer = new ProjectAnalyzer(resolvedNextjsPath, verbose);
+    const analysis = await analyzer.analyze();
+
+    if (!analysis.success) {
+      console.error(chalk.red(`❌ Analysis failed: ${analysis.error}`));
+      process.exit(1);
+    }
+
+    // Display analysis results with file lists
+    console.log(chalk.green('✅ Project analyzed:'));
+    console.log(chalk.gray(`   Framework: ${analysis.framework === 'nextjs' ? 'Next.js' : analysis.framework === 'react' ? 'React' : 'Unknown'}\n`));
+
+    // Display Pages
+    if (analysis.structure.pages.length > 0) {
+      console.log(chalk.cyan(`📄 Pages (${analysis.stats.totalPages} found):`));
+      analysis.structure.pages.slice(0, 10).forEach(file => {
+        const sizeKB = (file.size / 1024).toFixed(1);
+        let line = chalk.white(`   - ${file.relativePath} ${chalk.gray(`(${sizeKB} KB)`)}`);
+        
+        if (file.structure) {
+          const s = file.structure;
+          const componentInfo = [];
+          if (s.componentName) componentInfo.push(s.componentName);
+          if (s.componentType) componentInfo.push(s.componentType);
+          if (s.isDefaultExport) componentInfo.push('default export');
+          
+          if (componentInfo.length > 0) {
+            line += `\n     ${chalk.gray('Component: ' + componentInfo.join(', '))}`;
+          }
+          
+          // Show elements
+          const elementCounts = Object.entries(s.jsxElements || {})
+            .slice(0, 5)
+            .map(([name, count]) => `${name}(${count})`)
+            .join(', ');
+          if (elementCounts) {
+            line += `\n     ${chalk.gray('Elements: ' + elementCounts)}`;
+          }
+          
+          // Show props
+          const propCounts = Object.entries(s.props || {})
+            .slice(0, 5)
+            .map(([name, count]) => `${name}(${count})`)
+            .join(', ');
+          if (propCounts) {
+            line += `\n     ${chalk.gray('Props: ' + propCounts)}`;
+          }
+          
+          // Show className values (important for styling)
+          if (s.classNameValues && s.classNameValues.length > 0) {
+            const classSamples = s.classNameValues.slice(0, 8).join(', ');
+            const moreClasses = s.classNameValues.length > 8 ? ` (+${s.classNameValues.length - 8} more)` : '';
+            line += `\n     ${chalk.gray('Classes: ')}${chalk.cyan(classSamples)}${chalk.gray(moreClasses)}`;
+          }
+          
+          // Show imports summary
+          if (s.importDetails && s.importDetails.length > 0) {
+            const externalLibs = s.importDetails
+              .filter(imp => imp.isExternal && !imp.isNextJS)
+              .map(imp => imp.source)
+              .slice(0, 3);
+            const nextJSImports = s.importDetails
+              .filter(imp => imp.isNextJS)
+              .map(imp => imp.source)
+              .slice(0, 3);
+            const imports = [];
+            if (nextJSImports.length > 0) {
+              imports.push(`next: ${nextJSImports.join(', ')}`);
+            }
+            if (externalLibs.length > 0) {
+              imports.push(`libs: ${externalLibs.join(', ')}`);
+            }
+            if (imports.length > 0) {
+              line += `\n     ${chalk.gray('Imports: ' + imports.join('; '))}`;
+            }
+          }
+          
+          // Show text content samples
+          if (s.textContent && s.textContent.length > 0) {
+            const textSamples = s.textContent.slice(0, 3).map(t => `"${t}"`).join(', ');
+            const moreText = s.textContent.length > 3 ? ` (+${s.textContent.length - 3} more)` : '';
+            line += `\n     ${chalk.gray('Text: ')}${chalk.white(textSamples)}${chalk.gray(moreText)}`;
+          }
+          
+          // Show custom components vs HTML elements
+          if (s.customComponents && s.customComponents.length > 0) {
+            const customComps = s.customComponents.slice(0, 3).join(', ');
+            const moreComps = s.customComponents.length > 3 ? ` (+${s.customComponents.length - 3})` : '';
+            line += `\n     ${chalk.gray('Custom components: ')}${chalk.yellow(customComps)}${chalk.gray(moreComps)}`;
+          }
+          
+          // Show complexity
+          if (s.complexity) {
+            const complexityColor = s.complexity === 'complex' ? chalk.red : 
+                                   s.complexity === 'moderate' ? chalk.yellow : chalk.green;
+            line += `\n     ${chalk.gray('Complexity: ')}${complexityColor(s.complexity)}`;
+          }
+          
+          // Show hooks/features
+          const features = [];
+          if (s.hasState) features.push('useState');
+          if (s.hasEffects) features.push('useEffect');
+          if (s.hooks && s.hooks.length > 0) {
+            const otherHooks = s.hooks.filter(h => h !== 'useState' && h !== 'useEffect').slice(0, 2);
+            if (otherHooks.length > 0) {
+              features.push(...otherHooks);
+            }
+          }
+          if (s.eventHandlers.length > 0) features.push(`${s.eventHandlers.length} event handlers`);
+          if (features.length > 0) {
+            line += `\n     ${chalk.gray('Has: ' + features.join(', '))}`;
+          }
+        }
+        
+        console.log(line);
+      });
+      if (analysis.structure.pages.length > 10) {
+        console.log(chalk.gray(`   ... and ${analysis.structure.pages.length - 10} more`));
+      }
+      console.log('');
     } else {
-      console.log(chalk.yellow('Provider switch cancelled.'));
+      console.log(chalk.gray(`📄 Pages: 0 (none found)`));
     }
+
+    // Display Components
+    if (analysis.structure.components.length > 0) {
+      console.log(chalk.cyan(`🧩 Components (${analysis.stats.totalComponents} found):`));
+      analysis.structure.components.slice(0, 10).forEach(file => {
+        const sizeKB = (file.size / 1024).toFixed(1);
+        let line = chalk.white(`   - ${file.relativePath} ${chalk.gray(`(${sizeKB} KB)`)}`);
+        
+        if (file.structure) {
+          const s = file.structure;
+          if (s.componentName) {
+            line += `\n     ${chalk.gray('Component: ' + s.componentName + (s.componentType ? ` (${s.componentType})` : ''))}`;
+          }
+          
+          // Show elements (top 3)
+          const elementCounts = Object.entries(s.jsxElements || {})
+            .slice(0, 3)
+            .map(([name, count]) => `${name}(${count})`)
+            .join(', ');
+          if (elementCounts) {
+            line += `\n     ${chalk.gray('Elements: ' + elementCounts)}`;
+          }
+          
+          // Show className values if available
+          if (s.classNameValues && s.classNameValues.length > 0) {
+            const classSamples = s.classNameValues.slice(0, 5).join(', ');
+            const moreClasses = s.classNameValues.length > 5 ? ` (+${s.classNameValues.length - 5})` : '';
+            line += `\n     ${chalk.gray('Classes: ')}${chalk.cyan(classSamples)}${chalk.gray(moreClasses)}`;
+          }
+          
+          // Show imports if available
+          if (s.importDetails && s.importDetails.length > 0) {
+            const importSources = [...new Set(s.importDetails.map(imp => imp.source))].slice(0, 3);
+            if (importSources.length > 0) {
+              line += `\n     ${chalk.gray('Imports: ' + importSources.join(', '))}`;
+            }
+          }
+        }
+        
+        console.log(line);
+      });
+      if (analysis.structure.components.length > 10) {
+        console.log(chalk.gray(`   ... and ${analysis.structure.components.length - 10} more`));
+      }
+      console.log('');
+    } else {
+      console.log(chalk.gray(`🧩 Components: 0 (none found)`));
+    }
+
+    // Display Utils/Lib
+    const totalUtils = analysis.stats.totalUtils + analysis.stats.totalLib;
+    const allUtils = [...analysis.structure.utils, ...analysis.structure.lib];
+    if (allUtils.length > 0) {
+      console.log(chalk.cyan(`🛠️  Utils/Lib (${totalUtils} found):`));
+      allUtils.slice(0, 10).forEach(file => {
+        const sizeKB = (file.size / 1024).toFixed(1);
+        console.log(chalk.white(`   - ${file.relativePath} ${chalk.gray(`(${sizeKB} KB)`)}`));
+      });
+      if (allUtils.length > 10) {
+        console.log(chalk.gray(`   ... and ${allUtils.length - 10} more`));
+      }
+      console.log('');
+    } else {
+      console.log(chalk.gray(`🛠️  Utils/Lib: 0 (none found)`));
+    }
+
+    // Display Libraries
+    if (analysis.libraries && analysis.libraries.length > 0) {
+      console.log(chalk.cyan(`📦 External Libraries (${analysis.libraries.length} found):`));
+      
+      // Group libraries by category
+      const librariesByCategory = new Map();
+      const unmappedLibraries = [];
+      
+      analysis.libraries.forEach(lib => {
+        if (lib.mapping) {
+          const category = lib.category || 'other';
+          if (!librariesByCategory.has(category)) {
+            librariesByCategory.set(category, []);
+          }
+          librariesByCategory.get(category).push(lib);
+        } else {
+          unmappedLibraries.push(lib);
+        }
+      });
+
+      // Display mapped libraries by category
+      const categoryOrder = ['animation', 'icons', 'routing', 'media', 'state', 'forms', 'http', 'ui', 'styling', 'utils', 'other'];
+      categoryOrder.forEach(category => {
+        const libs = librariesByCategory.get(category);
+        if (libs && libs.length > 0) {
+          const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+          console.log(chalk.yellow(`   ${categoryName}:`));
+          
+          libs.forEach(lib => {
+            const mapping = lib.mapping;
+            const statusIcon = mapping.conversion === 'automatic' ? chalk.green('✅') : chalk.yellow('⚠️ ');
+            const complexityColor = mapping.complexity === 'high' ? chalk.red : 
+                                   mapping.complexity === 'medium' ? chalk.yellow : chalk.green;
+            
+            let line = `     ${statusIcon} ${chalk.white(lib.name)}`;
+            
+            if (mapping.flutter) {
+              line += ` ${chalk.gray('→')} ${chalk.cyan(mapping.flutter)}`;
+            }
+            
+            line += ` ${chalk.gray(`(${mapping.conversion}, ${complexityColor(mapping.complexity)})`)}`;
+            console.log(line);
+            
+            // Show files using this library
+            if (lib.files.length > 0) {
+              const fileList = lib.files.slice(0, 3).map(f => f.relativePath).join(', ');
+              const moreFiles = lib.files.length > 3 ? ` (+${lib.files.length - 3} more)` : '';
+              console.log(chalk.gray(`        Used in: ${fileList}${moreFiles}`));
+            }
+            
+            // Show conversion notes if available
+            if (mapping.notes) {
+              console.log(chalk.gray(`        Note: ${mapping.notes}`));
+            }
+          });
+          console.log('');
+        }
+      });
+
+      // Display unmapped libraries
+      if (unmappedLibraries.length > 0) {
+        console.log(chalk.yellow(`   Unmapped:`));
+        unmappedLibraries.forEach(lib => {
+          console.log(`     ${chalk.red('⚠️')}  ${chalk.white(lib.name)}`);
+          if (lib.files.length > 0) {
+            const fileList = lib.files.slice(0, 3).map(f => f.relativePath).join(', ');
+            const moreFiles = lib.files.length > 3 ? ` (+${lib.files.length - 3} more)` : '';
+            console.log(chalk.gray(`        Used in: ${fileList}${moreFiles}`));
+          }
+        });
+        console.log('');
+      }
+    } else {
+      console.log(chalk.gray(`📦 External Libraries: 0 (none found)`));
+      console.log('');
+    }
+
+    // Summary
+    console.log(chalk.cyan(`📊 Summary:`));
+    console.log(chalk.white(`   Total files: ${analysis.stats.totalFiles}\n`));
+
+    if (analysis.stats.totalFiles === 0) {
+      console.log(chalk.yellow('⚠️  No files found to convert.'));
+      console.log(chalk.gray('   This might mean:'));
+      console.log(chalk.gray('   - Files are in a different location than expected'));
+      console.log(chalk.gray('   - Project uses a non-standard structure'));
+      console.log(chalk.gray('   - Project is empty or just initialized'));
+      console.log(chalk.gray('   Creating basic Flutter project structure anyway.\n'));
+    }
+
+    // Step 3: Map to Flutter structure
+    const mapping = analyzer.mapToFlutterStructure(analysis);
+    if (!mapping) {
+      console.error(chalk.red('❌ Failed to map project structure'));
+      process.exit(1);
+    }
+
+    // Step 4: Get Flutter project name
+    const { flutterProjectName } = await prompts({
+      type: 'text',
+      name: 'flutterProjectName',
+      message: 'Enter name for your Flutter project:',
+      initial: path.basename(resolvedNextjsPath) + '-flutter',
+      validate: (name) => {
+        if (!name) return 'Project name is required';
+        if (!/^[a-z][a-z0-9_]*$/.test(name.toLowerCase())) {
+          return 'Project name must be lowercase, start with a letter, and contain only letters, numbers, and underscores';
+        }
+        return true;
+      }
+    });
+
+    if (!flutterProjectName) {
+      console.log(chalk.yellow('❌ Conversion cancelled.'));
+      process.exit(0);
+    }
+
+    // Step 5: Get output path
+    const { outputPath } = await prompts({
+      type: 'text',
+      name: 'outputPath',
+      message: 'Enter output directory path:',
+      initial: path.join(process.cwd(), flutterProjectName),
+      validate: (input) => {
+        if (!input) return 'Output path is required';
+        return true;
+      }
+    });
+
+    if (!outputPath) {
+      console.log(chalk.yellow('❌ Conversion cancelled.'));
+      process.exit(0);
+    }
+
+    // Check if directory exists and prompt for overwrite
+    const resolvedOutputPath = path.resolve(outputPath);
+    if (await fs.exists(resolvedOutputPath)) {
+      const { overwrite } = await prompts({
+        type: 'confirm',
+        name: 'overwrite',
+        message: `Directory "${outputPath}" already exists. Overwrite?`,
+        initial: false
+      });
+      
+      if (!overwrite) {
+        console.log(chalk.yellow('❌ Conversion cancelled.'));
+        process.exit(0);
+      }
+      
+      await fs.remove(resolvedOutputPath);
+    }
+
+    console.log(chalk.blue(`\n📱 Creating Flutter project: ${resolvedOutputPath}\n`));
+
+    // Step 6: Generate Flutter project
+    const generator = new FlutterGenerator(resolvedOutputPath, flutterProjectName);
+    const result = await generator.generate(analysis, mapping);
+
+    if (!result.success) {
+      console.error(chalk.red(`❌ Generation failed: ${result.error}`));
+      process.exit(1);
+    }
+
+    // Step 7: Show summary
+    console.log(chalk.green('\n✅ Flutter project created successfully!\n'));
+    console.log(chalk.cyan('📊 Conversion Summary:'));
+    console.log(chalk.white(`   Screens created: ${mapping.screens.length}`));
+    console.log(chalk.white(`   Widgets created: ${mapping.widgets.length}`));
+    console.log(chalk.white(`   Utils created: ${mapping.utils.length}`));
+    console.log(chalk.white(`   Total files: ${mapping.screens.length + mapping.widgets.length + mapping.utils.length}`));
     
+    console.log(chalk.cyan('\n📋 Next Steps:'));
+    console.log(chalk.white(`   1. cd ${path.relative(process.cwd(), resolvedOutputPath)}`));
+    console.log(chalk.white('   2. flutter pub get'));
+    console.log(chalk.white('   3. flutter run'));
+    
+    console.log(chalk.yellow('\n⚠️  Note: This is v0.1 - structure only. Code conversion coming in future versions.'));
+
   } catch (error) {
-    console.error(chalk.red(`❌ Error switching provider: ${error.message}`));
+    console.error(chalk.red(`\n❌ Error: ${error.message}`));
+    if (error.stack) {
+      console.error(chalk.gray(error.stack));
+    }
     process.exit(1);
-  }
-}
-
-async function verifyNextjsProject(projectPath) {
-  try {
-    const packageJsonPath = path.join(projectPath, 'package.json');
-    
-    if (!await fs.exists(packageJsonPath)) {
-      return false;
-    }
-
-    const packageJson = await fs.readJson(packageJsonPath);
-    const allDeps = { 
-      ...packageJson.dependencies, 
-      ...packageJson.devDependencies 
-    };
-
-    // Check for Next.js indicators
-    return !!(
-      allDeps.next || 
-      allDeps['@next/bundle-analyzer'] ||
-      await fs.exists(path.join(projectPath, 'next.config.js')) ||
-      await fs.exists(path.join(projectPath, 'next.config.mjs'))
-    );
-  } catch (error) {
-    return false;
   }
 }
 
@@ -340,168 +476,18 @@ async function verifyNextjsProject(projectPath) {
 program.on('--help', () => {
   console.log('');
   console.log(chalk.cyan('Examples:'));
-  console.log('  $ ntrn                    # Professional AI conversion (default)');
-  console.log('  $ ntrn --professional     # Professional AI conversion');
-  console.log('  $ ntrn --legacy           # Legacy conversion approach');
-  console.log('  $ ntrn --prompt           # Interactive AI assistant');
+  console.log('  $ ntrn                    # Convert Next.js/React project to Flutter');
+  console.log('  $ ntrn convert             # Same as above');
+  console.log('  $ ntrn --help              # Show this help');
+  console.log('  $ ntrn --version           # Show version');
   console.log('');
   console.log(chalk.cyan('Features:'));
-  console.log('  🧠 Professional AI conversion with Mistral AI & Gemini 2.0 Flash');
-  console.log('  🔍 Intelligent project analysis and planning');
-  console.log('  🔧 Auto-fixing of common React Native issues');
-  console.log('  📱 Mobile-first design patterns');
-  console.log('  🏗️ Production-ready project structure');
-  console.log('  🤖 Interactive AI assistant for ongoing development');
+  console.log('  ✨ Analyzes Next.js/React project structure');
+  console.log('  📱 Creates Flutter project with mapped structure');
+  console.log('  🗂️  Maps pages → screens, components → widgets');
+  console.log('  📝 Generates placeholder Dart files');
   console.log('');
 });
 
 // Parse command line arguments
 program.parse();
-
-export async function main() {
-  try {
-    // Parse command line arguments
-    const args = process.argv.slice(2);
-    const isLegacyMode = args.includes('--legacy') || args.includes('-l');
-    const showHelp = args.includes('--help') || args.includes('-h');
-    const showVersion = args.includes('--version') || args.includes('-v');
-    const switchProvider = args.includes('--switch-provider');
-
-    // Show version
-    if (showVersion) {
-      const packageJson = await fs.readJson(path.resolve(process.cwd(), 'package.json'));
-      console.log(chalk.cyan(`NTRN v${packageJson.version}`));
-      return;
-    }
-
-    // Show help
-    if (showHelp) {
-      showHelpText();
-      return;
-    }
-
-    // Initialize AI Manager
-    await aiManager.initialize();
-
-    // Handle provider switching
-    if (switchProvider) {
-      const switched = await aiManager.switchProvider();
-      if (switched) {
-        console.log(chalk.green('🚀 Provider switched successfully! You can now run ntrn again.'));
-      }
-      return;
-    }
-
-    // Ensure API keys are configured
-    const keysConfigured = await aiManager.ensureApiKeys();
-    if (!keysConfigured) {
-      console.log(chalk.red('❌ AI provider setup is required. Please configure your API keys.'));
-      return;
-    }
-
-    // Professional conversion (default)
-    if (!isLegacyMode) {
-      console.log(chalk.cyan('\n🚀 NTRN v4.0 - Professional AI Conversion'));
-      console.log(chalk.gray('Using advanced AI analysis and professional code generation\n'));
-      
-      const converter = new ProfessionalConverter();
-      await converter.start();
-    } else {
-      // Legacy mode
-      console.log(chalk.yellow('\n⚙️ NTRN Legacy Mode'));
-      console.log(chalk.gray('Using traditional file-by-file conversion\n'));
-      
-      const converter = new SmartConverter();
-      await converter.start();
-    }
-
-  } catch (error) {
-    console.error(chalk.red('\n❌ Error:'), error.message);
-    
-    if (error.message.includes('API') || error.message.includes('provider')) {
-      console.log(chalk.yellow('\n💡 AI Provider Issues:'));
-      console.log(chalk.gray('   • Check your API keys are correctly configured'));
-      console.log(chalk.gray('   • Try switching providers: ntrn --switch-provider'));
-      console.log(chalk.gray('   • Verify your internet connection'));
-    }
-    
-    if (error.message.includes('429') || error.message.includes('rate limit')) {
-      console.log(chalk.yellow('\n⏳ Rate Limit Solutions:'));
-      console.log(chalk.gray('   • Mistral AI free tier: 1 request/second'));
-      console.log(chalk.gray('   • Wait a moment and try again'));
-      console.log(chalk.cyan('   • Switch to Gemini: ntrn --switch-provider'));
-      console.log(chalk.gray('   • Or use legacy mode: ntrn --legacy'));
-    }
-    
-    process.exit(1);
-  }
-}
-
-function showHelpText() {
-  console.log(chalk.cyan('\n🚀 NTRN v4.0 - Next.js to React Native Converter\n'));
-  
-  console.log(chalk.white('USAGE:'));
-  console.log('  ntrn                    Professional AI conversion (recommended)');
-  console.log('  ntrn --legacy          Traditional file-by-file conversion');
-  console.log('  ntrn --switch-provider # Change AI provider');
-  console.log('  ntrn --help            Show this help');
-  console.log('  ntrn --version         Show version\n');
-
-  console.log(chalk.white('AI PROVIDERS:'));
-  console.log(chalk.green('  🥇 Mistral AI          Professional React Native development (Recommended)'));
-  console.log('     • Superior code quality and architecture');
-  console.log('     • Free tier: 1 request/second, 60/min');
-  console.log('     • Advanced debugging and optimization');
-  console.log('');
-  console.log(chalk.blue('  🔹 Gemini 2.0 Flash    Fast and reliable conversion'));
-  console.log('     • Quick Next.js analysis and conversion');
-  console.log('     • Free tier: 60 requests/min');
-  console.log('     • Good for simple projects\n');
-
-  console.log(chalk.white('API KEYS SETUP:'));
-  console.log('  NTRN will prompt you to choose and configure your preferred AI provider');
-  console.log('  API keys are saved securely in: .env file in your project root');
-  console.log('  You can configure both providers but only use one at a time\n');
-
-  console.log(chalk.white('RATE LIMITS & SOLUTIONS:'));
-  console.log('  If you hit rate limits:');
-  console.log('  • Wait a moment (Mistral: 1 req/sec)');
-  console.log('  • Switch providers: ntrn --switch-provider');
-  console.log('  • Use legacy mode: ntrn --legacy\n');
-
-  console.log(chalk.white('FEATURES:'));
-  console.log('  ✨ Intelligent project analysis');
-  console.log('  🧠 Professional code generation');
-  console.log('  🔧 Auto-fixing and error resolution');
-  console.log('  📱 Mobile-first React Native architecture');
-  console.log('  🎯 Quality validation and optimization\n');
-
-  console.log(chalk.white('EXAMPLES:'));
-  console.log('  cd my-nextjs-app');
-  console.log('  ntrn                    # Professional conversion with AI');
-  console.log('  ntrn --legacy          # Traditional conversion');
-  console.log('  ntrn --switch-provider # Change AI provider\n');
-
-  console.log(chalk.gray('For more information: https://github.com/your-repo/ntrn'));
-}
-
-// Handle uncaught errors
-process.on('uncaughtException', (error) => {
-  console.error(chalk.red('\n💥 Unexpected Error:'), error.message);
-  console.log(chalk.yellow('\n💡 Troubleshooting:'));
-  console.log(chalk.gray('   • Try running: ntrn --switch-provider'));
-  console.log(chalk.gray('   • Check your API keys are valid'));
-  console.log(chalk.gray('   • Ensure stable internet connection'));
-  
-  if (error.message.includes('429')) {
-    console.log(chalk.cyan('   • Rate limit: try ntrn --legacy'));
-  }
-  
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error(chalk.red('\n💥 Unhandled Promise Rejection:'), reason);
-  console.log(chalk.yellow('\n💡 This might be an API issue. Try switching providers.'));
-  process.exit(1);
-});

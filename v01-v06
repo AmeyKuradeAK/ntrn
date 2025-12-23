@@ -1,0 +1,64 @@
+Foundation roadmap: v0.3–v0.6
+--------------------------------
+
+v0.3: Code structure analysis
+Goal: Parse and understand React/JSX code structure
+Features:
+Parse JSX/TSX files (using Babel parser)
+Extract component structure (functional vs class)
+Identify JSX elements used (div, button, input, etc.)
+Extract basic props and attributes
+Detect imports/exports
+Identify text content and nested structures
+Output: Analysis report showing what's in each file (elements, structure, complexity)
+
+v0.4: Dependency & import mapping
+Goal: Understand how files depend on each other
+Features:
+Map all imports/exports
+Build dependency graph (which files import which)
+Identify external libraries (React, Next.js, third-party)
+Track component usage (which components use which)
+Detect circular dependencies
+Map relative vs absolute imports
+Output: Dependency graph and import/export relationships
+
+v0.5: Component & state analysis
+Goal: Understand React patterns and state management
+Features:
+Detect React hooks (useState, useEffect, useContext, etc.)
+Identify component props and their types
+Detect state variables and their usage
+Identify event handlers (onClick, onChange, etc.)
+Detect lifecycle methods (if class components)
+Identify custom hooks
+Map component composition (parent-child relationships)
+Output: Component analysis showing props, state, hooks, and patterns
+
+v0.6: Styling & configuration analysis
+Goal: Understand styling approaches and project configuration
+Features:
+Detect styling methods (CSS modules, Tailwind, styled-components, inline styles)
+Extract CSS classes and their usage
+Analyze Tailwind classes (if used)
+Extract color schemes, fonts, spacing patterns
+Analyze next.config.js / build configuration
+Detect routing patterns (Next.js routing structure)
+Identify API routes and their structure
+Output: Styling analysis and configuration mapping
+
+
+Benefits of this approach
+Better conversion decisions — understand what needs converting
+Fewer errors — catch issues before conversion
+Smarter mapping — know which Flutter widgets to use
+Dependency handling — understand what needs to be converted together
+Incremental progress — each version adds value
+
+
+After v0.6 foundation
+v0.7+: Start actual code conversion with full context
+Better conversion quality
+Fewer edge cases
+More accurate Flutter code generation
+Should I create a detailed plan for v0.3 (Code Structure Analysis) to start?

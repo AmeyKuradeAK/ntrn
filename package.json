@@ -1,7 +1,7 @@
 {
   "name": "ntrn",
-  "version": "4.1.8",
-  "description": "🚀 Professional AI-powered Next.js to React Native converter with intelligent screen creation, never-fail conversion system, comprehensive auto-fix, automatic runtime error fixing, AI assistant, Mistral AI problem-solving, intelligent Shadcn/ui conversion, and guaranteed working Expo SDK 53 apps",
+  "version": "0.3.0",
+  "description": "Next.js/React to Flutter converter",
   "type": "module",
   "main": "bin/ntrn.js",
   "bin": {
@@ -31,42 +31,27 @@
   "homepage": "https://github.com/AmeyKuradeAK/ntrn#readme",
   "keywords": [
     "nextjs",
-    "react-native",
-    "converter", 
-    "expo",
-    "typescript",
-    "ai-powered",
-    "mistral-ai",
-    "gemini",
+    "react",
+    "flutter",
+    "dart",
+    "converter",
     "mobile-development",
-    "react-navigation",
-    "professional-conversion",
-    "intelligent-analysis",
-    "auto-fixing",
     "cross-platform"
   ],
-  "author": "NTRN Team",
-  "license": "MIT",
+  "author": "Ammey Kuraaday",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@babel/generator": "^7.23.6",
     "@babel/parser": "^7.23.9",
     "@babel/traverse": "^7.23.9",
     "@babel/types": "^7.23.9",
-    "@google/genai": "^0.7.0",
-    "axios": "^1.6.2",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
-    "dotenv": "^16.3.1",
-    "figlet": "^1.8.0",
     "fs-extra": "^11.2.0",
     "glob": "^10.3.0",
-    "minimatch": "^9.0.0",
-    "node-fetch": "^3.3.2",
     "prompts": "^2.4.2",
-    "inquirer": "^9.2.12",
-    "ora": "^7.0.1"
+    "figlet": "^1.8.0"
   }
 }

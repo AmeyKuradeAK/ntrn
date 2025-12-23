@@ -1,28 +1,24 @@
-# NTRN — Next.js → React Native Converter (v4.1.2)
+# NTRN — Next.js/React → Flutter Converter (v0.1.0)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v4.1.2-0070f3?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Expo_SDK-53-000?style=for-the-badge&logo=expo" />
-  <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/AI-Mistral%20%2F%20Gemini-8A2BE2?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Version-v0.1.0-0070f3?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
+  <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" />
 </p>
 
-NTRN is a professional, open-source CLI that converts **Next.js components, pages, layouts, and API routes** into **clean, production-ready React Native (Expo SDK 53) code**.
+NTRN is a CLI tool that converts **Next.js and React projects** into **Flutter (Dart) projects**. Build cross-platform mobile apps from your web codebase.
 
-Built for teams that want to stop rewriting UI twice and move fast across platforms.
+**v0.1.0** focuses on project structure conversion - creating Flutter project scaffolding with mapped file structure. Code conversion will be added in future versions.
 
 ---
 
-## ✨ Features
+## ✨ Features (v0.1.0)
 
-* ⚡ **Automatic Next.js → Expo React Native conversion**
-* 🧠 **AI-powered analysis** (Mistral / Gemini)
-* 📱 **Expo SDK 53**, React 19, RN 0.79
-* 🔍 Converts pages → screens, routes → services
-* 🎨 ShadCN/UI → RN component mapping
-* 🌐 API → Native services transformation
-* 🛠 Clean, formatted, TypeScript-first output
-* 🚫 Non-destructive (asks before overwriting)
+* 📊 **Project Analysis** - Analyzes Next.js/React project structure
+* 📱 **Flutter Project Creation** - Generates complete Flutter project scaffold
+* 🗂️ **Structure Mapping** - Maps pages → screens, components → widgets, utils → utils
+* 📝 **Placeholder Files** - Creates empty Dart files ready for future code conversion
+* 🚫 **Non-destructive** - Asks before overwriting existing directories
 
 ---
 
@@ -32,7 +28,7 @@ Built for teams that want to stop rewriting UI twice and move fast across platfo
 npm install -g ntrn@latest
 ```
 
-Or clone:
+Or clone and install locally:
 
 ```bash
 git clone https://github.com/AmeyKuradeAK/ntrn.git
@@ -41,95 +37,135 @@ npm install
 npm link
 ```
 
-Requirements:
-
+**Requirements:**
 * Node.js 18+
-* Mistral/Gemini API key
-* Expo CLI
+* Flutter SDK (for running generated projects)
 
 ---
 
 ## ⚡ Usage
 
-### **Professional Conversion (Recommended)**
+### Basic Conversion
 
 ```bash
-cd my-nextjs-app
 ntrn
 ```
 
-### **Interactive AI Mode**
+The tool will:
+1. Prompt for your Next.js/React project path
+2. Analyze the project structure
+3. Prompt for Flutter project name and output path
+4. Generate Flutter project with mapped structure
+
+### Example Flow
 
 ```bash
-ntrn --prompt
+$ ntrn
+> Enter the path to your Next.js/React project: ./my-nextjs-app
+> Analyzing project...
+> ✅ Project analyzed:
+>    Framework: Next.js
+>    Pages: 5
+>    Components: 12
+>    Utils: 3
+>    Total files: 20
+> 
+> Enter name for your Flutter project: my-flutter-app
+> Enter output directory path: ./my-flutter-app
+> Creating Flutter project...
+> ✅ Flutter project created successfully!
 ```
 
-### **Legacy File-by-File Mode**
+---
 
-```bash
-ntrn --legacy
+## 📦 Generated Structure
+
+The converter maps your Next.js/React structure to Flutter:
+
+```
+Next.js/React          →  Flutter
+─────────────────────────────────
+pages/                →  lib/screens/
+components/           →  lib/widgets/
+lib/ or utils/        →  lib/utils/
+                      →  lib/models/ (for future use)
 ```
 
----
+### Generated Files
 
-## 🧠 AI Capabilities
-
-* Project-aware scanning
-* Missing file detection
-* Code-quality fixes
-* Component mapping
-* ShadCN → Native conversions
-* Token-efficient requests
-
----
-
-## 📦 Output (Expo SDK 53)
-
-* React Navigation v7
-* New Architecture enabled
-* TypeScript configuration
-* Screens, services, contexts, assets
-* NativeWind-ready styling
+* `pubspec.yaml` - Flutter project configuration
+* `lib/main.dart` - Entry point with basic MaterialApp
+* `lib/screens/*.dart` - Screen widgets (from pages)
+* `lib/widgets/*.dart` - Reusable widgets (from components)
+* `lib/utils/*.dart` - Utility functions (from utils/lib)
+* `android/` - Android project structure
+* `ios/` - iOS project structure
+* `README.md` - Project documentation
 
 ---
 
-## 📉 Token Usage (Typical)
+## 🎯 Current Scope (v0.1.0)
 
-* Small: $0.005–$0.009
-* Medium: $0.015–$0.03
-* Large: $0.04–$0.09
-* Enterprise: $0.12–$0.28
+**What v0.1.0 does:**
+* ✅ Analyzes Next.js/React project structure
+* ✅ Creates Flutter project with proper structure
+* ✅ Maps file organization (pages→screens, components→widgets)
+* ✅ Generates placeholder Dart files
+
+**What v0.1.0 does NOT do:**
+* ❌ Code conversion (React/JSX → Dart/Flutter)
+* ❌ Component logic translation
+* ❌ State management conversion
+* ❌ Styling conversion (CSS → Flutter styling)
+
+**Future versions will add:**
+* Code conversion from React/JSX to Dart/Flutter widgets
+* Component logic translation
+* State management mapping
+* Styling system conversion
+
+---
+
+## 📋 Next Steps After Conversion
+
+1. Navigate to generated project:
+   ```bash
+   cd your-flutter-project
+   ```
+
+2. Get Flutter dependencies:
+   ```bash
+   flutter pub get
+   ```
+
+3. Run the app:
+   ```bash
+   flutter run
+   ```
+
+4. Start converting code manually or wait for future versions with automatic code conversion.
 
 ---
 
 ## 🛣 Roadmap
 
-* Auto dependency install
-* Full Tailwind converter
-* Config-driven NTRN workflows
-* Extended ShadCN library coverage
+* **v0.2.0** - Basic React component → Flutter widget conversion
+* **v0.3.0** - State management conversion (useState → setState/Provider)
+* **v0.4.0** - Styling conversion (CSS → Flutter styling)
+* **v0.5.0** - Navigation conversion (Next.js routing → Flutter navigation)
+* **v1.0.0** - Full-featured conversion with comprehensive support
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions!
-
-You can:
-
-* Open issues
-* Suggest features
-* Improve CLI
-* Enhance documentation
-
-Check `CONTRIBUTING.md` before PRs.
+We welcome contributions! Check `CONTRIBUTING.md` before submitting PRs.
 
 ---
 
 ## ⭐ Support
 
 If NTRN helps you:
-
 * ⭐ Star the repo
 * 🧑‍💻 Contribute
 * 🔗 Share with your team
@@ -138,7 +174,7 @@ If NTRN helps you:
 
 ## 📄 License
 
-Apache 2.0 — free for personal & commercial use.
+MIT License — free for personal & commercial use.
 
 ---
 
