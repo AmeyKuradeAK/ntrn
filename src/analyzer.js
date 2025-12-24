@@ -5,6 +5,11 @@ import chalk from 'chalk';
 import { CodeParser } from './codeParser.js';
 import { StructureAnalyzer } from './structureAnalyzer.js';
 import { getLibraryMapping, extractRootPackage, categorizeLibrary } from './libraryMapper.js';
+import { DependencyMapper } from './dependencyMapper.js';
+import { StateAnalyzer } from './stateAnalyzer.js';
+import { ComponentCompositionMapper } from './componentCompositionMapper.js';
+import { StylingAnalyzer } from './stylingAnalyzer.js';
+import { ConfigurationAnalyzer } from './configurationAnalyzer.js';
 
 export class ProjectAnalyzer {
   constructor(projectPath, verbose = false) {
@@ -12,6 +17,8 @@ export class ProjectAnalyzer {
     this.verbose = verbose;
     this.codeParser = new CodeParser();
     this.structureAnalyzer = new StructureAnalyzer(this.projectPath);
+    this.stylingAnalyzer = new StylingAnalyzer(this.projectPath);
+    this.configAnalyzer = new ConfigurationAnalyzer(this.projectPath);
   }
 
   async analyze() {
@@ -88,13 +95,26 @@ export class ProjectAnalyzer {
       // Aggregate libraries from all analyzed files
       const libraries = this.aggregateLibraries(structure);
 
+      // Build dependency graph and analysis
+      const dependencies = await this.buildDependencies(structure);
+
+      // Build state and props analysis
+      const stateAnalysis = await this.analyzeStateAndProps(structure, dependencies);
+
+      // Build styling and configuration analysis
+      const stylingAnalysis = await this.analyzeStylingAndConfig(structure, packageJson);
+
       return {
         success: true,
         framework,
         structure,
         stats,
         packageJson,
-        libraries
+        libraries,
+        dependencies,
+        stateAnalysis,
+        stylingAnalysis: stylingAnalysis.styling,
+        configurationAnalysis: stylingAnalysis.config
       };
 
     } catch (error) {
@@ -436,5 +456,242 @@ export class ProjectAnalyzer {
       .replace(/^_/, '')
       .replace(/[^a-z0-9_]/g, '_')
       .replace(/_+/g, '_');
+  }
+
+  /**
+   * Build dependency graph and analysis
+   * @param {Object} structure - Project structure
+   * @returns {Object} - Dependency analysis
+   */
+  async buildDependencies(structure) {
+    try {
+      const dependencyMapper = new DependencyMapper(this.projectPath, this.verbose);
+      return await dependencyMapper.buildDependencies(structure);
+    } catch (error) {
+      if (this.verbose) {
+        console.log(chalk.yellow(`   Warning: Error building dependencies: ${error.message}`));
+      }
+      // Return empty dependency structure on error
+      return {
+        graph: { nodes: new Map(), edges: [] },
+        circularDependencies: [],
+        componentUsage: new Map(),
+        importStats: {
+          relative: 0,
+          external: 0,
+          nextjs: 0,
+          absolute: 0,
+          unresolved: 0
+        }
+      };
+    }
+  }
+
+  /**
+   * Analyze state and props for all files
+   * @param {Object} structure - Project structure
+   * @param {Object} dependencies - Dependency analysis
+   * @returns {Object} - State analysis results
+   */
+  async analyzeStateAndProps(structure, dependencies) {
+    try {
+      const stateAnalyzer = new StateAnalyzer(this.projectPath);
+      const compositionMapper = new ComponentCompositionMapper();
+      const filesAnalysis = new Map();
+      
+      const allFiles = [
+        ...structure.pages,
+        ...structure.components,
+        ...structure.utils,
+        ...structure.lib
+      ];
+
+      // Analyze each file
+      for (const file of allFiles) {
+        if (!file.structure || !this.codeParser.canParse(file.fullPath)) {
+          continue;
+        }
+
+        try {
+          // Re-parse file to get AST for state analysis
+          const parseResult = await this.codeParser.parseFile(file.fullPath);
+          if (!parseResult.success || !parseResult.ast) {
+            continue;
+          }
+
+          const ast = parseResult.ast;
+          const hooks = stateAnalyzer.analyzeHooks(ast, file.fullPath);
+          const props = stateAnalyzer.analyzeProps(ast, file.fullPath);
+          const stateVars = stateAnalyzer.analyzeStateVariables(ast, file.fullPath, hooks);
+          const eventHandlers = stateAnalyzer.analyzeEventHandlers(ast, file.fullPath, stateVars);
+          const composition = stateAnalyzer.analyzeComponentComposition(ast, file.fullPath, dependencies.graph);
+          const lifecycle = stateAnalyzer.analyzeLifecycleMethods(ast, file.fullPath);
+
+          filesAnalysis.set(file.fullPath, {
+            filePath: file.fullPath,
+            relativePath: file.relativePath,
+            hooks: hooks,
+            props: props,
+            stateVars: stateVars,
+            eventHandlers: eventHandlers,
+            composition: composition,
+            lifecycle: lifecycle
+          });
+        } catch (error) {
+          if (this.verbose) {
+            console.log(chalk.yellow(`   Warning: Error analyzing state for ${file.relativePath}: ${error.message}`));
+          }
+        }
+      }
+
+      // Build composition graph
+      const compositionGraph = compositionMapper.buildCompositionGraph(structure, { files: filesAnalysis });
+      const entryPointsArray = dependencies.entryPoints ? Array.from(dependencies.entryPoints) : [];
+      const compositionTree = compositionMapper.visualizeComposition(compositionGraph, entryPointsArray);
+
+      // Calculate summary statistics
+      let totalStateVars = 0;
+      let totalHooks = 0;
+      let totalEventHandlers = 0;
+      let componentsWithState = 0;
+      let customHooks = 0;
+
+      filesAnalysis.forEach(fileAnalysis => {
+        totalStateVars += fileAnalysis.stateVars.stateVars.length;
+        totalHooks += fileAnalysis.hooks.useState.length + 
+                     fileAnalysis.hooks.useEffect.length +
+                     fileAnalysis.hooks.useContext.length +
+                     fileAnalysis.hooks.useRef.length +
+                     fileAnalysis.hooks.useMemo.length +
+                     fileAnalysis.hooks.useCallback.length +
+                     fileAnalysis.hooks.useReducer.length;
+        totalEventHandlers += fileAnalysis.eventHandlers.handlers.length;
+        if (fileAnalysis.stateVars.stateVars.length > 0) {
+          componentsWithState++;
+        }
+        customHooks += fileAnalysis.hooks.customHooks.length;
+      });
+
+      return {
+        files: filesAnalysis,
+        compositionGraph: compositionGraph,
+        compositionTree: compositionTree,
+        summary: {
+          totalStateVars: totalStateVars,
+          totalHooks: totalHooks,
+          totalEventHandlers: totalEventHandlers,
+          componentsWithState: componentsWithState,
+          customHooks: customHooks
+        }
+      };
+    } catch (error) {
+      if (this.verbose) {
+        console.log(chalk.yellow(`   Warning: Error building state analysis: ${error.message}`));
+      }
+      return {
+        files: new Map(),
+        compositionGraph: { nodes: new Map(), edges: [] },
+        compositionTree: [],
+        summary: {
+          totalStateVars: 0,
+          totalHooks: 0,
+          totalEventHandlers: 0,
+          componentsWithState: 0,
+          customHooks: 0
+        }
+      };
+    }
+  }
+
+  /**
+   * Analyze styling and configuration
+   * @param {Object} structure - Project structure
+   * @param {Object} packageJson - Package.json content
+   * @returns {Object} - Styling and configuration analysis
+   */
+  async analyzeStylingAndConfig(structure, packageJson) {
+    try {
+      const stylingAnalysis = await this.stylingAnalyzer.analyze(structure, packageJson);
+      const configurationAnalysis = await this.configAnalyzer.analyze(structure, this.projectPath, packageJson);
+
+      return {
+        styling: stylingAnalysis,
+        config: configurationAnalysis
+      };
+    } catch (error) {
+      if (this.verbose) {
+        console.log(chalk.yellow(`   Warning: Error analyzing styling/config: ${error.message}`));
+      }
+      return {
+        styling: {
+          stylingMethods: {
+            tailwind: false,
+            cssModules: false,
+            styledComponents: false,
+            emotion: false,
+            inlineStyles: false,
+            globalCSS: false
+          },
+          tailwindAnalysis: {
+            totalClasses: 0,
+            colorClasses: {},
+            spacingClasses: {},
+            typographyClasses: {},
+            layoutClasses: {},
+            responsiveBreakpoints: [],
+            mostUsedClasses: []
+          },
+          designTokens: {
+            colors: [],
+            fonts: [],
+            spacing: [],
+            breakpoints: {}
+          },
+          cssFiles: [],
+          inlineStyles: {
+            usageCount: 0,
+            files: []
+          }
+        },
+        config: {
+          nextConfig: {
+            exists: false,
+            config: null,
+            imageOptimization: true,
+            redirects: 0,
+            rewrites: 0,
+            headers: 0
+          },
+          typescriptConfig: {
+            exists: false,
+            pathAliases: {},
+            compilerOptions: {}
+          },
+          tailwindConfig: {
+            exists: false,
+            theme: null
+          },
+          routing: {
+            type: 'none',
+            pagesRouter: {
+              totalRoutes: 0,
+              dynamicRoutes: 0,
+              catchAllRoutes: 0,
+              routes: []
+            },
+            appRouter: {
+              totalRoutes: 0,
+              routeGroups: [],
+              layouts: 0,
+              loadingFiles: 0,
+              errorFiles: 0,
+              routes: []
+            }
+          },
+          apiRoutes: [],
+          environmentFiles: []
+        }
+      };
+    }
   }
 }

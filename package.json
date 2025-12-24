@@ -1,6 +1,6 @@
 {
   "name": "ntrn",
-  "version": "0.3.0",
+  "version": "0.7.0",
   "description": "Next.js/React to Flutter converter",
   "type": "module",
   "main": "bin/ntrn.js",

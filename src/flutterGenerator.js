@@ -1,11 +1,15 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
+import { JSXToFlutterConverter } from './jsxToFlutterConverter.js';
+import { CodeParser } from './codeParser.js';
 
 export class FlutterGenerator {
   constructor(outputPath, projectName) {
     this.outputPath = path.resolve(outputPath);
     this.projectName = projectName;
+    this.codeParser = new CodeParser();
+    this.jsxConverter = new JSXToFlutterConverter();
   }
 
   async generate(analysis, mapping) {
@@ -28,8 +32,8 @@ export class FlutterGenerator {
       // Generate main.dart (after lib directory is created)
       await this.generateMainDart(mapping);
 
-      // Generate placeholder Dart files
-      await this.generatePlaceholderFiles(mapping);
+      // Convert files to Flutter widgets (v0.7)
+      const conversionStats = await this.convertFiles(analysis, mapping);
 
       // Generate Android structure
       await this.generateAndroidStructure();
@@ -42,7 +46,8 @@ export class FlutterGenerator {
 
       return {
         success: true,
-        path: this.outputPath
+        path: this.outputPath,
+        conversionStats: conversionStats
       };
 
     } catch (error) {
@@ -125,26 +130,99 @@ class MyApp extends StatelessWidget {
     await fs.writeFile(mainDartPath, mainDartContent);
   }
 
-  async generatePlaceholderFiles(mapping) {
-    // Generate screen placeholders
+  /**
+   * Convert React/JSX files to Flutter widgets (v0.7)
+   */
+  async convertFiles(analysis, mapping) {
+    let screensConverted = 0;
+    let widgetsConverted = 0;
+    let errors = 0;
+    
+    // Convert screens (pages)
     for (const screen of mapping.screens) {
-      const screenContent = this.generateScreenPlaceholder(screen.dartName);
-      await fs.writeFile(
-        path.join(this.outputPath, screen.dartPath),
-        screenContent
-      );
+      try {
+        const sourceFile = screen.source;
+        if (sourceFile && sourceFile.fullPath && this.codeParser.canParse(sourceFile.fullPath)) {
+          const parseResult = await this.codeParser.parseFile(sourceFile.fullPath);
+          if (parseResult.success && parseResult.ast) {
+            const structure = sourceFile.structure;
+            const dartCode = this.jsxConverter.convertComponent(
+              parseResult.ast,
+              sourceFile.fullPath,
+              structure
+            );
+            await this.generateConvertedDartFile(screen, dartCode);
+            screensConverted++;
+          } else {
+            // Fallback to placeholder if parsing fails
+            const screenContent = this.generateScreenPlaceholder(screen.dartName);
+            await fs.writeFile(
+              path.join(this.outputPath, screen.dartPath),
+              screenContent
+            );
+          }
+        } else {
+          // No source file or can't parse, use placeholder
+          const screenContent = this.generateScreenPlaceholder(screen.dartName);
+          await fs.writeFile(
+            path.join(this.outputPath, screen.dartPath),
+            screenContent
+          );
+        }
+      } catch (error) {
+        // On error, fallback to placeholder
+        const screenContent = this.generateScreenPlaceholder(screen.dartName);
+        await fs.writeFile(
+          path.join(this.outputPath, screen.dartPath),
+          screenContent
+        );
+        errors++;
+      }
     }
 
-    // Generate widget placeholders
+    // Convert widgets (components)
     for (const widget of mapping.widgets) {
-      const widgetContent = this.generateWidgetPlaceholder(widget.dartName);
-      await fs.writeFile(
-        path.join(this.outputPath, widget.dartPath),
-        widgetContent
-      );
+      try {
+        const sourceFile = widget.source;
+        if (sourceFile && sourceFile.fullPath && this.codeParser.canParse(sourceFile.fullPath)) {
+          const parseResult = await this.codeParser.parseFile(sourceFile.fullPath);
+          if (parseResult.success && parseResult.ast) {
+            const structure = sourceFile.structure;
+            const dartCode = this.jsxConverter.convertComponent(
+              parseResult.ast,
+              sourceFile.fullPath,
+              structure
+            );
+            await this.generateConvertedDartFile(widget, dartCode);
+            widgetsConverted++;
+          } else {
+            // Fallback to placeholder if parsing fails
+            const widgetContent = this.generateWidgetPlaceholder(widget.dartName);
+            await fs.writeFile(
+              path.join(this.outputPath, widget.dartPath),
+              widgetContent
+            );
+          }
+        } else {
+          // No source file or can't parse, use placeholder
+          const widgetContent = this.generateWidgetPlaceholder(widget.dartName);
+          await fs.writeFile(
+            path.join(this.outputPath, widget.dartPath),
+            widgetContent
+          );
+        }
+      } catch (error) {
+        // On error, fallback to placeholder
+        const widgetContent = this.generateWidgetPlaceholder(widget.dartName);
+        await fs.writeFile(
+          path.join(this.outputPath, widget.dartPath),
+          widgetContent
+        );
+        errors++;
+      }
     }
 
-    // Generate util placeholders
+    // Generate util placeholders (utils don't have JSX, so keep placeholders)
     for (const util of mapping.utils) {
       const utilContent = this.generateUtilPlaceholder(util.dartName);
       await fs.writeFile(
@@ -152,6 +230,22 @@ class MyApp extends StatelessWidget {
         utilContent
       );
     }
+
+    return {
+      screensConverted,
+      widgetsConverted,
+      errors
+    };
+  }
+
+  /**
+   * Generate converted Dart file
+   */
+  async generateConvertedDartFile(fileInfo, dartCode) {
+    await fs.writeFile(
+      path.join(this.outputPath, fileInfo.dartPath),
+      dartCode
+    );
   }
 
   generateScreenPlaceholder(name) {

@@ -1,25 +1,46 @@
-# NTRN — Next.js/React → Flutter Converter (v0.3.0)
+# NTRN — Next.js/React → Flutter Converter (v0.7.0)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v0.3.0-0070f3?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Version-v0.7.0-0070f3?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
   <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" />
 </p>
 
 NTRN is a CLI tool that converts **Next.js and React projects** into **Flutter (Dart) projects**. Build cross-platform mobile apps from your web codebase.
 
-**v0.3.0** provides comprehensive project analysis with detailed code structure parsing, library mapping, and enhanced file detection. Foundation is being built for future code conversion.
+**v0.7.0** provides comprehensive React component and state analysis, styling and configuration analysis, and **basic JSX to Flutter widget conversion**. Convert simple React components to Flutter widgets with HTML element mapping, attribute conversion, and basic nesting support.
 
 ---
 
-## ✨ Features (v0.3.0)
+## ✨ Features (v0.7.0)
 
 * 📊 **Comprehensive Project Analysis** - Deep analysis of Next.js/React project structure
 * 🔍 **Code Structure Parsing** - Uses Babel to parse JSX/TSX and extract detailed component information
+* 🎣 **Deep Hook Analysis** - Analyzes useState, useEffect, useContext, useRef, useMemo, useCallback, useReducer with dependencies and side effects
+* 📦 **Component Props Analysis** - Extracts prop names, types (TypeScript/PropTypes), default values, and required vs optional
+* 🔄 **State Variable Tracking** - Tracks state variables, their initial values, read/update locations, and props flow
+* 🎯 **Event Handler Analysis** - Analyzes event handlers, their state usage, actions, and call chains
+* 🌲 **Component Composition Mapping** - Maps parent-child component relationships and props flow
+* 🔗 **Dependency Mapping** - Builds dependency graphs showing file relationships and imports
+* ⚠️ **Circular Dependency Detection** - Identifies circular dependencies in your codebase
 * 📦 **Library Mapping** - Maps React/Next.js libraries to Flutter equivalents (30+ libraries)
+* 🎯 **Component Usage Tracking** - Tracks which components are used where
+* 🔄 **Lifecycle Method Detection** - Analyzes class component lifecycle methods
+* 🎨 **Styling Analysis** - Detects styling methods (Tailwind, CSS Modules, styled-components, inline styles)
+* 🎯 **Tailwind Class Analysis** - Analyzes Tailwind classes (colors, spacing, typography, layout, breakpoints)
+* 🎨 **Design Token Extraction** - Extracts color schemes, fonts, spacing patterns, and breakpoints
+* 📄 **CSS File Analysis** - Analyzes CSS/CSS module files and extracts class selectors
+* ⚙️ **Configuration Analysis** - Analyzes next.config.js, tsconfig.json, tailwind.config.js
+* 🛣️ **Routing Pattern Detection** - Detects Pages Router vs App Router, dynamic routes, route groups
+* 🔌 **API Route Identification** - Identifies and analyzes API routes with HTTP methods
+* 🌍 **Environment File Analysis** - Analyzes .env files and extracts variables
 * 📱 **Flutter Project Creation** - Generates complete Flutter project scaffold
 * 🗂️ **Structure Mapping** - Maps pages → screens, components → widgets, utils → utils
-* 📝 **Placeholder Files** - Creates empty Dart files ready for future code conversion
+* 🔄 **JSX to Flutter Conversion** - Converts basic JSX elements to Flutter widgets (v0.7)
+* 🎯 **HTML Element Mapping** - Maps div, button, input, img, text elements to Flutter widgets
+* 🔧 **Attribute Conversion** - Converts onClick→onPressed, onChange→onChanged, value, disabled
+* 📦 **Component Structure** - Converts functional components to StatelessWidget classes
+* 🌳 **Nested Structures** - Handles parent-child widget relationships and JSX fragments
 * 🎯 **Enhanced File Detection** - Searches multiple locations for pages, components, and utils
 * 📈 **Detailed Analysis Output** - Shows component types, props, className values, imports, text content
 * 🚫 **Non-destructive** - Asks before overwriting existing directories
@@ -95,6 +116,29 @@ $ ntrn
 >    Icons:
 >      ✅ lucide-react → lucide_icons_flutter (automatic, low)
 >         Used in: app/page.tsx
+> 
+> 🎨 Styling Analysis:
+>    Methods: Tailwind CSS
+>    Tailwind Classes: 109 total
+>      Colors: 15, Spacing: 28, Typography: 12, Layout: 18
+>      Breakpoints: sm, md, lg
+>      Most used: flex, p-4, bg-blue-500, text-white, rounded
+>    Colors: blue, red, green, slate, gray
+>    Fonts: sans, serif
+>    Spacing scale: 0, 1, 2, 4, 8, 12, 16, 24, 32
+>    CSS Files: 0
+>    Inline Styles: 0 usage(s)
+> 
+> ⚙️  Configuration Analysis:
+>    Next.js Config: found
+>      Image Optimization: enabled
+>    Routing: App Router
+>      App Router: 1 route(s)
+>        Layouts: 1
+>    API Routes: (none found)
+>    TypeScript Config: found
+>      Path aliases: @/*
+>    Tailwind Config: found
 > 
 > 📊 Summary:
 >    Total files: 3
@@ -176,9 +220,9 @@ And many more! The library mapper shows conversion complexity (low/medium/high) 
 
 ---
 
-## 🎯 Current Scope (v0.3.0)
+## 🎯 Current Scope (v0.7.0)
 
-**What v0.3.0 does:**
+**What v0.7.0 does:**
 * ✅ Analyzes Next.js/React project structure with enhanced file detection
 * ✅ Parses JSX/TSX code using Babel to extract detailed component information
 * ✅ Detects component types (functional, class, arrow functions)
@@ -187,23 +231,47 @@ And many more! The library mapper shows conversion complexity (low/medium/high) 
 * ✅ Maps external libraries to Flutter equivalents (30+ libraries)
 * ✅ Categorizes libraries by type (animation, icons, routing, state, etc.)
 * ✅ Shows library conversion complexity and notes
+* ✅ Builds dependency graphs showing file relationships
+* ✅ Detects circular dependencies
+* ✅ Tracks component usage across files
+* ✅ Resolves path aliases (@/, ~/) from tsconfig.json/jsconfig.json
+* ✅ Deep React hooks analysis (useState, useEffect, useContext, etc.) with dependencies
+* ✅ Component props analysis with TypeScript types and default values
+* ✅ State variable tracking (names, initial values, read/update locations)
+* ✅ Event handler analysis (what state they use, what actions they perform)
+* ✅ Component composition mapping (parent-child relationships, props flow)
+* ✅ Custom hooks detection and tracking
+* ✅ Lifecycle method detection for class components
+* ✅ Styling method detection (Tailwind, CSS Modules, styled-components, inline styles)
+* ✅ Tailwind CSS class analysis and categorization
+* ✅ Design token extraction (colors, fonts, spacing, breakpoints)
+* ✅ CSS file analysis (modules and global CSS)
+* ✅ Next.js configuration analysis (next.config.js)
+* ✅ TypeScript configuration analysis (tsconfig.json, path aliases)
+* ✅ Tailwind configuration analysis
+* ✅ Routing pattern detection (Pages Router, App Router, dynamic routes)
+* ✅ API route identification and HTTP method extraction
+* ✅ Environment file analysis (.env files)
 * ✅ Creates Flutter project with proper structure
 * ✅ Maps file organization (pages→screens, components→widgets)
-* ✅ Generates placeholder Dart files
+* ✅ Converts basic JSX elements to Flutter widgets (v0.7)
+* ✅ Maps HTML elements (div, button, input, img, etc.) to Flutter widgets
+* ✅ Converts JSX attributes (onClick, onChange, value, disabled)
+* ✅ Handles JSX fragments and nested structures
+* ✅ Generates StatelessWidget classes from functional components
 * ✅ Provides verbose mode for detailed analysis logs
 
-**What v0.3.0 does NOT do:**
-* ❌ Code conversion (React/JSX → Dart/Flutter)
-* ❌ Component logic translation
-* ❌ State management conversion
-* ❌ Styling conversion (CSS → Flutter styling)
-* ❌ Dependency graph building (coming in v0.4)
+**What v0.7.0 does NOT do:**
+* ❌ State management conversion (useState, useEffect → StatefulWidget) - v0.8
+* ❌ Styling conversion (CSS/Tailwind → Flutter styling) - v0.9
+* ❌ Complex expressions (array.map, conditional rendering) - v0.8
+* ❌ Routing and navigation conversion - v0.10
+* ❌ API and authentication conversion - v0.10
 
 **Future versions will add:**
-* v0.4: Dependency & import mapping, dependency graphs
-* v0.5: Component & state analysis, props and hooks mapping
-* v0.6: Styling & configuration analysis
-* v0.7+: Code conversion from React/JSX to Dart/Flutter widgets
+* v0.8: Props, State & Event Handlers conversion (useState, useEffect → StatefulWidget)
+* v0.9: Styling conversion (CSS/Tailwind → Flutter styling)
+* v0.10: SSR→CSR conversion, Auth, Database & API integration
 
 ---
 
@@ -224,7 +292,7 @@ And many more! The library mapper shows conversion complexity (low/medium/high) 
    flutter run
    ```
 
-4. Start converting code manually or wait for future versions with automatic code conversion.
+4. Review converted Flutter widgets and complete TODOs (state, styling, complex expressions)
 
 ---
 
@@ -239,26 +307,42 @@ And many more! The library mapper shows conversion complexity (low/medium/high) 
   * Library mapping database (30+ React/Next.js → Flutter mappings)
   * Enhanced analysis output with className values, text content, imports
   * Custom component vs HTML element detection
-
-### Upcoming Versions
-
-* **v0.4.0** - Dependency & import mapping
+* **v0.4.0** ✅ - Dependency & import mapping
   * Build dependency graphs (which files import which)
   * Track component usage relationships
   * Detect circular dependencies
   * Map relative vs absolute imports
+  * Path alias resolution (@/, ~/)
+  * Import statistics and categorization
+* **v0.5.0** ✅ - Component & state analysis
+  * Deep React hooks analysis (useState, useEffect, useContext, useRef, useMemo, useCallback, useReducer)
+  * Component props and types detection (TypeScript, PropTypes)
+  * State variable usage tracking (read/update locations, props flow)
+  * Event handler analysis (state usage, actions, call chains)
+  * Component composition mapping (parent-child relationships, props flow)
+  * Custom hooks detection and tracking
+  * Lifecycle method detection for class components
+* **v0.6.0** ✅ - Styling & configuration analysis
+  * Styling method detection (Tailwind, CSS Modules, styled-components, Emotion, inline styles)
+  * Tailwind CSS class analysis (colors, spacing, typography, layout, breakpoints)
+  * Design token extraction (colors, fonts, spacing scale, breakpoints)
+  * CSS file analysis (CSS modules and global CSS files)
+  * Next.js configuration analysis (next.config.js with redirects, rewrites, headers)
+  * TypeScript configuration analysis (tsconfig.json, path aliases)
+  * Tailwind configuration detection
+  * Routing pattern detection (Pages Router vs App Router, dynamic routes, route groups)
+  * API route identification (Pages Router and App Router API routes with HTTP methods)
+  * Environment file analysis (.env files and variables)
+* **v0.7.0** ✅ - Basic JSX to Flutter Widget Conversion
+  * HTML element mapping (div→Container, button→ElevatedButton, input→TextField, img→Image, etc.)
+  * JSX attribute conversion (onClick→onPressed, onChange→onChanged, value, disabled)
+  * Component structure conversion (functional components → StatelessWidget)
+  * JSX fragment handling (<>...</> → Column/Row)
+  * Nested structure conversion (parent-child widget relationships)
+  * Custom component references (with placeholder imports)
+  * Basic event handler mapping (function stubs)
 
-* **v0.5.0** - Component & state analysis
-  * Deep React hooks analysis (useState, useEffect, useContext, etc.)
-  * Component props and types detection
-  * State variable usage tracking
-  * Component composition mapping
-
-* **v0.6.0** - Styling & configuration analysis
-  * Detect styling methods (CSS modules, Tailwind, styled-components)
-  * Extract and analyze CSS classes
-  * Analyze Tailwind classes for Flutter conversion
-  * Configuration file analysis (next.config.js, etc.)
+### Upcoming Versions
 
 * **v0.7.0+** - Code conversion
   * React/JSX → Dart/Flutter widget conversion
